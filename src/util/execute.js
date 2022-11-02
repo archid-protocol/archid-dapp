@@ -33,7 +33,7 @@ async function Register(name, years = 1, client = null) {
       REGISTRY_CONTRACT,
       entrypoint,
       'auto',
-      null,
+      "Registering domain",
       funds
     );
     // Tx result
@@ -73,7 +73,7 @@ async function RenewRegistration(name, years = 1, client = null) {
       REGISTRY_CONTRACT,
       entrypoint,
       'auto',
-      null,
+      "Renewing domain registration",
       funds
     );
     // Tx result
