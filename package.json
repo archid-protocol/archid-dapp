@@ -8,6 +8,8 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@cosmjs/cosmwasm-stargate": "^0.29.3",
+    "@cosmjs/stargate": "^0.29.3",
     "core-js": "^3.8.3",
     "vue": "^3.2.13"
   },
