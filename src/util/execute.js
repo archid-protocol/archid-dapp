@@ -23,12 +23,13 @@ async function Client(wallet = 'keplr') {
 /**
  * Register a new domain tx
  * @param {String} name : Domain name to be registered
+ * @param {Number} years : Number of years to be registered; an integer between 1 and 3, impacts cost
  * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
  * @returns {ExecuteResult}
  */
-async function Register(name, client = null) {
-  if (typeof name !== 'string') return;
-  if (!name.length) return;
+async function Register(name, years = 1, client = null) {
+  if (typeof name !== 'string' || typeof years !== 'number') return;
+  if (!name.length || years <= 0) return;
   if (!client) client = await Client();
 
   try {
@@ -41,7 +42,7 @@ async function Register(name, client = null) {
     // Sender
     let accounts = client.offlineSigner.getAccounts();
     // Purchase cost
-    let funds = coin(BASE_DOMAIN_COST, client.chainInfo.currencies[0].coinDenom);
+    let funds = coin((BASE_DOMAIN_COST * years), client.chainInfo.currencies[0].coinDenom);
     // Broadcast tx
     let tx = await client.wasmClient.execute(
       accounts[0],
@@ -62,12 +63,13 @@ async function Register(name, client = null) {
 /**
  * Renew registration of a domain tx
  * @param {String} name : Registered domain name to be renewed
+ * @param {Number} years : Number of years to be renewed for; an integer between 1 and 3, impacts cost
  * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
  * @returns {ExecuteResult}
  */
-async function RenewRegistration(name, client = null) {
-  if (typeof name !== 'string') return;
-  if (!name.length) return;
+async function RenewRegistration(name, years = 1, client = null) {
+  if (typeof name !== 'string' || typeof years !== 'number') return;
+  if (!name.length || years <= 0) return;
   if (!client) client = await Client();
 
   try {
@@ -80,7 +82,7 @@ async function RenewRegistration(name, client = null) {
     // Sender
     let accounts = client.offlineSigner.getAccounts();
     // Purchase cost
-    let funds = coin(BASE_DOMAIN_COST, client.chainInfo.currencies[0].coinDenom);
+    let funds = coin((BASE_DOMAIN_COST * years), client.chainInfo.currencies[0].coinDenom);
     // Broadcast tx
     let tx = await client.wasmClient.execute(
       accounts[0],
