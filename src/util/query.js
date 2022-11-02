@@ -28,7 +28,7 @@ async function ResolveRecord(name, client = null) {
         name: name
       }
     };
-    let query = await client.queryClient.wasm.queryContractSmart.query(
+    let query = await client.wasmClient.queryClient.wasm.queryContractSmart.query(
       REGISTRY_CONTRACT, 
       entrypoint
     );
@@ -49,7 +49,7 @@ async function RecordExpiration(name, client = null) {
         name: name
       }
     };
-    let query = await client.queryClient.wasm.queryContractSmart.query(
+    let query = await client.wasmClient.queryClient.wasm.queryContractSmart.query(
       REGISTRY_CONTRACT, 
       entrypoint
     );
@@ -66,7 +66,7 @@ async function Config(client = null) {
     let entrypoint = {
       config: {}
     };
-    let query = await client.queryClient.wasm.queryContractSmart.query(
+    let query = await client.wasmClient.queryClient.wasm.queryContractSmart.query(
       REGISTRY_CONTRACT, 
       entrypoint
     );
