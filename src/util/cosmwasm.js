@@ -13,7 +13,8 @@ async function keplrClient() {
 
   let client = {
     offlineSigner: null,
-    wasmClient: null
+    wasmClient: null,
+    chainInfo: Blockchain
   };
 
   // User must authorize "experimental" chain
@@ -23,7 +24,6 @@ async function keplrClient() {
   // Bootstrap client
   client.offlineSigner = await window.getOfflineSigner(Blockchain.chainId);
   client.wasmClient = await SigningCosmWasmClient.connectWithSigner(Blockchain.rpc, client.offlineSigner);
-  client.chainInfo = Blockchain;
 
   return client;
 }
