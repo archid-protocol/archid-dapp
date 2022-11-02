@@ -5,22 +5,6 @@ const REGISTRY_CONTRACT = process.env.VUE_APP_REGISTRY_CONTRACT;
 const BASE_DOMAIN_COST = 1;
 
 /**
- * Gets signing client instance
- * @param {String} wallet : Supported wallet values are; 'keplr', 'falcon'
- * @returns {SigningCosmWasmClient}
- */
-async function Client(wallet = 'keplr') {
-  let client;
-  switch (wallet) {
-    case 'falcon': { return; } // TODO: Falcon wallet
-    case 'keplr': {
-      client = await keplrClient();
-      return client;
-    }
-  }
-}
-
-/**
  * Register a new domain tx
  * @param {String} name : Domain name to be registered
  * @param {Number} years : Number of years to be registered; an integer between 1 and 3, impacts cost
@@ -334,7 +318,6 @@ async function RemoveSubDomain(domain, subdomain, client = null) {
 }
 
 export {
-  Client,
   Register,
   RenewRegistration,
   UpdateResolver,

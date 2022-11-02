@@ -62,7 +62,6 @@ async function Config(client = null) {
 }
 
 export {
-  Client, 
   ResolveRecord,
   RecordExpiration,
   Config
