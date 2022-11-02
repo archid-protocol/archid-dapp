@@ -1,22 +1,6 @@
-import { keplrClient } from './cosmwasm';
+import { Client } from './client';
 
 const REGISTRY_CONTRACT = process.env.VUE_APP_REGISTRY_CONTRACT;
-
-/**
- * Gets signing client instance
- * @param {String} wallet : Supported wallet values are; 'keplr', 'falcon'
- * @returns {SigningCosmWasmClient}
- */
-async function Client(wallet = 'keplr') {
-  let client;
-  switch (wallet) {
-    case 'falcon': { return; } // TODO: Falcon wallet
-    case 'keplr': {
-      client = await keplrClient();
-      return client;
-    }
-  }
-}
 
 async function ResolveRecord(name, client = null) {
   if (typeof name !== 'string') return;

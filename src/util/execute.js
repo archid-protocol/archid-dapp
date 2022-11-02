@@ -1,5 +1,5 @@
 import { coin } from "@cosmjs/stargate";
-import { keplrClient } from './cosmwasm';
+import { Client } from './client';
 
 const REGISTRY_CONTRACT = process.env.VUE_APP_REGISTRY_CONTRACT;
 const BASE_DOMAIN_COST = 1;
