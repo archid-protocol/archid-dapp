@@ -3,9 +3,13 @@
 </template>
 
 <script>
+// import { Client, accountBalances } from '../util/client';
+
 export default {
   name: 'Home',
-  components: {}
+  components: {},
+  data: () => ({}),
+  mounted: async function () {},
 }
 </script>
 
