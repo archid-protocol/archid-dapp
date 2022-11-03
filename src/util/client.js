@@ -19,7 +19,16 @@ import { keplrClient } from './cosmwasm';
 async function Accounts(client = null) {
   if (!client) client = await Client();
   // console.log('Accounts?', client);
-  const accounts = await client.offlineSigner.getAccounts();
+  let accounts = await client.offlineSigner.getAccounts();
+  if (!accounts.length) return accounts;
+
+  for (let i = 0; i < accounts.length; i++) {
+    accounts[i].balance = await client.wasmClient.getBalance(
+      accounts[i].address, 
+      client.chainInfo.currencies[0].coinMinimalDenom
+    );
+  }
+
   return accounts;
 }
 
