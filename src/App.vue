@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import { Client, accountBalances } from './util/client';
+import { Client, Accounts } from './util/client';
 
 export default {
   name: 'archid-dapp',
@@ -18,21 +18,16 @@ export default {
     accounts: [],
     connected: false,
   }),
-  mounted: async function () {
+  mounted: function () {
     if (window) {
       let connected = window.sessionStorage.getItem('connected');
-      if (connected) {
-        this.connected = true;
-        setTimeout(async () => { 
-          await this.connectWallet();
-        }, 0) 
-      }
+      if (connected) this.connected = true;
     }
   },
   methods: {
     connectWallet: async function () {
       this.cwClient = await Client();
-      this.accounts = await accountBalances();
+      this.accounts = await Accounts(this.cwClient);
       
       try {
         if (!this.accounts[0].address) return;
@@ -42,7 +37,7 @@ export default {
         console.error(e);
       }
       
-      console.log({cwClient: this.cwClient, accounts: this.accounts});
+      console.log('App', {cwClient: this.cwClient, accounts: this.accounts});
     }
   }
 }

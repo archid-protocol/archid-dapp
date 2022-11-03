@@ -69,6 +69,11 @@ export const ConstantineInfo = {
     // (Optional) Keplr can show the fiat value of the coin if a coingecko id is provided.
     // You can get id from https://api.coingecko.com/api/v3/coins/list if it is listed.
     // coinGeckoId: ""
+    gasPriceStep: {
+      low: 0,
+      average: 0.1,
+      high: 0.2
+    },
   }],
   // (Optional) The number of the coin type.
   // This field is only used to fetch the address from ENS.
@@ -80,10 +85,5 @@ export const ConstantineInfo = {
   // If this field is not provided, Keplr extension will set the default gas price as (low: 0.01, average: 0.025, high: 0.04).
   // Currently, Keplr doesn't support dynamic calculation of the gas prices based on on-chain data.
   // Make sure that the gas prices are higher than the minimum gas prices accepted by chain validators and RPC/REST endpoint.
-  gasPriceStep: {
-    low: 0,
-    average: 0.1,
-    high: 0.2
-  },
   features: ['cosmwasm']
 };
