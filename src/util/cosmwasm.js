@@ -1,3 +1,4 @@
+import { calculateFee, GasPrice } from '@cosmjs/stargate'
 import { SigningCosmWasmClient } from '@cosmjs/cosmwasm-stargate';
 import { ConstantineInfo } from '../chains/testnet.constantine';
 
@@ -11,10 +12,17 @@ async function keplrClient() {
 
   const Blockchain = (IsTestnet) ? Testnet : Mainnet;
 
+  // Gas settings
+  let fees = calculateFee(
+    300000, 
+    GasPrice.fromString('0.002'+Blockchain.currencies[0].coinMinimalDenom)
+  );
+
   let client = {
     offlineSigner: null,
     wasmClient: null,
-    chainInfo: Blockchain
+    chainInfo: Blockchain,
+    fees: fees
   };
 
   // User must authorize "experimental" chain

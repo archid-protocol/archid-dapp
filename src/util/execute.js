@@ -24,15 +24,15 @@ async function Register(name, years = 1, client = null) {
       }
     };
     // Sender
-    let accounts = client.offlineSigner.getAccounts();
+    let accounts = await client.offlineSigner.getAccounts();
     // Purchase cost
-    let funds = coin((BASE_DOMAIN_COST * years), client.chainInfo.currencies[0].coinDenom);
+    let funds = [coin((BASE_DOMAIN_COST * years), client.chainInfo.currencies[0].coinDenom)];
     // Broadcast tx
     let tx = await client.wasmClient.execute(
-      accounts[0],
+      accounts[0].address,
       REGISTRY_CONTRACT,
       entrypoint,
-      'auto',
+      client.fees,
       "Registering domain",
       funds
     );
@@ -64,15 +64,15 @@ async function RenewRegistration(name, years = 1, client = null) {
       }
     };
     // Sender
-    let accounts = client.offlineSigner.getAccounts();
+    let accounts = await client.offlineSigner.getAccounts();
     // Purchase cost
-    let funds = coin((BASE_DOMAIN_COST * years), client.chainInfo.currencies[0].coinDenom);
+    let funds = [coin((BASE_DOMAIN_COST * years), client.chainInfo.currencies[0].coinDenom)];
     // Broadcast tx
     let tx = await client.wasmClient.execute(
-      accounts[0],
+      accounts[0].address,
       REGISTRY_CONTRACT,
       entrypoint,
-      'auto',
+      client.fees,
       "Renewing domain registration",
       funds
     );
@@ -105,13 +105,13 @@ async function UpdateResolver(name, new_resolver, client = null) {
       }
     };
     // Sender
-    let accounts = client.offlineSigner.getAccounts();
+    let accounts = await client.offlineSigner.getAccounts();
     // Broadcast tx
     let tx = await client.wasmClient.execute(
-      accounts[0],
+      accounts[0].address,
       REGISTRY_CONTRACT,
       entrypoint,
-      'auto'
+      client.fees
     );
     // Tx result
     return tx;
@@ -153,13 +153,13 @@ async function RegisterSubDomain(domain, subdomain, new_resolver, mint, expirati
       }
     };
     // Sender
-    let accounts = client.offlineSigner.getAccounts();
+    let accounts = await client.offlineSigner.getAccounts();
     // Broadcast tx
     let tx = await client.wasmClient.execute(
-      accounts[0],
+      accounts[0].address,
       REGISTRY_CONTRACT,
       entrypoint,
-      'auto'
+      client.fees
     );
     // Tx result
     return tx;
@@ -192,13 +192,13 @@ async function UpdataUserDomainData(name, metadata_update, client = null) {
       }
     };
     // Sender
-    let accounts = client.offlineSigner.getAccounts();
+    let accounts = await client.offlineSigner.getAccounts();
     // Broadcast tx
     let tx = await client.wasmClient.execute(
-      accounts[0],
+      accounts[0].address,
       REGISTRY_CONTRACT,
       entrypoint,
-      'auto'
+      client.fees
     );
     // Tx result
     return tx;
@@ -227,13 +227,13 @@ async function UpdateConfig(update_config, client = null) {
       }
     };
     // Sender
-    let accounts = client.offlineSigner.getAccounts();
+    let accounts = await client.offlineSigner.getAccounts();
     // Broadcast tx
     let tx = await client.wasmClient.execute(
-      accounts[0],
+      accounts[0].address,
       REGISTRY_CONTRACT,
       entrypoint,
-      'auto'
+      client.fees
     );
     // Tx result
     return tx;
@@ -263,13 +263,13 @@ async function Withdraw(amount, client = null) {
       }
     };
     // Sender
-    let accounts = client.offlineSigner.getAccounts();
+    let accounts = await client.offlineSigner.getAccounts();
     // Broadcast tx
     let tx = await client.wasmClient.execute(
-      accounts[0],
+      accounts[0].address,
       REGISTRY_CONTRACT,
       entrypoint,
-      'auto'
+      client.fees
     );
     // Tx result
     return tx;
@@ -301,13 +301,13 @@ async function RemoveSubDomain(domain, subdomain, client = null) {
       }
     };
     // Sender
-    let accounts = client.offlineSigner.getAccounts();
+    let accounts = await client.offlineSigner.getAccounts();
     // Broadcast tx
     let tx = await client.wasmClient.execute(
-      accounts[0],
+      accounts[0].address,
       REGISTRY_CONTRACT,
       entrypoint,
-      'auto'
+      client.fees
     );
     // Tx result
     return tx;
