@@ -18,7 +18,7 @@ import { keplrClient } from './cosmwasm';
 
 async function Accounts(client = null) {
   if (!client) client = await Client();
-  console.log('Accounts?', client);
+  // console.log('Accounts?', client);
   const accounts = await client.offlineSigner.getAccounts();
   return accounts;
 }

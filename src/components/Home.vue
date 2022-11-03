@@ -12,8 +12,8 @@ export default {
     cwClient: null,
     accounts: null,
   }),
-  mounted: async function () {
-    if (window) await this.resumeConnectedState();
+  mounted: function () {
+    if (window) this.resumeConnectedState();
   },
   methods: {
     resumeConnectedState: async function (attempts = 0) {
