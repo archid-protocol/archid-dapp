@@ -1,10 +1,10 @@
 <template>
-  <router-view />
+  <h3>archid - home</h3>
 </template>
 
 <script>
 export default {
-  name: 'archid-dapp',
+  name: 'Home',
   components: {}
 }
 </script>
