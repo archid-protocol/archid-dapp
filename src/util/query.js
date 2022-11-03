@@ -16,7 +16,6 @@ async function ResolveRecord(name, client = null) {
       REGISTRY_CONTRACT,
       entrypoint
     );
-    console.log('query?', query);
     return query;
   } catch(e) {
     console.error(e);
@@ -47,7 +46,6 @@ async function RecordExpiration(name, client = null) {
 
 async function Config(client = null) {
   if (!client) client = await Client();
-  console.log('REGISTRY_CONTRACT?', REGISTRY_CONTRACT);
   try {
     let entrypoint = {
       config: {}
