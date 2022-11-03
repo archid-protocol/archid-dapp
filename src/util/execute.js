@@ -284,8 +284,8 @@ async function Withdraw(amount, client = null) {
  * Permanently remove a registered sub-domain tx
  * @param {String} domain : Registered top level domain
  * @param {String} subdomain : Registered sub-domain to be revoked
- * @param {*} client 
- * @returns 
+ * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
+ * @returns {ExecuteResult}
  */
 async function RemoveSubDomain(domain, subdomain, client = null) {
   if (typeof domain !== 'string' || typeof subdomain !== 'string') return;

@@ -2,6 +2,12 @@ import { Client } from './client';
 
 const REGISTRY_CONTRACT = process.env.VUE_APP_REGISTRY_CONTRACT;
 
+/**
+ * Resolve a Domain name record from storage
+ * @param {String} name : Domain name to be resolved
+ * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
+ * @returns {QueryResult}
+ */
 async function ResolveRecord(name, client = null) {
   if (typeof name !== 'string') return;
   if (!name.length) return;
@@ -23,6 +29,12 @@ async function ResolveRecord(name, client = null) {
   }
 }
 
+/**
+ * Resolve the expiration information for a Domain
+ * @param {String} name : Domain name to be resolve the expiration of
+ * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
+ * @returns {QueryResult}
+ */
 async function RecordExpiration(name, client = null) {
   if (typeof name !== 'string') return;
   if (!name.length) return;
@@ -44,6 +56,11 @@ async function RecordExpiration(name, client = null) {
   }
 }
 
+/**
+ * Reads the contract Config
+ * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
+ * @returns {QueryResult}
+ */
 async function Config(client = null) {
   if (!client) client = await Client();
   try {
