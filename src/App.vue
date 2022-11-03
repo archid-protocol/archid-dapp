@@ -21,7 +21,12 @@ export default {
   mounted: async function () {
     if (window) {
       let connected = window.sessionStorage.getItem('connected');
-      if (connected) this.connected = true;
+      if (connected) {
+        this.connected = true;
+        setTimeout(async () => { 
+          await this.connectWallet();
+        }, 0) 
+      }
     }
   },
   methods: {
