@@ -11,8 +11,8 @@ const BASE_DOMAIN_COST = 50;
  * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
  * @returns {ExecuteResult}
  */
-async function Register(name, years = 1, client = null) {
-  if (typeof name !== 'string' || typeof years !== 'number') return;
+async function Register(name, years = 1, base_cost = BASE_DOMAIN_COST, client = null) {
+  if (typeof name !== 'string' || typeof years !== 'number' || typeof base_cost !== 'number') return;
   if (!name.length || years <= 0) return;
   if (!client) client = await Client();
 
@@ -26,7 +26,7 @@ async function Register(name, years = 1, client = null) {
     // Sender
     let accounts = await client.offlineSigner.getAccounts();
     // Purchase cost
-    let funds = [coin((BASE_DOMAIN_COST * years), client.chainInfo.currencies[0].coinMinimalDenom)];
+    let funds = [coin((base_cost * years), client.chainInfo.currencies[0].coinMinimalDenom)];
     // Broadcast tx
     let tx = await client.wasmClient.execute(
       accounts[0].address,
@@ -51,8 +51,8 @@ async function Register(name, years = 1, client = null) {
  * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
  * @returns {ExecuteResult}
  */
-async function RenewRegistration(name, years = 1, client = null) {
-  if (typeof name !== 'string' || typeof years !== 'number') return;
+async function RenewRegistration(name, years = 1, base_cost = BASE_DOMAIN_COST, client = null) {
+  if (typeof name !== 'string' || typeof years !== 'number' || typeof base_cost !== 'number') return;
   if (!name.length || years <= 0) return;
   if (!client) client = await Client();
 
@@ -66,7 +66,7 @@ async function RenewRegistration(name, years = 1, client = null) {
     // Sender
     let accounts = await client.offlineSigner.getAccounts();
     // Purchase cost
-    let funds = [coin((BASE_DOMAIN_COST * years), client.chainInfo.currencies[0].coinMinimalDenom)];
+    let funds = [coin((base_cost * years), client.chainInfo.currencies[0].coinMinimalDenom)];
     // Broadcast tx
     let tx = await client.wasmClient.execute(
       accounts[0].address,
@@ -111,7 +111,8 @@ async function UpdateResolver(name, new_resolver, client = null) {
       accounts[0].address,
       REGISTRY_CONTRACT,
       entrypoint,
-      client.fees
+      client.fees,
+      "Updating resolver"
     );
     // Tx result
     return tx;
@@ -159,7 +160,8 @@ async function RegisterSubDomain(domain, subdomain, new_resolver, mint, expirati
       accounts[0].address,
       REGISTRY_CONTRACT,
       entrypoint,
-      client.fees
+      client.fees,
+      "Registering subdomain"
     );
     // Tx result
     return tx;
@@ -198,7 +200,8 @@ async function UpdataUserDomainData(name, metadata_update, client = null) {
       accounts[0].address,
       REGISTRY_CONTRACT,
       entrypoint,
-      client.fees
+      client.fees,
+      "Updating user domain data"
     );
     // Tx result
     return tx;
@@ -233,7 +236,8 @@ async function UpdateConfig(update_config, client = null) {
       accounts[0].address,
       REGISTRY_CONTRACT,
       entrypoint,
-      client.fees
+      client.fees,
+      "Updating config"
     );
     // Tx result
     return tx;
@@ -269,7 +273,8 @@ async function Withdraw(amount, client = null) {
       accounts[0].address,
       REGISTRY_CONTRACT,
       entrypoint,
-      client.fees
+      client.fees,
+      "Withdrawing from contract"
     );
     // Tx result
     return tx;
@@ -307,7 +312,8 @@ async function RemoveSubDomain(domain, subdomain, client = null) {
       accounts[0].address,
       REGISTRY_CONTRACT,
       entrypoint,
-      client.fees
+      client.fees,
+      "Removing subdomain"
     );
     // Tx result
     return tx;

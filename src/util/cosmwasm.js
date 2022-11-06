@@ -14,7 +14,7 @@ async function keplrClient() {
 
   // Gas settings
   let fees = calculateFee(
-    300000, 
+    800000, 
     GasPrice.fromString('0.002'+Blockchain.currencies[0].coinMinimalDenom)
   );
 

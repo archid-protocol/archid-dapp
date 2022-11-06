@@ -437,6 +437,7 @@ export default {
   data: () => ({
     cwClient: null,
     accounts: null,
+    baseCost: null,
     params: {
       query: {
         ResolveRecord: {
@@ -536,14 +537,19 @@ export default {
     queryConfig: async function () {
       this.result.query = await Config(this.cwClient);
       console.log('Config query', this.result.query);
+
+      if (this.result.query['base_cost']) this.baseCost = Number(this.result.query.base_cost);
     },
 
     // Transactions
     executeRegister: async function () {
       if (!this.params.execute.Register.name) return;
+      if (!this.baseCost)
+        await this.queryConfig();
       this.result.execute = await Register(
         this.params.execute.Register.name,
         this.params.execute.Register.years,
+        this.baseCost,
         this.cwClient
       );
       if (typeof this.result.execute == 'undefined') this.result.query = {error: "Error calling entry point in Registry"};
@@ -551,9 +557,12 @@ export default {
     },
     executeRenewRegistration: async function () {
       if (!this.params.execute.RenewRegistration.name) return;
+      if (!this.baseCost)
+        await this.queryConfig();
       this.result.execute = await RenewRegistration(
         this.params.execute.RenewRegistration.name,
         this.params.execute.RenewRegistration.years,
+        this.baseCost,
         this.cwClient
       );
       if (typeof this.result.execute == 'undefined') this.result.query = {error: "Error calling entry point in Registry"};
