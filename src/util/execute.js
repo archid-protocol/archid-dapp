@@ -2,7 +2,7 @@ import { coin } from "@cosmjs/stargate";
 import { Client } from './client';
 
 const REGISTRY_CONTRACT = process.env.VUE_APP_REGISTRY_CONTRACT;
-const BASE_DOMAIN_COST = 1;
+const BASE_DOMAIN_COST = 50;
 
 /**
  * Register a new domain tx
@@ -26,7 +26,7 @@ async function Register(name, years = 1, client = null) {
     // Sender
     let accounts = await client.offlineSigner.getAccounts();
     // Purchase cost
-    let funds = [coin((BASE_DOMAIN_COST * years), client.chainInfo.currencies[0].coinDenom)];
+    let funds = [coin((BASE_DOMAIN_COST * years), client.chainInfo.currencies[0].coinMinimalDenom)];
     // Broadcast tx
     let tx = await client.wasmClient.execute(
       accounts[0].address,
@@ -66,7 +66,7 @@ async function RenewRegistration(name, years = 1, client = null) {
     // Sender
     let accounts = await client.offlineSigner.getAccounts();
     // Purchase cost
-    let funds = [coin((BASE_DOMAIN_COST * years), client.chainInfo.currencies[0].coinDenom)];
+    let funds = [coin((BASE_DOMAIN_COST * years), client.chainInfo.currencies[0].coinMinimalDenom)];
     // Broadcast tx
     let tx = await client.wasmClient.execute(
       accounts[0].address,
