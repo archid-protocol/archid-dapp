@@ -10,13 +10,13 @@
     </ul>
     <h3>archid - domain: {{ domain }}</h3>
 
-    <div v-if="token.extension">
+    <div class="query-result nft-metadata" v-if="token.extension">
       <p>
         <strong>Token data:</strong>
       </p>
       <pre v-html="metadataQueryResult"></pre>
     </div>
-    <div v-if="domainRecord.address">
+    <div class="query-result domain-record" v-if="domainRecord.address">
       <p>
         <strong>Domain record:</strong>
       </p>
@@ -107,7 +107,7 @@ ul, ul li {
   list-style: none;
   padding: 0;
 }
-li {
+li, .query-result {
   margin-bottom: 1em;
 }
 </style>
