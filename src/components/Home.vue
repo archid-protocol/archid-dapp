@@ -607,6 +607,7 @@ export default {
         metadata_update,
         this.cwClient
       );
+      console.log('UpdataUserDomainData tx', this.result.execute);
     },
     executeUpdateConfig: async function () {
       let update_config = {
