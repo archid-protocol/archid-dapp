@@ -3,6 +3,7 @@ import { createWebHistory, createRouter } from 'vue-router';
 // Components
 import Home from '../components/Home';
 import TestBench from '../components/TestBench';
+import Tokens from '../components/Tokens';
 
 const PageNotFound = Home;
 
@@ -11,6 +12,7 @@ const routes = [
   // General
   { path: '/', name: 'Home', component: Home },
   { path: '/test', name: 'Test Bench', component: TestBench },
+  { path: '/domains', name: 'Domains', component: Tokens },
   { path: '/:pathMatch(.*)*', name: 'not-found', component: PageNotFound }
 ];
 

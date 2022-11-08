@@ -1,12 +1,12 @@
 <template>
   <div class="page">
-    <h3>archid - home</h3>
-    <ul class="navigation">
-      <li>
-        <router-link to="/test">Test Bench</router-link>
-      </li>
-      <li>
-        <router-link to="/domains">Domains</router-link>
+    <p>
+      <router-link to="/">Home</router-link>
+    </p>
+    <h3>archid - domains</h3>
+    <ul v-if="tokens.length">
+      <li v-for="(domain, i) in tokens" :key="i">
+        <a href="#">{{ domain }}</a>
       </li>
     </ul>
   </div>
@@ -14,13 +14,18 @@
 
 <script>
 import { Client, Accounts } from '../util/client';
+import { Config } from '../util/query';
+
+import { Tokens } from '../util/token';
 
 export default {
-  name: 'Home',
+  name: 'Tokens',
   components: {},
   data: () => ({
     cwClient: null,
     accounts: null,
+    cw721: null,
+    tokens: [],
   }),
   mounted: function () {
     if (window) this.resumeConnectedState();
@@ -32,11 +37,27 @@ export default {
         setTimeout(async () => { 
           this.cwClient = await Client();
           this.accounts = await Accounts(this.cwClient);
-          console.log('Home', {cwClient: this.cwClient, accounts: this.accounts});
+          console.log('Tokens', {cwClient: this.cwClient, accounts: this.accounts});
+
+          // Load tokens
+          await this.tokenIds();
         }, 100);
       } catch (e) {
         await this.resumeConnectedState((attempts + 1));
       }
+    },
+
+    // Query
+    setTokenContract: async function () {
+      let cw721Query = await Config(this.cwClient);
+      this.cw721 = cw721Query.cw721;
+      return;
+    },
+    tokenIds: async function () {
+      if (!this.cw721) await this.setTokenContract();
+      let query = await Tokens();
+      this.tokens = (query['tokens']) ? query.tokens : [];
+      console.log('Tokens query', this.tokens);
     },
   },
 }

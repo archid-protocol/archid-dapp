@@ -3,7 +3,7 @@
     <p>
       <router-link to="/">Home</router-link>
     </p>
-    <h3>archid - Test Bench</h3>
+    <h3>archid - test bench</h3>
     <div class="test-bed">
       <div class="query">
         <h4>Queries:</h4>
@@ -511,7 +511,7 @@ export default {
         setTimeout(async () => { 
           this.cwClient = await Client();
           this.accounts = await Accounts(this.cwClient);
-          console.log('Home', {cwClient: this.cwClient, accounts: this.accounts});
+          console.log('Test Bench', {cwClient: this.cwClient, accounts: this.accounts});
         }, 100);
       } catch (e) {
         await this.resumeConnectedState((attempts + 1));
