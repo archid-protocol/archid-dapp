@@ -15,7 +15,6 @@
 <script>
 import { Client, Accounts } from '../util/client';
 import { Config } from '../util/query';
-
 import { Tokens } from '../util/token';
 
 export default {
