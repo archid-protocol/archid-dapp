@@ -11,14 +11,23 @@
     <h3>archid - domain: {{ domain }}</h3>
 
     <div v-if="token.extension">
-      <pre v-html="queryResult"></pre>
+      <p>
+        <strong>Token data:</strong>
+      </p>
+      <pre v-html="metadataQueryResult"></pre>
+    </div>
+    <div v-if="domainRecord.address">
+      <p>
+        <strong>Domain record:</strong>
+      </p>
+      <pre v-html="domainRecordQueryResult"></pre>
     </div>
   </div>
 </template>
 
 <script>
 import { Client, Accounts } from '../util/client';
-import { Config } from '../util/query';
+import { Config, ResolveRecord } from '../util/query';
 import { Token } from '../util/token';
 
 export default {
@@ -30,6 +39,7 @@ export default {
     cw721: null,
     token: {},
     domain: null,
+    domainRecord: {},
   }),
   mounted: function () {
     if (window) this.resumeConnectedState();
@@ -46,6 +56,7 @@ export default {
 
           // Load token data
           this.tokenData();
+          this.resolveDomainRecord();
         }, 100);
       } catch (e) {
         await this.resumeConnectedState((attempts + 1));
@@ -64,11 +75,24 @@ export default {
       this.token = await Token(this.$route.params.id, this.cw721, this.cwClient);
       console.log('Token query', this.token);
     },
+    resolveDomainRecord: async function () {
+      if (!this.$route.params.id || typeof this.$route.params.id !== 'string') return;
+      this.domainRecord = await ResolveRecord(
+        this.$route.params.id, 
+        this.cwClient
+      );
+      if (typeof this.domainRecord == 'undefined') this.domainRecord = {error: "Error reading from Registry"};
+      console.log('ResolveRecord query', this.domainRecord);
+    },
   },
   computed: {
-    queryResult: function () {
+    metadataQueryResult: function () {
       if (!this.token || this.token == {}) return '';
       return JSON.stringify(this.token, null, 2);
+    },
+    domainRecordQueryResult: function () {
+      if (!this.domainRecord || this.domainRecord == {}) return '';
+      return JSON.stringify(this.domainRecord, null, 2);
     },
   }
 }
