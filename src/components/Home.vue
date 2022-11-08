@@ -32,7 +32,7 @@ export default {
         setTimeout(async () => { 
           this.cwClient = await Client();
           this.accounts = await Accounts(this.cwClient);
-          console.log('Home', {cwClient: this.cwClient, accounts: this.accounts});
+          console.log('Home client', {cwClient: this.cwClient, accounts: this.accounts});
         }, 100);
       } catch (e) {
         await this.resumeConnectedState((attempts + 1));

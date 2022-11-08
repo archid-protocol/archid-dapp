@@ -1,21 +1,25 @@
 <template>
   <div class="page">
-    <p>
-      <router-link to="/">Home</router-link>
-    </p>
-    <h3>archid - domains</h3>
-    <ul v-if="tokens.length">
-      <li v-for="(domain, i) in tokens" :key="i">
-        <router-link :to="'/domains/' + domain">{{ domain }}</router-link>
+    <ul>
+      <li>
+        <router-link to="/">Home</router-link>
+      </li>
+      <li>
+        <router-link to="/domains">Domains</router-link>
       </li>
     </ul>
+    <h3>archid - domain: {{ domain }}</h3>
+
+    <div v-if="token.extension">
+      <pre v-html="queryResult"></pre>
+    </div>
   </div>
 </template>
 
 <script>
 import { Client, Accounts } from '../util/client';
 import { Config } from '../util/query';
-import { Tokens } from '../util/token';
+import { Token } from '../util/token';
 
 export default {
   name: 'Tokens',
@@ -24,10 +28,12 @@ export default {
     cwClient: null,
     accounts: null,
     cw721: null,
-    tokens: [],
+    token: {},
+    domain: null,
   }),
   mounted: function () {
     if (window) this.resumeConnectedState();
+    this.domain = this.$route.params.id;
   },
   methods: {
     resumeConnectedState: async function (attempts = 0) {
@@ -36,10 +42,10 @@ export default {
         setTimeout(async () => { 
           this.cwClient = await Client();
           this.accounts = await Accounts(this.cwClient);
-          console.log('Tokens client', {cwClient: this.cwClient, accounts: this.accounts});
+          console.log('Token client', {cwClient: this.cwClient, accounts: this.accounts});
 
-          // Load tokens
-          this.tokenIds();
+          // Load token data
+          this.tokenData();
         }, 100);
       } catch (e) {
         await this.resumeConnectedState((attempts + 1));
@@ -52,13 +58,19 @@ export default {
       this.cw721 = cw721Query.cw721;
       return;
     },
-    tokenIds: async function () {
+    tokenData: async function () {
+      if (!this.$route.params.id || typeof this.$route.params.id !== 'string') return;
       if (!this.cw721) await this.setTokenContract();
-      let query = await Tokens(this.cw721, this.cwClient);
-      this.tokens = (query['tokens']) ? query.tokens : [];
-      console.log('Tokens query', this.tokens);
+      this.token = await Token(this.$route.params.id, this.cw721, this.cwClient);
+      console.log('Token query', this.token);
     },
   },
+  computed: {
+    queryResult: function () {
+      if (!this.token || this.token == {}) return '';
+      return JSON.stringify(this.token, null, 2);
+    },
+  }
 }
 </script>
 
@@ -69,17 +81,9 @@ export default {
 }
 ul, ul li {
   list-style: none;
+  padding: 0;
 }
-ul li {
-  padding: 1em;
-}
-input {
-  width: 500px;
-}
-input, label.withdraw-label {
-  margin-left: 5px;
-}
-input.number {
-  width: 45px;
+li {
+  margin-bottom: 1em;
 }
 </style>
