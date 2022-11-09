@@ -569,7 +569,7 @@ export default {
         this.cwClient
       );
       if (typeof this.result.execute == 'undefined') this.result.query = {error: "Error calling entry point in Registry"};
-      console.log('Register tx', this.result.execute);
+      console.log('RenewRegistration tx', this.result.execute);
     },
     executeUpdateResolver: async function () {
       if (!this.params.execute.UpdateResolver.name || !this.params.execute.UpdateResolver.new_resolver) return;
@@ -579,7 +579,7 @@ export default {
         this.cwClient
       );
       if (typeof this.result.execute == 'undefined') this.result.query = {error: "Error calling entry point in Registry"};
-      console.log('Register tx', this.result.execute);
+      console.log('UpdateResolver tx', this.result.execute);
     },
     executeRegisterSubDomain: async function () {
       let mint = true;
@@ -593,6 +593,7 @@ export default {
         this.params.execute.RegisterSubDomain.expiration,
         this.cwClient
       );
+      console.log('RegisterSubDomain tx', this.result.execute);
     },
     executeUpdataUserDomainData: async function () {
       if (!this.params.execute.UpdataUserDomainData.name) return;
@@ -625,6 +626,7 @@ export default {
         update_config,
         this.cwClient
       );
+      console.log('UpdateConfig tx', this.result.execute);
     },
     executeWithdraw: async function () {
       if (!this.params.execute.Withdraw.amount) return;
@@ -640,6 +642,7 @@ export default {
         this.params.execute.RemoveSubDomain.subdomain,
         this.cwClient
       );
+      console.log('RemoveSubDomain tx', this.result.execute);
     }
   },
   computed: {
