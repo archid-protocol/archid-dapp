@@ -7,6 +7,9 @@
       <li>
         <router-link to="/domains">Domains</router-link>
       </li>
+      <li>
+        <router-link to="/my-domains">My Domains</router-link>
+      </li>
     </ul>
     <h3>archid - domain: {{ domain }}</h3>
 

@@ -1,4 +1,4 @@
-import { Client } from './client';
+import { Client, Accounts } from './client';
 import { Config } from './query';
 
 /**
@@ -18,6 +18,43 @@ async function Tokens(contract = null, client = null) {
       let cw721Query = await Config(client);
       contract = cw721Query.cw721;
     }
+
+    let tokenQuery = await client.wasmClient.queryClient.wasm.queryContractSmart(
+      contract,
+      entrypoint
+    );
+    
+    return tokenQuery;
+  } catch(e) {
+    console.error(e);
+    return {};
+  }
+}
+
+/**
+ * Loads token ids owned by a specific address
+ * @param {String} contract? : (Optional) contract address string for token contract
+ * @param {String} account? : (Optional) owner account address to be queried
+ * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
+ * @returns {QueryResult}
+ */
+ async function TokensOf(contract = null, account = null, client = null) {
+  if (!client) client = await Client();
+  try {
+    if (!account) {
+      let accounts = await Accounts(client);
+      account = accounts[0].address;
+    }
+    if (!contract || typeof contract !== "string") {
+      let cw721Query = await Config(client);
+      contract = cw721Query.cw721;
+    }
+
+    let entrypoint = {
+      tokens: {
+        owner: account
+      }
+    };
 
     let tokenQuery = await client.wasmClient.queryClient.wasm.queryContractSmart(
       contract,
@@ -71,5 +108,6 @@ async function Token (tokenId = null, contract = null, client = null) {
 
 export {
   Tokens,
+  TokensOf,
   Token
 }

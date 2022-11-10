@@ -8,6 +8,9 @@
       <li>
         <router-link to="/domains">Domains</router-link>
       </li>
+      <li>
+        <router-link to="/my-domains">My Domains</router-link>
+      </li>
     </ul>
   </div>
 </template>

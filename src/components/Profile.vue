@@ -5,31 +5,35 @@
         <router-link to="/">Home</router-link>
       </li>
       <li>
-        <router-link to="/my-domains">My Domains</router-link>
+        <router-link to="/domains">Domains</router-link>
       </li>
     </ul>
-    <h3>archid - domains</h3>
+    <h3>archid - my domains</h3>
     <ul v-if="tokens.length">
       <li v-for="(domain, i) in tokens" :key="i">
         <router-link :to="'/domains/' + domain">{{ domain }}</router-link>
       </li>
     </ul>
+    <div v-else>
+      <p v-if="loaded">No domains found for account {{ accounts[0].address }}</p>
+    </div>
   </div>
 </template>
 
 <script>
 import { Client, Accounts } from '../util/client';
 import { Config } from '../util/query';
-import { Tokens } from '../util/token';
+import { TokensOf } from '../util/token';
 
 export default {
-  name: 'Tokens',
+  name: 'Profile',
   components: {},
   data: () => ({
     cwClient: null,
     accounts: null,
     cw721: null,
     tokens: [],
+    loaded: false,
   }),
   mounted: function () {
     if (window) this.resumeConnectedState();
@@ -41,10 +45,11 @@ export default {
         setTimeout(async () => { 
           this.cwClient = await Client();
           this.accounts = await Accounts(this.cwClient);
-          console.log('Tokens client', {cwClient: this.cwClient, accounts: this.accounts});
+          console.log('Profile client', {cwClient: this.cwClient, accounts: this.accounts});
 
           // Load tokens
-          this.tokenIds();
+          await this.tokenIds();
+          this.loaded = true;
         }, 100);
       } catch (e) {
         await this.resumeConnectedState((attempts + 1));
@@ -59,9 +64,9 @@ export default {
     },
     tokenIds: async function () {
       if (!this.cw721) await this.setTokenContract();
-      let query = await Tokens(this.cw721, this.cwClient);
+      let query = await TokensOf(this.cw721, this.accounts[0].address, this.cwClient);
       this.tokens = (query['tokens']) ? query.tokens : [];
-      console.log('Tokens query', this.tokens);
+      console.log('My tokens query', this.tokens);
     },
   },
 }
