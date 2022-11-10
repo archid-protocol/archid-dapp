@@ -6,6 +6,7 @@ import TestBench from '../components/TestBench';
 import Tokens from '../components/Tokens';
 import Token from '../components/Token';
 import Profile from '../components/Profile';
+import Address from '../components/Address';
 
 const PageNotFound = Home;
 
@@ -16,6 +17,7 @@ const routes = [
   { path: '/test', name: 'Test Bench', component: TestBench },
   { path: '/domains', name: 'Domains', component: Tokens },
   { path: '/domains/:id', name: 'Domain', component: Token },
+  { path: '/address/:id', name: 'Address', component: Address },
   { path: '/my-domains', name: 'Profile', component: Profile },
   { path: '/:pathMatch(.*)*', name: 'not-found', component: PageNotFound }
 ];

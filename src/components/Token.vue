@@ -14,6 +14,10 @@
     <h3>archid - domain: {{ domain }}</h3>
 
     <div class="query-result nft-metadata" v-if="token.extension">
+      <p v-if="domainRecord.address">
+        <strong>Owner: </strong>
+        <router-link :to="'/address/' + domainRecord.address">{{ domainRecord.address }}</router-link>
+      </p>
       <p>
         <strong>Token data:</strong>
       </p>

@@ -78,13 +78,4 @@ ul, ul li {
 ul li {
   padding: 1em;
 }
-input {
-  width: 500px;
-}
-input, label.withdraw-label {
-  margin-left: 5px;
-}
-input.number {
-  width: 45px;
-}
 </style>
