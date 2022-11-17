@@ -8,7 +8,7 @@
         <router-link to="/domains">Domains</router-link>
       </li>
       <li>
-        <router-link to="/my-domains">Domains</router-link>
+        <router-link to="/my-domains">My Domains</router-link>
       </li>
     </ul>
     <h3 v-if="account">archid - domains owned by <span class="account">{{ account }}</span></h3>
