@@ -129,7 +129,7 @@
             <button 
               class="btn-tx btn-register-tx" 
               @click="executeRegisterSubDomain();"
-              :disabled="(!params.execute.RegisterSubDomain.domain || !params.execute.RegisterSubDomain.domain || !params.execute.RegisterSubDomain.new_resolver || !params.execute.RegisterSubDomain.expiration)"
+              :disabled="(!params.execute.RegisterSubDomain.domain || !params.execute.RegisterSubDomain.domain || !params.execute.RegisterSubDomain.new_resolver || !params.execute.RegisterSubDomain.new_owner || !params.execute.RegisterSubDomain.expiration)"
             >ExecuteMsg::RegisterSubDomain</button>
             <ol>
               <li>
@@ -154,7 +154,15 @@
                   class="new-resolver" 
                   v-model="params.execute.RegisterSubDomain.new_resolver"
                   placeholder="Archway address of new_resolver" 
-                /><!-- XXX [drew]: why we need new_resolver here? -->
+                />
+              </li>
+              <li>
+                <input 
+                  type="text" 
+                  class="new-resolver" 
+                  v-model="params.execute.RegisterSubDomain.new_owner"
+                  placeholder="Archway address of new_owner" 
+                />
               </li>
               <li>
                 <select v-model="params.execute.RegisterSubDomain.mint">
@@ -464,10 +472,11 @@ export default {
           new_resolver: null,
         },
         RegisterSubDomain: {
-          domain: null, 
-          subdomain: null, 
-          new_resolver: null, 
-          mint: "true", 
+          domain: null,
+          subdomain: null,
+          new_resolver: null,
+          new_owner: null,
+          mint: "true",
           expiration: null,
         },
         UpdataUserDomainData: {
@@ -511,6 +520,7 @@ export default {
         setTimeout(async () => { 
           this.cwClient = await Client();
           this.accounts = await Accounts(this.cwClient);
+          if (this.accounts.length) this.params.execute.RegisterSubDomain.new_owner = this.accounts[0].address;
           console.log('Test Bench', {cwClient: this.cwClient, accounts: this.accounts});
         }, 100);
       } catch (e) {
@@ -589,6 +599,7 @@ export default {
         this.params.execute.RegisterSubDomain.domain,
         this.params.execute.RegisterSubDomain.subdomain,
         this.params.execute.RegisterSubDomain.new_resolver,
+        this.params.execute.RegisterSubDomain.new_owner,
         mint,
         this.params.execute.RegisterSubDomain.expiration,
         this.cwClient
