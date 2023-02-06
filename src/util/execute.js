@@ -151,6 +151,7 @@ async function RegisterSubDomain(domain, subdomain, new_resolver, new_owner, min
         domain: domain,
         subdomain: subdomain,
         new_resolver: new_resolver,
+        new_owner: new_owner,
         mint: mint,
         expiration: expiration
       }
