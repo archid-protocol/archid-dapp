@@ -14,8 +14,12 @@
     <h3>archid - domain: {{ domain }}</h3>
 
     <div class="query-result nft-metadata" v-if="token.extension">
+      <p v-if="owner">
+        <strong>Owned by: </strong>
+        <router-link :to="'/address/' + owner.owner">{{ owner.owner }}</router-link>
+      </p>
       <p v-if="domainRecord.address">
-        <strong>Owner: </strong>
+        <strong>Resolves to: </strong>
         <router-link :to="'/address/' + domainRecord.address">{{ domainRecord.address }}</router-link>
       </p>
       <p>
@@ -35,7 +39,7 @@
 <script>
 import { Client, Accounts } from '../util/client';
 import { Config, ResolveRecord } from '../util/query';
-import { Token } from '../util/token';
+import { Token, OwnerOf } from '../util/token';
 
 export default {
   name: 'Tokens',
@@ -45,6 +49,7 @@ export default {
     accounts: null,
     cw721: null,
     token: {},
+    owner: null,
     domain: null,
     domainRecord: {},
   }),
@@ -63,6 +68,7 @@ export default {
 
           // Load token data
           this.tokenData();
+          this.ownerData();
           this.resolveDomainRecord();
         }, 100);
       } catch (e) {
@@ -81,6 +87,12 @@ export default {
       if (!this.cw721) await this.setTokenContract();
       this.token = await Token(this.$route.params.id, this.cw721, this.cwClient);
       console.log('Token query', this.token);
+    },
+    ownerData: async function () {
+      if (!this.$route.params.id || typeof this.$route.params.id !== 'string') return;
+      if (!this.cw721) await this.setTokenContract();
+      this.owner = await OwnerOf(this.$route.params.id, this.cw721, this.cwClient);
+      console.log('Token owner query', this.owner);
     },
     resolveDomainRecord: async function () {
       if (!this.$route.params.id || typeof this.$route.params.id !== 'string') return;
