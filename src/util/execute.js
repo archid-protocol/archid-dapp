@@ -266,7 +266,7 @@ async function Withdraw(amount, client = null) {
     // Msg.
     let entrypoint = {
       withdraw: {
-        amount: amount
+        amount: String(amount)
       }
     };
     // Sender
