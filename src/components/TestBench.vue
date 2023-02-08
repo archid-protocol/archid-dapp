@@ -488,13 +488,12 @@ export default {
             websites: [],
           }
         },
-        // Defaulting to current settings (11/3/2022)
         UpdateConfig: {
-          admin: "archway1f395p0gg67mmfd5zcqvpnp9cxnu0hg6r9hfczq",
-          wallet: "archway1f395p0gg67mmfd5zcqvpnp9cxnu0hg6r9hfczq",
-          cw721: "archway16v2d8hp7udzkxruznwvdlzt2pmuqhpatpszgqhhuf9ehlu4wgmaqtwj9fc",
-          base_cost: "1",
-          base_expiration: 10000000
+          admin: null,
+          wallet: null,
+          cw721: null,
+          base_cost: null,
+          base_expiration: null
         },
         Withdraw: {
           amount: null,
@@ -552,6 +551,15 @@ export default {
       console.log('Config query', this.result.query);
 
       if (this.result.query['base_cost']) this.baseCost = Number(this.result.query.base_cost);
+      
+      // First load
+      if (this.result.query['base_cost'] && !this.params.execute.UpdateConfig.base_cost) {
+        this.params.execute.UpdateConfig.admin = this.result.query.admin;
+        this.params.execute.UpdateConfig.wallet = this.result.query.wallet;
+        this.params.execute.UpdateConfig.cw721 = this.result.query.cw721;
+        this.params.execute.UpdateConfig.base_cost = this.result.query.base_cost;
+        this.params.execute.UpdateConfig.base_expiration = this.result.query.base_expiration;
+      }
     },
 
     // Transactions
