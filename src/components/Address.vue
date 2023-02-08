@@ -18,7 +18,7 @@
       </li>
     </ul>
     <div v-else>
-      <p v-if="loaded">No domains found for account {{ accounts[0].address }}</p>
+      <p v-if="loaded">No domains found for account {{ account }}</p>
     </div>
   </div>
 </template>
