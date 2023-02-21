@@ -14,6 +14,9 @@
         <router-link :to="'/domains/' + domain">{{ domain }}</router-link>
       </li>
     </ul>
+    <div v-else>
+      <p v-if="loaded && cw721">No domains found for contract {{ cw721 }}</p>
+    </div>
   </div>
 </template>
 
@@ -30,6 +33,7 @@ export default {
     accounts: null,
     cw721: null,
     tokens: [],
+    loaded: false,
   }),
   mounted: function () {
     if (window) this.resumeConnectedState();
@@ -44,7 +48,8 @@ export default {
           console.log('Tokens client', {cwClient: this.cwClient, accounts: this.accounts});
 
           // Load tokens
-          this.tokenIds();
+          await this.tokenIds();
+          this.loaded = true;
         }, 100);
       } catch (e) {
         await this.resumeConnectedState((attempts + 1));
