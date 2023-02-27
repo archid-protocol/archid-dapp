@@ -47,10 +47,11 @@ export default {
     resumeConnectedState: async function (attempts = 0) {
       if (attempts >= 5) return;
       try {
-        setTimeout(async () => { 
-          this.cwClient = await Client();
+        setTimeout(async () => {
+          let walletType = sessionStorage.getItem("connected");
+          this.cwClient = await Client(walletType);
           this.accounts = await Accounts(this.cwClient);
-          console.log('Profile client', {cwClient: this.cwClient, accounts: this.accounts});
+          console.log('Profile client', {cwClient: this.cwClient, accounts: this.accounts, walletType: walletType});
 
           // Load tokens
           await this.tokenIds();

@@ -1,4 +1,4 @@
-import { keplrClient } from './cosmwasm';
+import { keplrClient, cosmoStation } from './cosmwasm';
 
 /**
  * Gets signing client instance
@@ -8,6 +8,10 @@ import { keplrClient } from './cosmwasm';
  async function Client(wallet = 'keplr') {
   let client;
   switch (wallet) {
+    case 'cosmostation': {
+      client = await cosmoStation();
+      return client;
+    }
     case 'falcon': { return; } // TODO: Falcon wallet
     case 'keplr': {
       client = await keplrClient();

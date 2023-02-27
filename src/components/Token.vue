@@ -62,9 +62,10 @@ export default {
       if (attempts >= 5) return;
       try {
         setTimeout(async () => { 
-          this.cwClient = await Client();
+          let walletType = sessionStorage.getItem("connected");
+          this.cwClient = await Client(walletType);
           this.accounts = await Accounts(this.cwClient);
-          console.log('Token client', {cwClient: this.cwClient, accounts: this.accounts});
+          console.log('Token client', {cwClient: this.cwClient, accounts: this.accounts, walletType: walletType});
 
           // Load token data
           this.tokenData();

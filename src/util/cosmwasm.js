@@ -6,6 +6,35 @@ const Testnet = ConstantineInfo;
 const Mainnet = null;
 const IsTestnet = true;
 
+async function cosmoStation() {
+  if (!window) return {};
+  if (!window['cosmostation']) return {};
+
+  const Blockchain = (IsTestnet) ? Testnet : Mainnet;
+
+  let client = {
+    offlineSigner: null,
+    wasmClient: null,
+    chainInfo: Blockchain,
+    fees: "auto"
+  };
+
+  // User must authorize "experimental" chain
+  await window.cosmostation.providers.keplr.experimentalSuggestChain(Blockchain);
+  await window.cosmostation.providers.keplr.enable(Blockchain.chainId);
+
+  // Bootstrap client
+  client.offlineSigner = await window.cosmostation.providers.keplr.getOfflineSigner(Blockchain.chainId);
+
+  client.wasmClient = await SigningCosmWasmClient.connectWithSigner(
+    Blockchain.rpc, 
+    client.offlineSigner, 
+    { gasPrice: GasPrice.fromString('0.005'+Blockchain.currencies[0].coinMinimalDenom) }
+  );
+
+  return client;
+}
+
 async function keplrClient() {
   if (!window) return {};
   if (!window['keplr']) return {};
@@ -35,5 +64,6 @@ async function keplrClient() {
 }
 
 export {
+  cosmoStation,
   keplrClient
 };

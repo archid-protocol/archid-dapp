@@ -235,7 +235,7 @@
                 />
               </li>
               <li v-for="(account, i) in params.execute.UpdataUserDomainData.metadata_update.accounts" :key="i">
-                <ol>
+                <ol v-if="params.execute.UpdataUserDomainData.metadata_update.accounts[i]">
                   <li>
                     <label :for="'username_'+i">Account username:</label>
                     <input 
@@ -280,7 +280,7 @@
               </li>
 
               <li v-for="(site, i) in params.execute.UpdataUserDomainData.metadata_update.websites" :key="i">
-                <ol>
+                <ol v-if="params.execute.UpdataUserDomainData.metadata_update.websites[i]">
                   <li>
                     <label :for="'url_'+i">Website URL:</label>
                     <input 
@@ -307,7 +307,7 @@
                       type="text" 
                       class="metadata-website-verification_hash" 
                       :name="'site_verification_hash_'+i"
-                      v-model="params.execute.UpdataUserDomainData.metadata_update.accounts[i].verification_hash" 
+                      v-model="params.execute.UpdataUserDomainData.metadata_update.websites[i].verification_hash" 
                       disabled
                     />
                   </li>
@@ -517,10 +517,11 @@ export default {
       if (attempts >= 5) return;
       try {
         setTimeout(async () => { 
-          this.cwClient = await Client();
+          let walletType = sessionStorage.getItem("connected");
+          this.cwClient = await Client(walletType);
           this.accounts = await Accounts(this.cwClient);
           if (this.accounts.length) this.params.execute.RegisterSubDomain.new_owner = this.accounts[0].address;
-          console.log('Test Bench', {cwClient: this.cwClient, accounts: this.accounts});
+          console.log('Test Bench', {cwClient: this.cwClient, accounts: this.accounts, walletType: walletType});
         }, 100);
       } catch (e) {
         await this.resumeConnectedState((attempts + 1));
