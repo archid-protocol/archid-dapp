@@ -1,8 +1,8 @@
 <template>
   <div class="recent-domains" v-if="loaded">
     <div class="recent-domain" v-for="(domain, i) in recentDomains" :key="i">
-      <router-link class="badge-link badge" :to="'/domains/' + domain.extension.name" v-if="domain.extension">
-        <span class="badge-label domain" v-if="domain.extension.name">{{ domain.extension.name }}</span>&nbsp;
+      <router-link class="badge-link badge" :to="'/domains/' + domain.extension.domain" v-if="domain.extension">
+        <span class="badge-label domain" v-if="domain.extension.domain">{{ domain.extension.domain }}</span>&nbsp;
         <span class="badge-label time" v-if="domain.extension.created">{{ niceTime(domain.extension.created) }}</span>
       </router-link>
     </div>
@@ -31,6 +31,7 @@ export default {
   mounted: async function () {
     await this.tokenIds();
     await this.domainData();
+    // console.log('Domains list', this.domains);
   },
   methods: {
     setTokenContract: async function () {
@@ -62,7 +63,7 @@ export default {
       });
     },
     niceTime: function (time = null) {
-      if (!time || typeof time !== 'number') return;
+      if (!time || typeof time !== 'number') return '';
       const timeObj = new Date((time * 1000));
       const differenceMs = Math.abs(new Date() - timeObj);
       let val, ret;
