@@ -229,7 +229,7 @@ async function UpdateConfig(update_config, client = null) {
     // Msg.
     let entrypoint = {
       update_config: {
-        update_config: update_config
+        config: update_config
       }
     };
     // Sender

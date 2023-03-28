@@ -12,17 +12,28 @@
         <router-link to="/my-domains">My Domains</router-link>
       </li>
     </ul>
+    <!-- Recent Domains -->
+    <div class="recent-domains-component" v-if="cwClient">
+      <RecentDomains
+        v-bind:cwClient="cwClient"
+        v-bind:size="8"
+      >
+      </RecentDomains>
+    </div>
   </div>
 </template>
 
 <script>
 import { Client, Accounts } from '../util/client';
 
+import RecentDomains from './children/RecentDomains.vue';
+
 export default {
   name: 'Home',
-  components: {},
+  components: { RecentDomains },
   data: () => ({
     cwClient: null,
+    cw721: null,
     accounts: null,
   }),
   mounted: function () {
