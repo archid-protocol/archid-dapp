@@ -12,6 +12,14 @@
         <router-link to="/my-domains">My Domains</router-link>
       </li>
     </ul>
+    <!-- Welcome Banner -->
+    <div class="welcome-banner" v-if="cwClient && accounts">
+      <WelcomeBanner
+        v-bind:cwClient="cwClient"
+        v-bind:account="accounts[0].address"
+      >
+      </WelcomeBanner>
+    </div>
     <!-- Recent Domains -->
     <div class="recent-domains-component" v-if="cwClient">
       <RecentDomains
@@ -26,11 +34,12 @@
 <script>
 import { Client, Accounts } from '../util/client';
 
+import WelcomeBanner from './children/WelcomeBanner.vue';
 import RecentDomains from './children/RecentDomains.vue';
 
 export default {
   name: 'Home',
-  components: { RecentDomains },
+  components: { WelcomeBanner, RecentDomains },
   data: () => ({
     cwClient: null,
     cw721: null,
