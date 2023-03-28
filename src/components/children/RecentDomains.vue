@@ -1,8 +1,10 @@
 <template>
   <div class="recent-domains" v-if="loaded">
-    <div class="recent-domain badge" v-for="(domain, i) in recentDomains" :key="i">
-      <span class="badge-label domain" v-if="domain.extension">{{ domain.extension.name }}</span>&nbsp;
-      <span class="badge-label time" v-if="domain.extension">{{ niceTime(domain.extension.created) }}</span>
+    <div class="recent-domain" v-for="(domain, i) in recentDomains" :key="i">
+      <router-link class="badge-link badge" :to="'/domains/' + domain.extension.name" v-if="domain.extension">
+        <span class="badge-label domain" v-if="domain.extension.name">{{ domain.extension.name }}</span>&nbsp;
+        <span class="badge-label time" v-if="domain.extension.created">{{ niceTime(domain.extension.created) }}</span>
+      </router-link>
     </div>
   </div>
 </template>
@@ -93,7 +95,7 @@ export default {
 </script>
 
 <style scoped>
-.recent-domains, .badge {
+.recent-domains, .recent-domain, .badge {
   display: inline-block;
 }
 .badge {
@@ -109,5 +111,9 @@ export default {
 .badge-label.time {
   font-size: 12px;
   color: #777777;
+}
+.badge-link {
+  color: inherit;
+  text-decoration: inherit;
 }
 </style>
