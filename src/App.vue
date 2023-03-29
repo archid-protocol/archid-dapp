@@ -5,17 +5,17 @@
   <div class="loggedin" v-else>
     <div class="user" v-if="accounts.length">{{ accounts[0].address }}</div>
     <ul class="navigation">
-      <li>
-        <router-link to="/">Home</router-link>
+      <li v-if="route !== '/'">
+        <router-link to="/" @click="route = '/';">Home</router-link>
       </li>
-      <li>
-        <router-link to="/test">Test Bench</router-link>
+      <li v-if="route !== '/test'">
+        <router-link to="/test" @click="route = '/test';">Test Bench</router-link>
       </li>
-      <li>
-        <router-link to="/domains">Domains</router-link>
+      <li v-if="route !== '/domains'">
+        <router-link to="/domains" @click="route = '/domains';">Domains</router-link>
       </li>
-      <li>
-        <router-link to="/my-domains">My Domains</router-link>
+      <li v-if="route !== '/my-domains'">
+        <router-link to="/my-domains" @click="route = '/my-domains';">My Domains</router-link>
       </li>
     </ul>
   </div>
