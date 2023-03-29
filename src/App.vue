@@ -3,6 +3,23 @@
     <button id="connect_modal" class="btn-show-modal" @click="modal = !modal;">Connect Wallet</button>
   </div>
   <div class="loggedin" v-else>
+    <div class="user" v-if="accounts.length">{{ accounts[0].address }}</div>
+    <ul class="navigation">
+      <li>
+        <router-link to="/">Home</router-link>
+      </li>
+      <li>
+        <router-link to="/test">Test Bench</router-link>
+      </li>
+      <li>
+        <router-link to="/domains">Domains</router-link>
+      </li>
+      <li>
+        <router-link to="/my-domains">My Domains</router-link>
+      </li>
+    </ul>
+  </div>
+  <div class="page-content" v-if="connected || route == '/'">
     <router-view />
   </div>
 
@@ -42,11 +59,16 @@ export default {
     connected: false,
     walletType: ['keplr', 'cosmostation'],
     modal: false,
+    route: null,
   }),
   mounted: function () {
     if (window) {
+      this.route = location.pathname;
       let connected = window.sessionStorage.getItem('connected');
-      if (connected) this.connected = true;
+      if (connected) {
+        this.resumeConnectedState();
+        this.connected = true;
+      }
     }
   },
   methods: {
@@ -66,12 +88,31 @@ export default {
       }
       
       console.log('App', {cwClient: this.cwClient, accounts: this.accounts, walletType: this.walletType});
-    }
+    },
+    resumeConnectedState: async function (attempts = 0) {
+      if (attempts >= 5) return;
+      try {
+        setTimeout(async () => { 
+          let walletType = sessionStorage.getItem("connected");
+          this.cwClient = await Client(walletType);
+          this.accounts = await Accounts(this.cwClient);
+          console.log('Home client', {cwClient: this.cwClient, accounts: this.accounts, walletType: walletType});
+        }, 100);
+      } catch (e) {
+        await this.resumeConnectedState((attempts + 1));
+      }
+    },
   }
 }
 </script>
 
 <style scoped>
+ul, ul li {
+  list-style: none;
+}
+ul li {
+  padding: 1em;
+}
 .modal-wrapper {
   position: fixed;
   z-index: 1;
@@ -83,7 +124,6 @@ export default {
   background-color: rgb(0,0,0);
   background-color: rgba(0,0,0,0.4);
 }
-
 .modal {
   clear: both;
   margin: 15% auto;
@@ -94,12 +134,10 @@ export default {
   background: #ffffff;
   border-radius: 4px;
 }
-
 .close-x {
   float: right;
   cursor: pointer;
 }
-
 .btn-connect {
   margin: 1em;
 }

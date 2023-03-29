@@ -1,16 +1,5 @@
 <template>
   <div class="page">
-    <ul>
-      <li>
-        <router-link to="/">Home</router-link>
-      </li>
-      <li>
-        <router-link to="/domains">Domains</router-link>
-      </li>
-      <li>
-        <router-link to="/my-domains">My Domains</router-link>
-      </li>
-    </ul>
     <h3>archid - domain: {{ domain }}</h3>
 
     <div class="query-result nft-metadata" v-if="token.extension">

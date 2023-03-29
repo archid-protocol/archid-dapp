@@ -1,17 +1,6 @@
 <template>
   <div class="page">
     <h3>archid - home</h3>
-    <ul class="navigation">
-      <li>
-        <router-link to="/test">Test Bench</router-link>
-      </li>
-      <li>
-        <router-link to="/domains">Domains</router-link>
-      </li>
-      <li>
-        <router-link to="/my-domains">My Domains</router-link>
-      </li>
-    </ul>
     <!-- Welcome Banner -->
     <div class="welcome-banner" v-if="cwClient && accounts">
       <WelcomeBanner
@@ -46,7 +35,12 @@ export default {
     accounts: null,
   }),
   mounted: function () {
-    if (window) this.resumeConnectedState();
+    if (window) {
+      let connected = window.sessionStorage.getItem('connected');
+      if (connected) {
+        this.resumeConnectedState();
+      }
+    }
   },
   methods: {
     resumeConnectedState: async function (attempts = 0) {
@@ -70,12 +64,6 @@ export default {
 .page {
   max-width: 90vw;
   padding: 3em;
-}
-ul, ul li {
-  list-style: none;
-}
-ul li {
-  padding: 1em;
 }
 input {
   width: 500px;

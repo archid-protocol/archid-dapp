@@ -1,13 +1,5 @@
 <template>
   <div class="page">
-    <ul>
-      <li>
-        <router-link to="/">Home</router-link>
-      </li>
-      <li>
-        <router-link to="/domains">Domains</router-link>
-      </li>
-    </ul>
     <h3>archid - my domains</h3>
     <ul v-if="tokens.length">
       <li v-for="(domain, i) in tokens" :key="i">

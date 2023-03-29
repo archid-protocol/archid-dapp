@@ -1,8 +1,5 @@
 <template>
   <div class="page">
-    <p>
-      <router-link to="/">Home</router-link>
-    </p>
     <h3>archid - test bench</h3>
     <div class="test-bed">
       <div class="query">
