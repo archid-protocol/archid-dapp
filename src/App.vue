@@ -9,23 +9,25 @@
   </div>
   <div class="loggedin" v-else>
     <div class="logo">
-      <span class="icon icon-archid">ArchID</span>
+      <router-link class="home-logo" to="/" @click="route = '/';">
+        <span class="icon icon-archid">ArchID</span>
+      </router-link>
     </div>
     <div class="user" v-if="accounts.length">
       <a id="user_account" @click="showNav = !showNav;">{{ accountDisplayFormat(accounts[0].address) }}</a>
     </div>
     <ul class="navigation" v-if="showNav">
       <li v-if="route !== '/'">
-        <router-link to="/" @click="route = '/';">Home</router-link>
+        <router-link to="/" @click="route = '/';showNav = false;">Home</router-link>
       </li>
       <li v-if="route !== '/test'">
-        <router-link to="/test" @click="route = '/test';">Test Bench</router-link>
+        <router-link to="/test" @click="route = '/test';showNav = false;">Test Bench</router-link>
       </li>
       <li v-if="route !== '/domains'">
-        <router-link to="/domains" @click="route = '/domains';">Domains</router-link>
+        <router-link to="/domains" @click="route = '/domains';showNav = false;">Domains</router-link>
       </li>
       <li v-if="route !== '/my-domains'">
-        <router-link to="/my-domains" @click="route = '/my-domains';">My Domains</router-link>
+        <router-link to="/my-domains" @click="route = '/my-domains';showNav = false;">My Domains</router-link>
       </li>
     </ul>
   </div>
@@ -163,5 +165,8 @@ ul li {
 }
 .btn-connect {
   margin: 1em;
+}
+.home-logo, .home-logo:active, .home-logo:focus {
+  text-decoration: none;
 }
 </style>

@@ -3,8 +3,8 @@ import { createWebHistory, createRouter } from 'vue-router';
 // Components
 import Home from '../components/Home';
 import TestBench from '../components/TestBench';
-import Tokens from '../components/Tokens';
-import Token from '../components/Token';
+import Domains from '../components/Domains';
+import Domain from '../components/Domain';
 import Profile from '../components/Profile';
 import Address from '../components/Address';
 
@@ -15,8 +15,8 @@ const routes = [
   // General
   { path: '/', name: 'Home', component: Home },
   { path: '/test', name: 'Test Bench', component: TestBench },
-  { path: '/domains', name: 'Domains', component: Tokens },
-  { path: '/domains/:id', name: 'Domain', component: Token },
+  { path: '/domains', name: 'Domains', component: Domains },
+  { path: '/domains/:id', name: 'Domain', component: Domain },
   { path: '/address/:id', name: 'Address', component: Address },
   { path: '/my-domains', name: 'Profile', component: Profile },
   { path: '/:pathMatch(.*)*', name: 'not-found', component: PageNotFound }

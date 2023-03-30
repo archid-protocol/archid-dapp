@@ -1,12 +1,28 @@
 <template>
   <div class="page">
-    <h3>archid - my domains</h3>
-    <ul v-if="tokens.length">
+    <!-- Domain Banner -->
+    <div class="domain-banner">
+      <DomainBanner
+        v-bind:title="title"
+        v-bind:context="1"
+        @filter="filter"
+      >
+      </DomainBanner>
+    </div>
+    <ul v-if="tokens.length && !search">
       <li v-for="(domain, i) in tokens" :key="i">
         <router-link :to="'/domains/' + domain">{{ domain }}</router-link>
       </li>
     </ul>
-    <div v-else>
+    <ul v-if="tokens.length && search">
+      <li v-for="(domain, i) in filteredTokens" :key="i">
+        <router-link :to="'/domains/' + domain">{{ domain }}</router-link>
+      </li>
+      <li v-if="!filteredTokens.length">
+        <p>No domains matching "{{ search }}"</p>
+      </li>
+    </ul>
+    <div v-if="!tokens.length">
       <p v-if="loaded">No domains found for account {{ accounts[0].address }}</p>
     </div>
   </div>
@@ -17,15 +33,20 @@ import { Client, Accounts } from '../util/client';
 import { Config } from '../util/query';
 import { TokensOf } from '../util/token';
 
+import DomainBanner from './children/DomainBanner.vue';
+
 export default {
   name: 'Profile',
-  components: {},
+  components: { DomainBanner },
   data: () => ({
     cwClient: null,
     cw721: null,
     accounts: [],
     tokens: [],
+    filteredTokens: [],
+    search: null,
     loaded: false,
+    title: 'My Domains',
   }),
   mounted: function () {
     if (window) this.resumeConnectedState();
@@ -60,6 +81,30 @@ export default {
       let query = await TokensOf(this.cw721, this.accounts[0].address, this.cwClient);
       this.tokens = (query['tokens']) ? query.tokens : [];
       console.log('My tokens query', this.tokens);
+    },
+
+    // Filter
+    filter: function (filters) {
+      if (!this.tokens.length) return;
+      console.log('Update filters', filters);
+      let filteredTokens = [];
+
+      // Text filter
+      if (filters.text) {
+        for (let i = 0; i < this.tokens.length; i++) {
+          if (this.tokens[i].includes(filters.text)) {
+            filteredTokens.push(this.tokens[i]);
+          }
+          if (i == (this.tokens.length - 1)) {
+            // XXX TODO: type filter (when API available)
+            this.filteredTokens = filteredTokens;
+            this.search = filters.text;
+            console.log(this.filteredTokens);
+          }
+        }
+      } else {
+        this.search = null;
+      }
     },
   },
 }
