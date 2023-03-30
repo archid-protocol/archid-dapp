@@ -87,7 +87,7 @@ export default {
     formatFromMicro: FromMicro,
   }),
   mounted: async function () {
-    await this.tokenIds();
+    if (this.$root.connected) await this.tokenIds();
   },
   methods: {
     setTokenContract: async function () {

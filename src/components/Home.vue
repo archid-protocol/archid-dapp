@@ -56,7 +56,6 @@ export default {
           this.cwClient = await Client(walletType);
           this.accounts = await Accounts(this.cwClient);
           this.accountDisplay = this.accounts[0].address;
-          this.loaded = true;
           console.log('Home client', {cwClient: this.cwClient, accounts: this.accounts, walletType: walletType});
         }, 100);
       } catch (e) {
@@ -65,7 +64,6 @@ export default {
     },
     registration: async function (params) {
       if (!params.name || !params.expiry || !params.base_cost) return;
-      // console.log('registration', params, this.cwClient);
       this.executeResult = await Register(
         params.name,
         params.years,

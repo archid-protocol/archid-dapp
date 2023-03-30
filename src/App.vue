@@ -30,7 +30,7 @@
     </ul>
   </div>
   <div class="page-content" v-if="connected || route == '/'">
-    <router-view />
+    <router-view test="test" :key="render" />
   </div>
 
   <transition name="modal" v-if="!connected">
@@ -71,6 +71,7 @@ export default {
     modal: false,
     route: null,
     showNav: false,
+    render: 0,
   }),
   mounted: function () {
     if (window) {
@@ -97,7 +98,7 @@ export default {
       } catch(e) {
         console.error(e);
       }
-      
+      this.render += 1;
       console.log('App', {cwClient: this.cwClient, accounts: this.accounts, walletType: this.walletType});
     },
     resumeConnectedState: async function (attempts = 0) {
