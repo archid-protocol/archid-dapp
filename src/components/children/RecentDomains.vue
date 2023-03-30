@@ -16,6 +16,8 @@ import { Token, Tokens } from '../../util/token';
 const MS_DAY = 86_400_000;
 const MS_HOUR = 3_600_000;
 const MS_MINUTE = 60_000;
+const MS_MONTH = MS_DAY * 30;
+const MS_YEAR = MS_DAY * 365;
 
 export default {
   props: {
@@ -67,7 +69,13 @@ export default {
       const timeObj = new Date((time * 1000));
       const differenceMs = Math.abs(new Date() - timeObj);
       let val, ret;
-      if (differenceMs >= MS_DAY) {
+      if (differenceMs >= MS_YEAR) {
+        val = Math.floor(differenceMs / MS_YEAR);
+        ret = (val > 1) ? String(val) + ' year ago' : String(val) + ' years ago';
+      } else if (differenceMs >= MS_MONTH) {
+        val = Math.floor(differenceMs / MS_MONTH);
+        ret = (val > 1) ? String(val) + ' month ago' : String(val) + ' months ago';
+      } else if (differenceMs >= MS_DAY) {
         val = Math.floor(differenceMs / MS_DAY);
         ret = (val > 1) ? String(val) + ' days ago' : String(val) + ' day ago';
       } else if (differenceMs >= MS_HOUR) {

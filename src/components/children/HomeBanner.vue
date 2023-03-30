@@ -31,7 +31,7 @@
         <div class="search-result inner">
             <div class="result left" v-html="search.result"></div>
             <div class="result right" v-if="config.base_cost">
-                <div class="cost">{{ formatFromMicro(config.base_cost) }}<span class="arch-logo">arch</span> / year</div>
+                <div class="cost" v-if="!registration.taken">{{ formatFromMicro(config.base_cost) }}<span class="arch-logo">arch</span> / year</div>
                 <!-- 
                 XXX TODO: Implement USD price when price feeds become available
                 <div class="cost-usd"></div> 
@@ -39,10 +39,25 @@
             </div>
         </div>
         <hr />
-        <p class="focus">This domain is who you are in Archway.</p>
-        <p class="descr">.arch domains can be registered for 1, 2 or 3 years.</p>
-        <p class="descr">Unlimited subdomains can be created for your applications and addresses.</p>
-        <p class="descr">You can add and verify the ownership of applications as well as social profiles to this domain.</p>
+        <div class="explainer" v-if="!registration.taken">
+            <p class="focus">This domain is who you are in Archway.</p>
+            <p class="descr">.arch domains can be registered for 1, 2 or 3 years.</p>
+            <p class="descr">Unlimited subdomains can be created for your applications and addresses.</p>
+            <p class="descr">You can add and verify the ownership of applications as well as social profiles to this domain.</p>
+        </div>
+        <div class="taken-domain-data" v-if="registration.taken">
+            <div class="left">
+                <p>Registration Date</p>
+                <p v-if="registration.taken.extension.created">{{ niceDate(registration.taken.extension.created) }}</p>
+            </div>
+            <div class="right">
+                <p>Expiration Date</p>
+                <p v-if="registration.taken.extension.expiry">{{ niceDate(registration.taken.extension.expiry) }}</p>
+            </div>
+            <div class="read-more">
+                <router-link class="domain-link" :to="'/domains/' + registration.taken.extension.domain">More info</router-link>
+            </div>
+        </div>
         <div class="mintable" v-if="!registration.taken">
             <hr />
             <div class="register-ctrl">
@@ -62,7 +77,7 @@
 
 <script>
 import { Config } from '../../util/query';
-import { Tokens } from '../../util/token';
+import { Token, Tokens } from '../../util/token';
 import { FromMicro } from '../../util/denom';
 
 export default {
@@ -101,6 +116,13 @@ export default {
       this.tokens = (query['tokens']) ? query.tokens : [];
       console.log('Tokens query', this.tokens);
     },
+    tokenData: async function (id = null) {
+      if (!id || typeof id !== 'string') return;
+      if (!this.cw721) await this.setTokenContract();
+      let token = await Token(id, this.cw721, this.cwClient);
+      return token;
+      // console.log('Token query', this.token);
+    },
     searchWorker: function (text = null) {
         this.registration.taken = false;
         if (!this.tokens) return '';
@@ -110,8 +132,8 @@ export default {
         let rawText = text.replace(/[^a-z0-9-]/g,'');
         let searchText = rawText + '.arch';
         if (this.tokens.indexOf(searchText) >= 0) {
-            this.registration.taken = true;
-            return '<span class="search-target">' + searchText + '</span> is taken';
+            this.updateSelectedDomain(this.tokens[this.tokens.indexOf(searchText)]);
+            return '<span class="search-target">' + searchText + '</span> is not available';
         } else {
             this.registration.domain = rawText;
             return '<span class="search-target">' + searchText + '</span> is available';
@@ -123,6 +145,11 @@ export default {
         if (this.search.input.length < 3) return;
         this.search.result = this.searchWorker(this.search.input);
     },
+    updateSelectedDomain: async function (id = null) {
+        if (typeof id !== 'string') return;
+        this.registration.taken = await this.tokenData(id);
+        console.log('taken', this.registration.taken);
+    },
     registrationHandler: function () {
         let registration = {
             name: this.registration.domain,
@@ -130,6 +157,12 @@ export default {
             base_cost: this.config.base_cost,
         };
         this.$emit('registration', registration);
+    },
+    niceDate: function(seconds) {
+        let date = new Date((seconds * 1000));
+        return date.toLocaleDateString(
+            'en-us', { weekday:"long", year:"numeric", month:"short", day:"numeric"}
+        ) + ' at ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
     },
   },
 }
@@ -198,6 +231,10 @@ hr {
 }
 .submit.register div {
     margin-right: 1em;
+}
+.taken-domain-data .right, .taken-domain-data .left {
+    width: 50%;
+    display: inline-block;
 }
 </style>
 <style>
