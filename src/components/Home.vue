@@ -1,13 +1,13 @@
 <template>
   <div class="page">
-    <h3>archid - home</h3>
-    <!-- Welcome Banner -->
-    <div class="welcome-banner" v-if="cwClient && accounts">
-      <WelcomeBanner
+    <!-- Home Banner -->
+    <div class="welcome-banner" v-if="accountDisplay">
+      <HomeBanner
         v-bind:cwClient="cwClient"
-        v-bind:account="accounts[0].address"
+        v-bind:account="accountDisplay"
+        @registration="registration"
       >
-      </WelcomeBanner>
+      </HomeBanner>
     </div>
     <!-- Recent Domains -->
     <div class="recent-domains-component" v-if="cwClient">
@@ -22,23 +22,28 @@
 
 <script>
 import { Client, Accounts } from '../util/client';
+import { Register } from '../util/execute';
 
-import WelcomeBanner from './children/WelcomeBanner.vue';
+import HomeBanner from './children/HomeBanner.vue';
 import RecentDomains from './children/RecentDomains.vue';
 
 export default {
   name: 'Home',
-  components: { WelcomeBanner, RecentDomains },
+  components: { HomeBanner, RecentDomains },
   data: () => ({
     cwClient: null,
     cw721: null,
     accounts: null,
+    accountDisplay: null,
+    executeResult: null,
   }),
-  mounted: function () {
+  mounted: async function () {
     if (window) {
       let connected = window.sessionStorage.getItem('connected');
       if (connected) {
         this.resumeConnectedState();
+      } else {
+        this.accountDisplay = "archway1289";
       }
     }
   },
@@ -50,11 +55,25 @@ export default {
           let walletType = sessionStorage.getItem("connected");
           this.cwClient = await Client(walletType);
           this.accounts = await Accounts(this.cwClient);
+          this.accountDisplay = this.accounts[0].address;
+          this.loaded = true;
           console.log('Home client', {cwClient: this.cwClient, accounts: this.accounts, walletType: walletType});
         }, 100);
       } catch (e) {
         await this.resumeConnectedState((attempts + 1));
       }
+    },
+    registration: async function (params) {
+      if (!params.name || !params.expiry || !params.base_cost) return;
+      // console.log('registration', params, this.cwClient);
+      this.executeResult = await Register(
+        params.name,
+        params.years,
+        Number(params.base_cost),
+        this.cwClient
+      );
+      if (typeof this.executeResult == 'undefined') console.error({error: "Error calling entry point in Registry"});
+      console.log('Register tx', this.executeResult);
     },
   },
 }

@@ -1,10 +1,20 @@
 <template>
   <div class="loggedout" v-if="!connected">
-    <button id="connect_modal" class="btn-show-modal" @click="modal = !modal;">Connect Wallet</button>
+    <div class="logo">
+      <span class="icon icon-archid">ArchID</span>
+    </div>
+    <div class="connect">
+      <a id="connect_modal" class="btn-show-modal" @click="modal = !modal;">Connect Wallet</a>
+    </div>
   </div>
   <div class="loggedin" v-else>
-    <div class="user" v-if="accounts.length">{{ accounts[0].address }}</div>
-    <ul class="navigation">
+    <div class="logo">
+      <span class="icon icon-archid">ArchID</span>
+    </div>
+    <div class="user" v-if="accounts.length">
+      <a id="user_account" @click="showNav = !showNav;">{{ accountDisplayFormat(accounts[0].address) }}</a>
+    </div>
+    <ul class="navigation" v-if="showNav">
       <li v-if="route !== '/'">
         <router-link to="/" @click="route = '/';">Home</router-link>
       </li>
@@ -60,6 +70,7 @@ export default {
     walletType: ['keplr', 'cosmostation'],
     modal: false,
     route: null,
+    showNav: false,
   }),
   mounted: function () {
     if (window) {
@@ -102,6 +113,10 @@ export default {
         await this.resumeConnectedState((attempts + 1));
       }
     },
+    accountDisplayFormat: function (account = null) {
+      if (!account) return "";
+      return account.slice(0,12) + "..." + account.slice(-5);
+    },
   }
 }
 </script>
@@ -112,6 +127,13 @@ ul, ul li {
 }
 ul li {
   padding: 1em;
+}
+#connect_modal, #user_account {
+  cursor: pointer;
+  float: right;
+}
+.loggedout {
+  clear: both;
 }
 .modal-wrapper {
   position: fixed;

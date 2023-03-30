@@ -23,6 +23,7 @@ async function Register(name, years = 1, base_cost = BASE_DOMAIN_COST, client = 
         name: name
       }
     };
+    console.log('Register entrypoint', entrypoint);
     // Sender
     let accounts = await client.offlineSigner.getAccounts();
     // Purchase cost
