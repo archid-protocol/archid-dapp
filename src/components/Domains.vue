@@ -16,6 +16,7 @@
           v-bind:cw721="cw721"
           v-bind:cwClient="cwClient"
           v-bind:isSubdomain="isSubdomain(domain)"
+          v-bind:isReadOnly="true"
           v-bind:baseCost="parseInt(config.base_cost)"
           :key="'item-'+i"
         >
@@ -29,6 +30,7 @@
           v-bind:cw721="cw721"
           v-bind:cwClient="cwClient"
           v-bind:isSubdomain="isSubdomain(domain)"
+          v-bind:isReadOnly="true"
           v-bind:baseCost="parseInt(config.base_cost)"
           :key="'item-'+i"
         >

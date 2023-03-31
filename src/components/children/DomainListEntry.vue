@@ -4,8 +4,7 @@
       <router-link class="domain-name header" v-if="domain" :to="'/domains/' + domain">{{domain}}</router-link>
     </div>
     <div class="right">
-      <div class="caret closed" @click="domainDetails();" v-if="closed">&caron;</div>
-      <div class="caret open" @click="domainDetails();" v-if="!closed">&#94;</div>
+      <div :class="{'caret': true, 'active': !closed}" @click="domainDetails();">&caron;</div>
     </div>
     <div class="body" v-if="!closed">
       <div class="container" v-if="token">
@@ -37,7 +36,7 @@
             <div class="title accounts-title">
               <span class="icon icon-accounts"></span>
               <h5>Accounts</h5>
-              <div class="float-right add account">
+              <div class="float-right add account" v-if="!isReadOnly">
                 <span>+</span>
               </div>
               <div class="accounts-list">
@@ -52,7 +51,7 @@
             <div class="title websites-title">
               <span class="icon icon-websites"></span>
               <h5>Websites & Apps</h5>
-              <div class="float-right add website">
+              <div class="float-right add website" v-if="!isReadOnly">
                 <span>+</span>
               </div>
               <div class="websites-list">
@@ -67,7 +66,7 @@
             <div class="title subdomains-title">
               <span class="icon icon-subdomains"></span>
               <h5>Subdomains</h5>
-              <div class="float-right add subdomain">
+              <div class="float-right add subdomain" v-if="!isReadOnly">
                 <span>+</span>
               </div>
               <div class="subdomains-list">
@@ -139,6 +138,7 @@ export default {
     cw721: String,
     cwClient: Object,
     isSubdomain: Boolean,
+    isReadOnly: Boolean,
     baseCost: Number,
   },
   data: () => ({
@@ -267,6 +267,9 @@ div.caret {
   display: block;
   text-align: right;
   cursor: pointer;
+}
+div.caret.active {
+  transform: scaley(-1);
 }
 .ctrl button {
   float: right;
