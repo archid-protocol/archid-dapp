@@ -36,7 +36,7 @@ import { TokensOf } from '../util/token';
 import DomainBanner from './children/DomainBanner.vue';
 
 export default {
-  name: 'Profile',
+  name: 'My Domains',
   components: { DomainBanner },
   data: () => ({
     cwClient: null,

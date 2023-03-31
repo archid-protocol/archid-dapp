@@ -4,7 +4,7 @@
       <span class="icon icon-archid">ArchID</span>
     </div>
     <div class="connect">
-      <a id="connect_modal" class="btn-show-modal" @click="modal = !modal;">Connect Wallet</a>
+      <a id="connect_modal" class="btn btn-primary btn-show-modal" @click="modal = !modal;">Connect Wallet</a>
     </div>
   </div>
   <div class="loggedin" v-else>
@@ -37,7 +37,7 @@
 
   <transition name="modal" v-if="!connected">
     <div v-if="modal" class="modal-wrapper">
-      <div class="modal">
+      <div class="modalt">
         <div class="modal-header">
           <span class="close-x" @click="modal = !modal">&times;</span>
         </div>
@@ -149,7 +149,7 @@ ul li {
   background-color: rgb(0,0,0);
   background-color: rgba(0,0,0,0.4);
 }
-.modal {
+.modalt {
   clear: both;
   margin: 15% auto;
   padding: 20px;

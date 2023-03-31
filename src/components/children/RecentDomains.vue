@@ -1,7 +1,7 @@
 <template>
   <div class="recent-domains" v-if="loaded">
     <div class="recent-domain" v-for="(domain, i) in recentDomains" :key="i">
-      <router-link class="badge-link badge" :to="'/domains/' + domain.extension.domain" v-if="domain.extension">
+      <router-link class="badge-link badge btn" :to="'/domains/' + domain.extension.domain" v-if="domain.extension">
         <span class="badge-label domain" v-if="domain.extension.domain">{{ domain.extension.domain }}</span>&nbsp;
         <span class="badge-label time" v-if="domain.extension.created">{{ niceTime(domain.extension.created) }}</span>
       </router-link>

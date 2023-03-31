@@ -14,65 +14,63 @@
       <input 
         type="text" 
         placeholder="Your name"
-        class="domain"
+        class="domain form-control"
         name="domain"
         @keyup="searchHandler"
         v-model="search.input"
       />
-      <input 
-        type="text"
-        value=".arch"
-        class="domain-suffix"
-        readonly
-      />
+      <span class="domain-suffix">.arch</span>
+    </div>
+    <div class="connect" v-if="!cwClient">
+      <button class="btn btn-primary btn-connect" @click="connectHandler();">Connect & Register domain</button>
     </div>
   </div>
-    <div class="search-result outer" v-if="search.result">
-      <div class="search-result inner">
-        <div class="result left" v-html="search.result"></div>
-        <div class="result right" v-if="config.base_cost">
-          <div class="cost" v-if="!registration.taken">{{ formatFromMicro(config.base_cost) }}<span class="arch-logo">arch</span> / year</div>
-          <!-- 
-          XXX TODO: Implement USD price when price feeds become available
-          <div class="cost-usd"></div> 
-          -->
-        </div>
+  <div class="search-result outer" v-if="search.result">
+    <div class="search-result inner">
+      <div class="result left" v-html="search.result"></div>
+      <div class="result right" v-if="config.base_cost">
+        <div class="cost" v-if="!registration.taken">{{ formatFromMicro(config.base_cost) }}<span class="arch-logo">arch</span> / year</div>
+        <!-- 
+        XXX TODO: Implement USD price when price feeds become available
+        <div class="cost-usd"></div> 
+        -->
       </div>
+    </div>
+    <hr />
+    <div class="explainer" v-if="!registration.taken">
+      <p class="focus">This domain is who you are in Archway.</p>
+      <p class="descr">.arch domains can be registered for 1, 2 or 3 years.</p>
+      <p class="descr">Unlimited subdomains can be created for your applications and addresses.</p>
+      <p class="descr">You can add and verify the ownership of applications as well as social profiles to this domain.</p>
+    </div>
+    <div class="taken-domain-data" v-if="registration.taken">
+      <div class="left">
+        <p>Registration Date</p>
+        <p v-if="registration.taken.extension.created">{{ niceDate(registration.taken.extension.created) }}</p>
+      </div>
+      <div class="right">
+        <p>Expiration Date</p>
+        <p v-if="registration.taken.extension.expiry">{{ niceDate(registration.taken.extension.expiry) }}</p>
+      </div>
+      <div class="read-more">
+        <router-link class="domain-link" :to="'/domains/' + registration.taken.extension.domain">More info</router-link>
+      </div>
+    </div>
+    <div class="mintable" v-if="!registration.taken">
       <hr />
-      <div class="explainer" v-if="!registration.taken">
-        <p class="focus">This domain is who you are in Archway.</p>
-        <p class="descr">.arch domains can be registered for 1, 2 or 3 years.</p>
-        <p class="descr">Unlimited subdomains can be created for your applications and addresses.</p>
-        <p class="descr">You can add and verify the ownership of applications as well as social profiles to this domain.</p>
-      </div>
-      <div class="taken-domain-data" v-if="registration.taken">
-        <div class="left">
-          <p>Registration Date</p>
-          <p v-if="registration.taken.extension.created">{{ niceDate(registration.taken.extension.created) }}</p>
+      <div class="register-ctrl">
+        <div class="button-group select-expiry">
+          <a :class="{'active': registration.expiry == 1, 'btn-1year': true}" @click="registration.expiry = 1;">1 year</a>
+          <a :class="{'active': registration.expiry == 2, 'btn-2year': true}" @click="registration.expiry = 2;">2 years</a>
+          <a :class="{'active': registration.expiry == 3, 'btn-3year': true}" @click="registration.expiry = 3;">3 years</a>
         </div>
-        <div class="right">
-          <p>Expiration Date</p>
-          <p v-if="registration.taken.extension.expiry">{{ niceDate(registration.taken.extension.expiry) }}</p>
-        </div>
-        <div class="read-more">
-          <router-link class="domain-link" :to="'/domains/' + registration.taken.extension.domain">More info</router-link>
-        </div>
-      </div>
-      <div class="mintable" v-if="!registration.taken">
-        <hr />
-        <div class="register-ctrl">
-          <div class="button-group select-expiry">
-            <a :class="{'active': registration.expiry == 1, 'btn-1year': true}" @click="registration.expiry = 1;">1 year</a>
-            <a :class="{'active': registration.expiry == 2, 'btn-2year': true}" @click="registration.expiry = 2;">2 years</a>
-            <a :class="{'active': registration.expiry == 3, 'btn-3year': true}" @click="registration.expiry = 3;">3 years</a>
-          </div>
-          <div class="submit register">
-            <div class="cost">{{ formatFromMicro((config.base_cost * registration.expiry)) }}<span class="arch-logo">arch</span></div>
-            <button class="btn btn-register" @click="registrationHandler();">Register</button>
-          </div>
+        <div class="submit register">
+          <div class="cost">{{ formatFromMicro((config.base_cost * registration.expiry)) }}<span class="arch-logo">arch</span></div>
+          <button class="btn btn-register" @click="registrationHandler();">Register</button>
         </div>
       </div>
     </div>
+  </div>
 </template>
 
 <script>
@@ -105,6 +103,11 @@ export default {
     if (this.$root.connected) await this.tokenIds();
   },
   methods: {
+    connectHandler: function () {
+      const connectEl = document.getElementById('connect_modal');
+      console.log(connectEl);
+      connectEl.click();
+    },
     setTokenContract: async function () {
       this.config = await Config(this.cwClient);
       this.cw721 = this.config.cw721;
@@ -179,10 +182,9 @@ export default {
 .title, .title div {
   text-transform: uppercase;
 }
-input.domain-suffix, input.domain-suffix:focus, input.domain-suffix:active {
-  background: transparent;
-  color: inherit;
-  border: none;
+span.domain-suffix {
+  margin-left: -54px;
+  color: #666666;
 }
 .search-result.outer {
   border: 1px solid #F2EFED;
@@ -234,6 +236,9 @@ hr {
 }
 .taken-domain-data .right, .taken-domain-data .left {
   width: 50%;
+  display: inline-block;
+}
+input.domain {
   display: inline-block;
 }
 </style>

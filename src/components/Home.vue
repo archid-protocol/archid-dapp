@@ -82,13 +82,4 @@ export default {
   max-width: 90vw;
   padding: 3em;
 }
-input {
-  width: 500px;
-}
-input, label.withdraw-label {
-  margin-left: 5px;
-}
-input.number {
-  width: 45px;
-}
 </style>
