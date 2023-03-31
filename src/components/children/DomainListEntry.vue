@@ -132,6 +132,7 @@ export default {
     tokenData: async function () {
       if (!this.domain || typeof this.domain !== 'string') return;
       this.token = await Token(this.domain, this.cw721, this.cwClient);
+      if (this.token['extension']) this.updates.metadata = this.token.extension;
       console.log('Token query', this.token);
     },
     ownerData: async function () {
@@ -168,7 +169,7 @@ export default {
       this.modals.renew = false;
       console.log('RenewRegistration tx', this.executeResult);
       // Resolve new expiration in UI
-      await this.resolveDomainRecord();
+      await this.dataResolutionHandler();
     },
   },
 }
