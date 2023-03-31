@@ -1,6 +1,10 @@
 <template>
   <div class="page">
-    <h3>archid - domain: {{ domain }}</h3>
+    <div class="domain-banner">
+      <div class="title" v-if="domain">
+        <h3>{{domain}}</h3>
+      </div>
+    </div>
 
     <div class="query-result nft-metadata" v-if="token.extension">
       <p v-if="owner">
@@ -108,15 +112,11 @@ export default {
 </script>
 
 <style scoped>
-.page {
-  max-width: 90vw;
-  padding: 3em;
-}
-ul, ul li {
-  list-style: none;
-  padding: 0;
-}
-li, .query-result {
+.domain-banner {
+  padding: 4em;
+  background: #FF4D00;
+  color: #fff;
+  border-radius: 8px;
   margin-bottom: 1em;
 }
 </style>

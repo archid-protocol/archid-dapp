@@ -66,7 +66,7 @@
         </div>
         <div class="submit register">
           <div class="cost">{{ formatFromMicro((config.base_cost * registration.expiry)) }}<span class="arch-logo">arch</span></div>
-          <button class="btn btn-register" @click="registrationHandler();">Register</button>
+          <button class="btn btn-primary btn-register" @click="registrationHandler();">Register</button>
         </div>
       </div>
     </div>
@@ -76,6 +76,7 @@
 <script>
 import { Config } from '../../util/query';
 import { Token, Tokens } from '../../util/token';
+import { DateFormat } from '../../util/datetime';
 import { FromMicro } from '../../util/denom';
 
 export default {
@@ -97,6 +98,7 @@ export default {
       expiry: 1,
       taken: false,
     },
+    niceDate: DateFormat,
     formatFromMicro: FromMicro,
   }),
   mounted: async function () {
@@ -161,12 +163,6 @@ export default {
       };
       this.$emit('registration', registration);
     },
-    niceDate: function(seconds) {
-      let date = new Date((seconds * 1000));
-      return date.toLocaleDateString(
-          'en-us', { weekday:"long", year:"numeric", month:"short", day:"numeric"}
-      ) + ' at ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
-    },
   },
 }
 </script>
@@ -210,20 +206,6 @@ hr {
   margin-top: 2em;
   margin-bottom: 2em;
   clear: both;
-}
-.button-group {
-  border-radius: 4px;
-  padding: 1em;
-  border: 1px solid #F2EFED;
-  display: inline-block;
-}
-.button-group a {
-  padding: 0.75em;
-  margin-right: 1em;
-  cursor: pointer;
-}
-.button-group a.active {
-  color: #FF4D00;
 }
 .submit.register {
   float: right;

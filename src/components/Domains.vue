@@ -2,21 +2,37 @@
   <div class="page">
     <!-- Domain Banner -->
     <div class="domain-banner">
-      <DomainBanner
+      <DomainsBanner
         v-bind:title="title"
         v-bind:context="0"
         @filter="filter"
       >
-      </DomainBanner>
+      </DomainsBanner>
     </div>
     <ul v-if="tokens.length && !search">
       <li v-for="(domain, i) in tokens" :key="i">
-        <router-link :to="'/domains/' + domain">{{ domain }}</router-link>
+        <DomainListEntry
+          v-bind:domain="domain"
+          v-bind:cw721="cw721"
+          v-bind:cwClient="cwClient"
+          v-bind:isSubdomain="isSubdomain(domain)"
+          v-bind:baseCost="parseInt(config.base_cost)"
+          :key="'item-'+i"
+        >
+        </DomainListEntry>
       </li>
     </ul>
     <ul v-if="tokens.length && search">
       <li v-for="(domain, i) in filteredTokens" :key="i">
-        <router-link :to="'/domains/' + domain">{{ domain }}</router-link>
+        <DomainListEntry
+          v-bind:domain="domain"
+          v-bind:cw721="cw721"
+          v-bind:cwClient="cwClient"
+          v-bind:isSubdomain="isSubdomain(domain)"
+          v-bind:baseCost="parseInt(config.base_cost)"
+          :key="'item-'+i"
+        >
+        </DomainListEntry>
       </li>
       <li v-if="!filteredTokens.length">
         <p>No domains matching "{{ search }}"</p>
@@ -33,14 +49,16 @@ import { Client, Accounts } from '../util/client';
 import { Config } from '../util/query';
 import { Tokens } from '../util/token';
 
-import DomainBanner from './children/DomainBanner.vue';
+import DomainsBanner from './children/DomainsBanner.vue';
+import DomainListEntry from './children/DomainListEntry.vue';
 
 export default {
   name: 'Domains',
-  components: { DomainBanner },
+  components: { DomainsBanner, DomainListEntry },
   data: () => ({
     cwClient: null,
     accounts: null,
+    config: null,
     cw721: null,
     tokens: [],
     filteredTokens: [],
@@ -72,8 +90,8 @@ export default {
 
     // Query
     setTokenContract: async function () {
-      let cw721Query = await Config(this.cwClient);
-      this.cw721 = cw721Query.cw721;
+      this.config = await Config(this.cwClient);
+      this.cw721 = this.config.cw721;
       return;
     },
     tokenIds: async function () {
@@ -106,6 +124,12 @@ export default {
         this.search = null;
       }
     },
+
+    // Util
+    isSubdomain: function (domain = null) {
+      if (!domain || typeof domain !== 'string') return null;
+      return (domain.slice(0,-5).indexOf(".") >= 0) ? true : false
+    },
   },
 }
 </script>
@@ -115,10 +139,16 @@ export default {
   max-width: 90vw;
   padding: 3em;
 }
+ul {
+  padding-left: 0;
+}
 ul, ul li {
   list-style: none;
 }
 ul li {
-  padding: 1em;
+  padding: 32px;
+  margin-bottom: 1em;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 16px;
 }
 </style>

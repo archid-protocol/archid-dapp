@@ -1,0 +1,46 @@
+html, body {
+    background: #F2EFED;
+}
+
+div.page {
+    max-width: 90vw;
+    padding: 3em;
+}
+a, a:active, a:focus, a:hover {
+    color: inherit;
+}
+.btn-primary, .btn-primary:focus, .btn-primary:active  {
+    background-color: #FF4D00;
+    border-color: #FF4D00;
+}
+.btn-primary:hover {
+    background-color: #e64500;
+    border-color: #e64500;
+}
+.btn-inverse {
+    background-color: #fff;
+    color: #FF4D00;
+    border-color: #F2EFED;
+}
+.btn-inverse:hover {
+    color: #FF4D00;
+    background-color: #F2EFED;
+}
+.button-group {
+    border-radius: 4px;
+    padding: 1em;
+    border: 1px solid #F2EFED;
+    background: #fff;
+    display: inline-block;
+}
+.button-group a {
+    padding: 0.75em;
+    margin-right: 1em;
+    cursor: pointer;
+}
+.button-group a.active {
+    color: #FF4D00;
+}
+.close-x {
+    cursor: pointer;
+}

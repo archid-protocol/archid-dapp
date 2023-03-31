@@ -15,7 +15,7 @@
         <input 
           type="text" 
           placeholder="Search"
-          class="domain"
+          class="domain form-control"
           name="domain"
           @keyup="textSearchHandler"
           v-model="search.text"
@@ -45,8 +45,7 @@ export default {
       user: MY_DOMAINS_CONTEXT,
     },
   }),
-  mounted: async function () {
-  },
+  mounted: async function () {},
   methods: {
     typeSearchHandler: function (type) {
       if (typeof this.search.type !== 'number') return;

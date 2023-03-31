@@ -17,16 +17,16 @@
       <a id="user_account" @click="showNav = !showNav;">{{ accountDisplayFormat(accounts[0].address) }}</a>
     </div>
     <ul class="navigation" v-if="showNav">
-      <li v-if="route !== '/'">
+      <li>
         <router-link to="/" @click="route = '/';showNav = false;">Home</router-link>
       </li>
-      <li v-if="route !== '/test'">
+      <li>
         <router-link to="/test" @click="route = '/test';showNav = false;">Test Bench</router-link>
       </li>
-      <li v-if="route !== '/domains'">
+      <li>
         <router-link to="/domains" @click="route = '/domains';showNav = false;">Domains</router-link>
       </li>
-      <li v-if="route !== '/my-domains'">
+      <li>
         <router-link to="/my-domains" @click="route = '/my-domains';showNav = false;">My Domains</router-link>
       </li>
     </ul>
