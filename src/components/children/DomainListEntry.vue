@@ -30,6 +30,54 @@
             <button class="btn btn-inverse" @click="modals.renew = !modals.renew" v-if="!isSubdomain">Extend</button>
           </div>
         </div>
+        <!-- Identities -->
+        <div class="row id-row" v-if="!isSubdomain">
+          <!-- Accounts -->
+          <div class="col accounts clear">
+            <div class="title accounts-title">
+              <span class="icon icon-accounts"></span>
+              <h5>Accounts</h5>
+              <div class="float-right add account">
+                <span>+</span>
+              </div>
+              <div class="accounts-list">
+                <div class="account-item item" v-for="(account, i) in token.extension.accounts" :key="i">
+                  <a :href="account.profile" target="_blank">{{account.account_type}}</a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Websites & Apps -->
+          <div class="col websites clear">
+            <div class="title websites-title">
+              <span class="icon icon-websites"></span>
+              <h5>Websites & Apps</h5>
+              <div class="float-right add website">
+                <span>+</span>
+              </div>
+              <div class="websites-list">
+                <div class="website-item item" v-for="(website, i) in token.extension.websites" :key="i">
+                  <a :href="website.url" target="_blank">{{website.domain}}</a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Subdomains -->
+          <div class="col subdomains clear">
+            <div class="title subdomains-title">
+              <span class="icon icon-subdomains"></span>
+              <h5>Subdomains</h5>
+              <div class="float-right add subdomain">
+                <span>+</span>
+              </div>
+              <div class="subdomains-list">
+                <div class="subdomain-item item" v-for="(subdomain, i) in token.extension.subdomains" :key="i">
+                  <router-link :to="'/domains/' + subdomain.name + '.' + domain">{{subdomain.name + '.' + domain}}</router-link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="loading" v-if="!token">
         <p>Loading domain data...</p>
@@ -239,5 +287,41 @@ div.domain-resolver.value {
   font-weight: 400;
   font-size: 16px;
   line-height: 150%;
+}
+div.id-row {
+  margin-top: 2em;
+}
+.id-row .col {
+  padding: 16px;
+  gap: 16px;
+  background: #F2EFED;
+  border-radius: 8px;
+  margin-right: 1em;
+  justify-content: space-between;
+}
+.col h5 {
+  width: 80%;
+  display: inline-block;
+}
+div.add {
+  color: #FF4D00;
+  display: inline-block;
+  padding: 1em;
+  background-color: #fff;
+  max-width: 48px;
+  max-height: 48px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.add span {
+  position: relative;
+  top: -4px;
+}
+div.item {
+  background-color: #fff;
+  padding: 16px;
+  gap: 16px;
+  border-radius: 8px;
+  margin-top: 2em;
 }
 </style>

@@ -44,3 +44,12 @@ a, a:active, a:focus, a:hover {
 .close-x {
     cursor: pointer;
 }
+.float-right {
+    float: right;
+}
+.float-left {
+    float: left;
+}
+.clear {
+    clear: both;
+}
