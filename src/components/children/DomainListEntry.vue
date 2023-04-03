@@ -24,7 +24,6 @@
             <p class="value">{{ niceDate(domainRecord.expiration) }}</p>
           </div>
           <div class="col ctrl">
-            <!-- XXX TODO: Update domain metadata -->
             <button class="btn btn-inverse" v-if="!isReadOnly || (owner.owner == viewer && owner)" @click="executeUpdateMetadata();" :disabled="!editing">Update</button>
             <button class="btn btn-inverse" @click="modals.renew = !modals.renew" v-if="!isSubdomain">Extend</button>
           </div>
@@ -178,12 +177,98 @@
             <div class="title websites-title">
               <span class="icon icon-websites"></span>
               <h5>Websites & Apps</h5>
-              <div class="float-right add website" v-if="!isReadOnly || (owner.owner == viewer && owner)">
-                <span>+</span>
+              <div class="float-right add account" v-if="!isReadOnly || (owner.owner == viewer && owner)" @click="creating.website = !creating.website;">
+                <span v-if="!creating.website">+</span>
+                <span v-if="creating.website">&times;</span>
               </div>
               <div class="websites-list">
+                <!-- Current Websites -->
                 <div class="website-item item" v-for="(website, i) in token.extension.websites" :key="i+'-websites'">
-                  <a :href="website.url" target="_blank">{{website.url}}</a>
+                  <div class="left">
+                    <a :href="website.url" target="_blank">{{website.url}}</a>
+                  </div>
+                  <div class="right">
+                    <div :class="{'caret': true, 'active': ui.websites[i].open}" v-if="ui.websites[i]" @click="ui.websites[i].open = !ui.websites[i].open">&caron;</div>
+                  </div>
+                  <div class="website-item item-details" v-if="ui.websites[i].open">
+                    <hr class="title-hr" />
+                    <!-- Website URL -->
+                    <label v-if="website.url">
+                      <span>Website</span>
+                    </label>
+                    <div class="website-url value" v-if="website.url">{{website.url}}</div>
+                    <!-- Website Domain -->
+                    <label v-if="website.domain">Domain</label>
+                    <div class="website-domain value" v-if="website.domain">{{website.domain}}</div>
+                    <hr class="footer-hr" v-if="!isReadOnly || (owner.owner == viewer && owner)" />
+                    <div class="account-item remove" v-if="!isReadOnly || (owner.owner == viewer && owner)">
+                      <p>
+                        <span class="pointer" @click="removeWebsite(i)">&times; Remove</span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <!-- Websites to be added -->
+                <div class="website-item item" v-for="(website, i) in newDomainItems.websites" :key="i+'-new-websites-add'">
+                  <div class="left">
+                    <a :href="website.url" target="_blank">{{website.url}}</a>
+                  </div>
+                  <div class="right">
+                    <div :class="{'caret': true, 'active': ui.newWebsites[i].open}" v-if="ui.newWebsites[i]" @click="ui.newWebsites[i].open = !ui.newWebsites[i].open">&caron;</div>
+                  </div>
+                  <div class="website-item item-details" v-if="ui.newWebsites[i].open">
+                    <hr class="title-hr" />
+                    <!-- Website URL -->
+                    <label v-if="website.url">
+                      <span>Website</span>
+                    </label>
+                    <div class="website-user value">{{website.url}}</div>
+                    <!-- Website Domain -->
+                    <label v-if="website.profile">Domain</label>
+                    <div class="website-profile value" v-if="website.profile">{{website.profile}}</div>
+                    <hr class="footer-hr" v-if="!isReadOnly || (owner.owner == viewer && owner)" />
+                    <div class="website-item remove" v-if="!isReadOnly || (owner.owner == viewer && owner)">
+                      <p>
+                        <span class="pointer" @click="removeNewWebsite(i)">&times; Remove</span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <!-- Add an Website form -->
+                <div class="new-website-item creating" v-if="creating.website">
+                  <!-- Add Website Titlebar -->
+                  <div class="new-website-title">
+                    <div class="left">
+                      <h5>New Application</h5>
+                    </div>
+                    <div class="right">
+                      <span class="close-x" @click="creating.website = !creating.website;">&times;</span>
+                    </div>
+                    <hr class="title-hr" />
+                  </div>
+                  <!-- Website URL -->
+                  <label class="website-label" for="website_url">
+                    <span>Website</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    class="metadata-website-url form-control" 
+                    name="website_url"
+                    v-model="newWebsiteModel.url" 
+                    placeholder="https://archid.app"
+                  />
+                  <!-- Website Domain -->
+                  <select class="metadata-website-type form-control" v-model="newWebsiteModel.domain" v-if="updates.metadata.subdomains.length">
+                    <option :value="null" disabled>Select a domain</option>
+                    <option :value="domain">{{domain}}</option>
+                    <option :value="subdomain.name + '.' + domain" v-for="(subdomain, i) in updates.metadata.subdomains" :key="'subdomain_val-'+i">{{String(subdomain.name + '.' + domain)}}</option>
+                  </select>
+                  <!-- Add Website Button -->
+                  <button 
+                    class="btn btn-primary full-width" 
+                    @click="addWebsite();" 
+                    :disabled="!newWebsiteModel.url || !newWebsiteModel.domain"
+                  >Create</button>
                 </div>
               </div>
             </div>
@@ -306,6 +391,19 @@ export default {
       username: null,
       verfication_hash: null,
     },
+    newWebsiteModel: {
+      url: null,
+      domain: null,
+      verfication_hash: null,
+    },
+    newSubdomainModel: {
+      domain: null,
+      subdomain: null,
+      new_resolver: null,
+      new_owner: null,
+      mint: null,
+      expiration: null,
+    },
     newDomainItems: {
       accounts: [],
       subdomains: [],
@@ -331,8 +429,8 @@ export default {
       }
       this.closed = !this.closed;
     },
-    dataResolutionHandler: async function () {
-      if (this.token && this.owner && this.domainRecord && this.viewer) return;
+    dataResolutionHandler: async function (force = false) {
+      if (this.token && this.owner && this.domainRecord && this.viewer && !force) return;
       let viewer;
       await this.tokenData();
       await this.ownerData();
@@ -344,6 +442,14 @@ export default {
       if (!this.domain || typeof this.domain !== 'string') return;
       this.token = await Token(this.domain, this.cw721, this.cwClient);
       if (this.token['extension']) this.updates.metadata = this.token.extension;
+      this.ui = {
+        accounts: [],
+        newAccounts: [],
+        websites: [],
+        newWebsites: [],
+        subdomains: [],
+        newSubdomains: [],
+      };
       for (let i = 0; i < this.token.extension.accounts.length; i++) {
         this.ui.accounts.push({open: false});
       }
@@ -406,6 +512,24 @@ export default {
       this.creating.account = false;
       this.editing = true;
     },
+    addWebsite: function () {
+      if (!this.newWebsiteModel.url || !this.newWebsiteModel.domain) return;
+      // Decouple account to be added, from tmp account model
+      let website = JSON.parse(JSON.stringify(this.newWebsiteModel));
+      this.newDomainItems.websites.push(website);
+      this.ui.newWebsites.push({open: false});
+      // Reset website model
+      this.newWebsiteModel = {
+        url: null,
+        domain: null,
+        verfication_hash: null,
+      };
+      this.creating.website = false;
+      this.editing = true;
+    },
+    addSubdomain: function () {
+      console.log('TODO');
+    },
     removeAccount: function (index) {
       if (typeof index !== 'number') return;
       if (index < 0 || index > (this.updates.metadata.accounts.length - 1)) return;
@@ -417,6 +541,17 @@ export default {
       }
       this.ui.accounts = accountsUi;
     },
+    removeWebsite: function (index) {
+      if (typeof index !== 'number') return;
+      if (index < 0 || index > (this.updates.metadata.websites.length - 1)) return;
+      this.updates.metadata.websites.splice(index, 1);
+      this.editing = true;
+      let websitesUi = [];
+      for (let i = 0; i < this.updates.metadata.websites; i++) {
+        websitesUi.push({open: false});
+      }
+      this.ui.websites = websitesUi;
+    },
     removeNewAccount: function (index) {
       if (typeof index !== 'number') return;
       if (index < 0 || index > (this.newDomainItems.accounts - 1)) return;
@@ -427,11 +562,15 @@ export default {
       }
       this.ui.newAccounts = accountsUi;
     },
-    addWebsite: function () {
-      console.log('TODO');
-    },
-    addSubdomain: function () {
-      console.log('TODO');
+    removeNewWebsite: function (index) {
+      if (typeof index !== 'number') return;
+      if (index < 0 || index > (this.newDomainItems.websites - 1)) return;
+      this.newDomainItems.websites.splice(index, 1);
+      let websitesUi = [];
+      for (let i = 0; i < this.newDomainItems.websites; i++) {
+        websitesUi.push({open: false});
+      }
+      this.ui.newWebsites = websitesUi;
     },
     executeRenewRegistration: async function () {
       if (!this.domain || typeof this.domain !== 'string') return;
@@ -454,12 +593,26 @@ export default {
       this.modals.renew = false;
       console.log('RenewRegistration tx', this.executeResult);
       // Resolve new expiration in UI
-      await this.dataResolutionHandler();
+      await this.dataResolutionHandler(true);
     },
     executeUpdateMetadata: async function () {
       if (!this.updates.metadata) return;
-      this.updates.metadata.accounts = [...this.newDomainItems.accounts, ...this.updates.metadata.accounts];
-      this.updates.metadata.websites = [...this.newDomainItems.websites, ...this.updates.metadata.websites];
+      this.updates.metadata.accounts = [...this.updates.metadata.accounts, ...this.newDomainItems.accounts];
+      this.updates.metadata.websites = [...this.updates.metadata.websites, ...this.newDomainItems.websites];
+      
+      // Reset forms and data
+      this.newDomainItems.accounts = [];
+      this.newDomainItems.websites = [];
+      this.ui.accounts = [];
+      this.ui.websites = [];
+      for (let i = 0; i < this.updates.metadata.accounts.length; i++) {
+        this.ui.accounts.push({open: false});
+      }
+      for (let i = 0; i < this.updates.metadata.websites.length; i++) {
+        this.ui.websites.push({open: false});
+      }
+
+      // Do update metadata
       let domain = this.domain.slice(0,-5);
       this.executeResult = await UpdataUserDomainData(
         domain,
@@ -467,10 +620,9 @@ export default {
         this.cwClient
       );
       console.log('UpdataUserDomainData tx', this.executeResult);
-      // Reset forms and data
-      this.editing = false;
-      this.newDomainItems.accounts = [];
-      this.newDomainItems.websites = [];
+
+      // Refresh domain data
+      await this.dataResolutionHandler(true);
     },
 
     // Util
@@ -587,7 +739,9 @@ div.item {
   border-radius: 8px;
   margin-top: 2em;
 }
-div.new-account-item select, div.new-account-item input {
+div.new-account-item select, div.new-account-item input,
+div.new-website-item select, div.new-website-item input,
+div.new-subdomain-item select, div.new-subdomain-item input {
   margin-bottom: 1.25em;
 }
 div.creating {

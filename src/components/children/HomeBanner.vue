@@ -7,7 +7,7 @@
         <div class="ln-3">in Archway</div>
       </div>
       <div class="subtitle">
-        <p>A social social security number is how official sources identify you, but not how you introduce yourself. You do it with your name. Start using your ArchID instead of an unmemorable string to idenify yourself in Archway.</p>
+        <p>A social social security number is how official sources identify you, but not how you introduce yourself. You do it with your name. Start using your ArchID instead of an unmemorable string to identify yourself in Archway.</p>
       </div>
     </div>
     <div class="search" v-if="cwClient">
