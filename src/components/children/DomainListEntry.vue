@@ -450,14 +450,16 @@ export default {
         subdomains: [],
         newSubdomains: [],
       };
-      for (let i = 0; i < this.token.extension.accounts.length; i++) {
-        this.ui.accounts.push({open: false});
-      }
-      for (let i = 0; i < this.token.extension.websites.length; i++) {
-        this.ui.websites.push({open: false});
-      }
-      for (let i = 0; i < this.token.extension.subdomains.length; i++) {
-        this.ui.subdomains.push({open: false});
+      if (!this.isSubdomain) {
+        for (let i = 0; i < this.token.extension.accounts.length; i++) {
+          this.ui.accounts.push({open: false});
+        }
+        for (let i = 0; i < this.token.extension.websites.length; i++) {
+          this.ui.websites.push({open: false});
+        }
+        for (let i = 0; i < this.token.extension.subdomains.length; i++) {
+          this.ui.subdomains.push({open: false});
+        }
       }
       console.log('Token query', this.token);
     },
