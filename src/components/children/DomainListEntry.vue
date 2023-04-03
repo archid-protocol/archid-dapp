@@ -25,7 +25,7 @@
           </div>
           <div class="col ctrl">
             <!-- XXX TODO: Update domain metadata -->
-            <!-- <button class="btn btn-inverse">Update</button> -->
+            <button class="btn btn-inverse" v-if="!isReadOnly || (owner.owner == viewer && owner)" @click="executeUpdateMetadata();" :disabled="!editing">Update</button>
             <button class="btn btn-inverse" @click="modals.renew = !modals.renew" v-if="!isSubdomain">Extend</button>
           </div>
         </div>
@@ -36,12 +36,88 @@
             <div class="title accounts-title">
               <span class="icon icon-accounts"></span>
               <h5>Accounts</h5>
-              <div class="float-right add account" v-if="!isReadOnly">
-                <span>+</span>
+              <div class="float-right add account" v-if="!isReadOnly || (owner.owner == viewer && owner)" @click="creating.account = !creating.account;">
+                <span v-if="!creating.account">+</span>
+                <span v-if="creating.account">&times;</span>
               </div>
               <div class="accounts-list">
-                <div class="account-item item" v-for="(account, i) in token.extension.accounts" :key="i">
+                <!-- Current Accounts -->
+                <div class="account-item item" v-for="(account, i) in token.extension.accounts" :key="i+'-accounts'">
                   <a :href="account.profile" target="_blank">{{account.account_type}}</a>
+                </div>
+                <!-- Accounts to be added -->
+                <div class="account-item item" v-for="(account, i) in newDomainItems.accounts" :key="i+'-new-accounts'">
+                  <a :href="account.profile" target="_blank">{{account.account_type}}</a>
+                </div>
+                <!-- Add an Account form -->
+                <div class="new-account-item creating" v-if="creating.account">
+                  <!-- Add Account Titlebar -->
+                  <div class="new-account-title">
+                    <div class="left">
+                      <h5>New Account</h5>
+                    </div>
+                    <div class="right">
+                      <span class="close-x" @click="creating.account = !creating.account;">&times;</span>
+                    </div>
+                    <hr class="title-hr" />
+                  </div>
+                  <!-- Account Type -->
+                  <select class="metadata-account-type form-control" v-model="newAccountModel.account_type">
+                    <option :value="null" disabled>Select account type</option>
+                    <option :value="accountLabels.twitter">Twitter</option>
+                    <option :value="accountLabels.github">GitHub</option>
+                    <option :value="accountLabels.email">E-mail Adress</option>
+                  </select>
+                  <!-- Account Username -->
+                  <label class="account-label" for="account_username" v-if="newAccountModel.account_type">User</label>
+                  <input 
+                    type="text" 
+                    class="metadata-account-username form-control" 
+                    name="account_username"
+                    v-model="newAccountModel.username" 
+                    placeholder="@archid"
+                    v-if="newAccountModel.account_type == accountLabels.twitter"
+                  />
+                  <input 
+                    type="text" 
+                    class="metadata-account-username form-control" 
+                    name="account_username"
+                    v-model="newAccountModel.username" 
+                    placeholder="archid"
+                    v-if="newAccountModel.account_type == accountLabels.github"
+                  />
+                  <input 
+                    type="text" 
+                    class="metadata-account-username form-control" 
+                    name="account_username"
+                    v-model="newAccountModel.username" 
+                    placeholder="hello@archid.app"
+                    v-if="newAccountModel.account_type == accountLabels.email"
+                  />
+                  <!-- Account Profile -->
+                  <label class="account-label" for="account_profile" v-if="newAccountModel.account_type && newAccountModel.account_type !== accountLabels.email">Profile Link</label>
+                  <input 
+                    type="text" 
+                    class="metadata-account-profile form-control" 
+                    :name="'account_profile'"
+                    v-model="newAccountModel.profile" 
+                    placeholder="https://twitter.com/archid"
+                    v-if="newAccountModel.account_type == accountLabels.twitter"
+                  />
+                  <input 
+                    type="text" 
+                    class="metadata-account-profile form-control" 
+                    :name="'account_profile'"
+                    v-model="newAccountModel.profile" 
+                    placeholder="https://github.com/archid"
+                    v-if="newAccountModel.account_type == accountLabels.github"
+                  />
+                  <!-- Add Account Button -->
+                  <button 
+                    class="btn btn-primary full-width" 
+                    @click="addAccount();" 
+                    :disabled="!newAccountModel.account_type || !newAccountModel.username || (!newAccountModel.profile && newAccountModel.account_type !== accountLabels.email)"
+                  >Create</button>
                 </div>
               </div>
             </div>
@@ -51,12 +127,12 @@
             <div class="title websites-title">
               <span class="icon icon-websites"></span>
               <h5>Websites & Apps</h5>
-              <div class="float-right add website" v-if="!isReadOnly">
+              <div class="float-right add website" v-if="!isReadOnly || (owner.owner == viewer && owner)">
                 <span>+</span>
               </div>
               <div class="websites-list">
-                <div class="website-item item" v-for="(website, i) in token.extension.websites" :key="i">
-                  <a :href="website.url" target="_blank">{{website.domain}}</a>
+                <div class="website-item item" v-for="(website, i) in token.extension.websites" :key="i+'-websites'">
+                  <a :href="website.url" target="_blank">{{website.url}}</a>
                 </div>
               </div>
             </div>
@@ -66,11 +142,11 @@
             <div class="title subdomains-title">
               <span class="icon icon-subdomains"></span>
               <h5>Subdomains</h5>
-              <div class="float-right add subdomain" v-if="!isReadOnly">
+              <div class="float-right add subdomain" v-if="!isReadOnly || (owner.owner == viewer && owner)">
                 <span>+</span>
               </div>
               <div class="subdomains-list">
-                <div class="subdomain-item item" v-for="(subdomain, i) in token.extension.subdomains" :key="i">
+                <div class="subdomain-item item" v-for="(subdomain, i) in token.extension.subdomains" :key="i+'-subdomains'">
                   <router-link :to="'/domains/' + subdomain.name + '.' + domain">{{subdomain.name + '.' + domain}}</router-link>
                 </div>
               </div>
@@ -119,18 +195,24 @@
 </template>
 
 <script>
+import { Accounts } from '../../util/client';
 import { ResolveRecord } from '../../util/query';
 import { Token, OwnerOf } from '../../util/token';
 import {
   RenewRegistration,
 //   UpdateResolver,
 //   RegisterSubDomain,
-//   UpdataUserDomainData,
+  UpdataUserDomainData,
 //   RemoveSubDomain
 } from '../../util/execute';
 
 import { DateFormat } from '../../util/datetime';
 import { FromMicro } from '../../util/denom';
+
+const ACCOUNT_TYPES = ['twitter', 'github', 'email'];
+const TWITTER = ACCOUNT_TYPES[0];
+const GITHUB = ACCOUNT_TYPES[1];
+const EMAIL = ACCOUNT_TYPES[2];
 
 export default {
   props: {
@@ -144,15 +226,34 @@ export default {
   data: () => ({
     token: null,
     owner: null,
+    viewer: null,
+    editing: false,
     domainRecord: null,
     executeResult: null,
-    domainItems: {
-      accounts: null,
-      subdomains: null,
-      websites: null,
+    creating: {
+      account: false,
+      subdomain: false,
+      website: false,
+    },
+    accountTypes: ACCOUNT_TYPES,
+    accountLabels: {
+      twitter: TWITTER,
+      github: GITHUB,
+      email: EMAIL,
+    },
+    newAccountModel: {
+      account_type: null,
+      profile: null,
+      username: null,
+      verfication_hash: null,
+    },
+    newDomainItems: {
+      accounts: [],
+      subdomains: [],
+      websites: [],
     },
     updates: {
-      metadata: {},
+      metadata: null,
       expiry: 1,
       resolver: null
     },
@@ -172,10 +273,13 @@ export default {
       this.closed = !this.closed;
     },
     dataResolutionHandler: async function () {
-      if (this.token && this.owner && this.domainRecord) return;
+      if (this.token && this.owner && this.domainRecord && this.viewer) return;
+      let viewer;
       await this.tokenData();
       await this.ownerData();
       await this.resolveDomainRecord();
+      if (this.cwClient) viewer = await Accounts(this.cwClient);
+      if (viewer.length) this.viewer = viewer[0].address;
     },
     tokenData: async function () {
       if (!this.domain || typeof this.domain !== 'string') return;
@@ -195,6 +299,57 @@ export default {
         this.cwClient
       );
       console.log('ResolveRecord query', this.domainRecord);
+    },
+    addAccount: function () {
+      if (!this.newAccountModel.account_type || !this.newAccountModel.profile || !this.newAccountModel.username) return;
+      // Decouple account to be added, from tmp account model
+      let account = JSON.parse(JSON.stringify(this.newAccountModel));
+      if (account.account_type == TWITTER) {
+        if (account.username.slice(0,1) !== "@") {
+          account.username = "@" + account.username;
+        }
+      } else if (account.account_type == EMAIL) {
+        if (!this.validEmailChars(account.username)) {
+          console.error("Invalid email address");
+          return;
+        } else {
+          account.profile = null;
+        }
+      }
+      if (account.profile) {
+        if (account.profile.slice(0,8) !== "https://" && account.profile.slice(0,7) !== "http://") {
+          console.error("Invalid website address");
+          return;
+        }
+      }
+      this.newDomainItems.accounts.push(account);
+      // Reset account model
+      this.newAccountModel = {
+        account_type: null,
+        profile: null,
+        username: null,
+        verfication_hash: null,
+      };
+      console.log("Account to be added", account);
+      this.creating.account = false;
+      this.editing = true;
+    },
+    removeAccount: function (index) {
+      if (!index || typeof index !== 'number') return;
+      if (index < 0 || index > (this.updates.metadata.accounts.length - 1)) return;
+      this.updates.metadata.accounts.splice(index, 1);
+      this.editing = true;
+    },
+    removeNewAccount: function (index) {
+      if (!index || typeof index !== 'number') return;
+      if (index < 0 || index > (this.newDomainItems.accounts - 1)) return;
+      this.newDomainItems.accounts.splice(index, 1);
+    },
+    addWebsite: function () {
+      console.log('TODO');
+    },
+    addSubdomain: function () {
+      console.log('TODO');
     },
     executeRenewRegistration: async function () {
       if (!this.domain || typeof this.domain !== 'string') return;
@@ -218,6 +373,28 @@ export default {
       console.log('RenewRegistration tx', this.executeResult);
       // Resolve new expiration in UI
       await this.dataResolutionHandler();
+    },
+    executeUpdateMetadata: async function () {
+      if (!this.updates.metadata) return;
+      this.updates.metadata.accounts = [...this.newDomainItems.accounts, ...this.updates.metadata.accounts];
+      this.updates.metadata.websites = [...this.newDomainItems.websites, ...this.updates.metadata.websites];
+      let domain = this.domain.slice(0,-5);
+      this.executeResult = await UpdataUserDomainData(
+        domain,
+        this.updates.metadata,
+        this.cwClient
+      );
+      console.log('UpdataUserDomainData tx', this.executeResult);
+      // Reset forms and data
+      this.editing = false;
+      this.newDomainItems.accounts = [];
+      this.newDomainItems.websites = [];
+    },
+
+    // Util
+    validEmailChars: function (email) {
+      let re = /\S+@\S+\.\S+/;
+      return re.test(email);
     },
   },
 }
@@ -326,5 +503,16 @@ div.item {
   gap: 16px;
   border-radius: 8px;
   margin-top: 2em;
+}
+div.new-account-item select, div.new-account-item input {
+  margin-bottom: 1.25em;
+}
+div.creating {
+  margin-top: 1em;
+  padding: 16px;
+  gap: 16px;
+  background: #FFFFFF;
+  box-shadow: 0px 15px 54px rgba(0, 0, 0, 0.06);
+  border-radius: 4px;
 }
 </style>
