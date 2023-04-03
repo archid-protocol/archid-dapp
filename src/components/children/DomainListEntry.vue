@@ -43,11 +43,59 @@
               <div class="accounts-list">
                 <!-- Current Accounts -->
                 <div class="account-item item" v-for="(account, i) in token.extension.accounts" :key="i+'-accounts'">
-                  <a :href="account.profile" target="_blank">{{account.account_type}}</a>
+                  <div class="left">
+                    <a :href="account.profile" target="_blank" v-if="account.account_type !== accountLabels.email">{{account.account_type}}</a>
+                    <a :href="'mailto:'+account.username" v-if="account.account_type == accountLabels.email">{{account.account_type}}</a>
+                  </div>
+                  <div class="right">
+                    <div :class="{'caret': true, 'active': ui.accounts[i].open}" v-if="ui.accounts[i]" @click="ui.accounts[i].open = !ui.accounts[i].open">&caron;</div>
+                  </div>
+                  <div class="account-item item-details" v-if="ui.accounts[i].open">
+                    <hr class="title-hr" />
+                    <!-- Username -->
+                    <label>
+                      <span v-if="account.account_type !== accountLabels.email">Username</span>
+                      <span v-if="account.account_type == accountLabels.email">E-mail</span>
+                    </label>
+                    <div class="account-user value">{{account.username}}</div>
+                    <!-- Profile -->
+                    <label v-if="account.profile">Profile</label>
+                    <div class="account-profile value" v-if="account.profile">{{account.profile}}</div>
+                    <hr class="footer-hr" v-if="!isReadOnly || (owner.owner == viewer && owner)" />
+                    <div class="account-item remove" v-if="!isReadOnly || (owner.owner == viewer && owner)">
+                      <p>
+                        <span class="pointer" @click="removeAccount(i)">&times; Remove</span>
+                      </p>
+                    </div>
+                  </div>
                 </div>
                 <!-- Accounts to be added -->
                 <div class="account-item item" v-for="(account, i) in newDomainItems.accounts" :key="i+'-new-accounts'">
-                  <a :href="account.profile" target="_blank">{{account.account_type}}</a>
+                  <div class="left">
+                    <a :href="account.profile" target="_blank" v-if="account.account_type !== accountLabels.email">{{account.account_type}}</a>
+                    <a :href="'mailto:'+account.username" v-if="account.account_type == accountLabels.email">{{account.account_type}}</a>
+                  </div>
+                  <div class="right">
+                    <div :class="{'caret': true, 'active': ui.newAccounts[i].open}" v-if="ui.newAccounts[i]" @click="ui.newAccounts[i].open = !ui.newAccounts[i].open">&caron;</div>
+                  </div>
+                  <div class="account-item item-details" v-if="ui.newAccounts[i].open">
+                    <hr class="title-hr" />
+                    <!-- Username -->
+                    <label>
+                      <span v-if="account.account_type !== accountLabels.email">Username</span>
+                      <span v-if="account.account_type == accountLabels.email">E-mail</span>
+                    </label>
+                    <div class="account-user value">{{account.username}}</div>
+                    <!-- Profile -->
+                    <label v-if="account.profile">Profile</label>
+                    <div class="account-profile value" v-if="account.profile">{{account.profile}}</div>
+                    <hr class="footer-hr" v-if="!isReadOnly || (owner.owner == viewer && owner)" />
+                    <div class="account-item remove" v-if="!isReadOnly || (owner.owner == viewer && owner)">
+                      <p>
+                        <span class="pointer" @click="removeNewAccount(i)">&times; Remove</span>
+                      </p>
+                    </div>
+                  </div>
                 </div>
                 <!-- Add an Account form -->
                 <div class="new-account-item creating" v-if="creating.account">
@@ -66,10 +114,13 @@
                     <option :value="null" disabled>Select account type</option>
                     <option :value="accountLabels.twitter">Twitter</option>
                     <option :value="accountLabels.github">GitHub</option>
-                    <option :value="accountLabels.email">E-mail Adress</option>
+                    <option :value="accountLabels.email">E-mail Address</option>
                   </select>
                   <!-- Account Username -->
-                  <label class="account-label" for="account_username" v-if="newAccountModel.account_type">User</label>
+                  <label class="account-label" for="account_username" v-if="newAccountModel.account_type">
+                    <span v-if="newAccountModel.account_type !== accountLabels.email">Username</span>
+                    <span v-if="newAccountModel.account_type == accountLabels.email">E-mail</span>
+                  </label>
                   <input 
                     type="text" 
                     class="metadata-account-username form-control" 
@@ -230,6 +281,14 @@ export default {
     editing: false,
     domainRecord: null,
     executeResult: null,
+    ui: {
+      accounts: [],
+      newAccounts: [],
+      websites: [],
+      newWebsites: [],
+      subdomains: [],
+      newSubdomains: [],
+    },
     creating: {
       account: false,
       subdomain: false,
@@ -285,6 +344,15 @@ export default {
       if (!this.domain || typeof this.domain !== 'string') return;
       this.token = await Token(this.domain, this.cw721, this.cwClient);
       if (this.token['extension']) this.updates.metadata = this.token.extension;
+      for (let i = 0; i < this.token.extension.accounts.length; i++) {
+        this.ui.accounts.push({open: false});
+      }
+      for (let i = 0; i < this.token.extension.websites.length; i++) {
+        this.ui.websites.push({open: false});
+      }
+      for (let i = 0; i < this.token.extension.subdomains.length; i++) {
+        this.ui.subdomains.push({open: false});
+      }
       console.log('Token query', this.token);
     },
     ownerData: async function () {
@@ -301,7 +369,11 @@ export default {
       console.log('ResolveRecord query', this.domainRecord);
     },
     addAccount: function () {
-      if (!this.newAccountModel.account_type || !this.newAccountModel.profile || !this.newAccountModel.username) return;
+      if (
+        !this.newAccountModel.account_type 
+        || !this.newAccountModel.username
+        || (!this.newAccountModel.profile && this.newAccountModel.account_type !== this.accountLabels.email) 
+      ) return;
       // Decouple account to be added, from tmp account model
       let account = JSON.parse(JSON.stringify(this.newAccountModel));
       if (account.account_type == TWITTER) {
@@ -318,11 +390,12 @@ export default {
       }
       if (account.profile) {
         if (account.profile.slice(0,8) !== "https://" && account.profile.slice(0,7) !== "http://") {
-          console.error("Invalid website address");
+          console.error("Invalid website address, site URLs must begin with 'http://' or 'https://'");
           return;
         }
       }
       this.newDomainItems.accounts.push(account);
+      this.ui.newAccounts.push({open: false});
       // Reset account model
       this.newAccountModel = {
         account_type: null,
@@ -330,20 +403,29 @@ export default {
         username: null,
         verfication_hash: null,
       };
-      console.log("Account to be added", account);
       this.creating.account = false;
       this.editing = true;
     },
     removeAccount: function (index) {
-      if (!index || typeof index !== 'number') return;
+      if (typeof index !== 'number') return;
       if (index < 0 || index > (this.updates.metadata.accounts.length - 1)) return;
       this.updates.metadata.accounts.splice(index, 1);
       this.editing = true;
+      let accountsUi = [];
+      for (let i = 0; i < this.updates.metadata.accounts; i++) {
+        accountsUi.push({open: false});
+      }
+      this.ui.accounts = accountsUi;
     },
     removeNewAccount: function (index) {
-      if (!index || typeof index !== 'number') return;
+      if (typeof index !== 'number') return;
       if (index < 0 || index > (this.newDomainItems.accounts - 1)) return;
       this.newDomainItems.accounts.splice(index, 1);
+      let accountsUi = [];
+      for (let i = 0; i < this.newDomainItems.accounts; i++) {
+        accountsUi.push({open: false});
+      }
+      this.ui.newAccounts = accountsUi;
     },
     addWebsite: function () {
       console.log('TODO');
@@ -450,11 +532,12 @@ div.caret.active {
 }
 .ctrl button {
   float: right;
+  margin-left: 0.5rem;
 }
 .ctrl, .row {
   clear: both;
 }
-div.domain-resolver.value {
+div.value {
   padding: 16px;
   font-weight: 400;
   font-size: 16px;
@@ -514,5 +597,11 @@ div.creating {
   background: #FFFFFF;
   box-shadow: 0px 15px 54px rgba(0, 0, 0, 0.06);
   border-radius: 4px;
+}
+.item-details label, .item-details div {
+  margin-top: 1em;
+}
+.remove {
+  color: #FF4D00;
 }
 </style>

@@ -41,7 +41,7 @@ a, a:active, a:focus, a:hover {
 .button-group a.active {
     color: #FF4D00;
 }
-.close-x {
+.close-x, .pointer {
     cursor: pointer;
 }
 .float-right {
