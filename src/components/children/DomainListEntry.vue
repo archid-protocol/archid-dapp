@@ -73,7 +73,6 @@
                   <div class="left">
                     <a :href="account.profile" target="_blank" v-if="account.account_type !== accountLabels.email">{{account.account_type}}</a>
                     <a :href="'mailto:'+account.username" v-if="account.account_type == accountLabels.email">{{account.account_type}}</a>
-                    <span class="italic">(draft)</span>
                   </div>
                   <div class="right">
                     <div :class="{'caret': true, 'active': ui.newAccounts[i].open}" v-if="ui.newAccounts[i]" @click="ui.newAccounts[i].open = !ui.newAccounts[i].open">&caron;</div>
@@ -213,7 +212,6 @@
                 <div class="website-item item" v-for="(website, i) in newDomainItems.websites" :key="i+'-new-websites-add'">
                   <div class="left">
                     <a :href="website.url" target="_blank">{{website.url}}</a>
-                    <span class="italic">(draft)</span>
                   </div>
                   <div class="right">
                     <div :class="{'caret': true, 'active': ui.newWebsites[i].open}" v-if="ui.newWebsites[i]" @click="ui.newWebsites[i].open = !ui.newWebsites[i].open">&caron;</div>
@@ -309,8 +307,6 @@
                     </div>
                   </div>
                 </div>
-                
-
                 <!-- Add a Subdomain form -->
                 <div class="new-subdomain-item creating" v-if="creating.subdomain">
                   <!-- Add Subdomain Titlebar -->
