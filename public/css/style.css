@@ -1,10 +1,10 @@
 html, body {
     background: #F2EFED;
 }
-
 div.page {
     max-width: 90vw;
     padding: 3em;
+    margin: auto;
 }
 a, a:active, a:focus, a:hover {
     color: inherit;
@@ -58,4 +58,7 @@ a, a:active, a:focus, a:hover {
 }
 .italic {
     font-style: italic;
+}
+.search-target {
+    color: #FF4D00;
 }

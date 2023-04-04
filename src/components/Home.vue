@@ -43,7 +43,7 @@ export default {
       if (connected) {
         this.resumeConnectedState();
       } else {
-        this.accountDisplay = "archway1289";
+        this.accountDisplay = "archway12891";
       }
     }
   },
@@ -76,10 +76,3 @@ export default {
   },
 }
 </script>
-
-<style scoped>
-.page {
-  max-width: 90vw;
-  padding: 3em;
-}
-</style>

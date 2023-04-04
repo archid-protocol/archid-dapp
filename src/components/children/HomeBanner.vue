@@ -1,8 +1,8 @@
 <template>
-  <div class="welcome" v-if="account">
+  <div class="welcome" v-if="account" :style="'background-image: url(' + welcomeBannerBg + ');'">
     <div class="details" v-if="!search.result">
       <div class="title">
-        <div class="ln-1">Hello <span class="your-name">{{ account.slice(0,11) }}</span>,</div>
+        <div class="ln-1">Hello, <span class="your-name">{{ account.slice(0,12) }}</span></div>
         <div class="ln-2">This is who you are</div>
         <div class="ln-3">in Archway</div>
       </div>
@@ -22,7 +22,7 @@
       <span class="domain-suffix">.arch</span>
     </div>
     <div class="connect" v-if="!cwClient">
-      <button class="btn btn-primary btn-connect" @click="connectHandler();">Connect & Register domain</button>
+      <button class="btn btn-inverse btn-connect" @click="connectHandler();">Connect & Register domain</button>
     </div>
   </div>
   <div class="search-result outer" v-if="search.result">
@@ -100,6 +100,7 @@ export default {
     },
     niceDate: DateFormat,
     formatFromMicro: FromMicro,
+    welcomeBannerBg: '/img/homebanner.svg',
   }),
   mounted: async function () {
     if (this.$root.connected) await this.tokenIds();
@@ -170,10 +171,29 @@ export default {
 <style scoped>
 .welcome {
   padding: 4em;
+  padding-bottom: 1.5em;
   background: #FF4D00;
+  background-repeat: no-repeat;
+  background-size: 300px;
+  background-position: right 37px;
   color: #fff;
   border-radius: 8px;
   margin-bottom: 1em;
+}
+.title div, span.your-name {
+  font-style: normal;
+  font-weight: 600;
+  font-size: 76px;
+  line-height: 100%;
+}
+span.your-name {
+  background-image: linear-gradient(90deg,#fff 0%,rgba(0,0,0,0));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  position: relative;
+  display: inline-block;
+  opacity: 0.7;
 }
 .title, .title div {
   text-transform: uppercase;
@@ -222,10 +242,20 @@ hr {
 }
 input.domain {
   display: inline-block;
+  padding: 16px;
+  height: 65px
 }
-</style>
-<style>
-.search-target {
-  color: #FF4D00;
+div.subtitle {
+  max-width: 655px;
+  margin-right: auto;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+div.subtitle p {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 150%;
+  align-items: center;
+  letter-spacing: -0.01em;
 }
 </style>

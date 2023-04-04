@@ -32,7 +32,7 @@
     </ul>
   </div>
   <div class="page-content" v-if="connected || route == '/'">
-    <router-view test="test" :key="render" />
+    <router-view :key="render" />
   </div>
 
   <transition name="modal" v-if="!connected">
