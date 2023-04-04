@@ -7,7 +7,7 @@
       <div :class="{'caret': true, 'active': !closed}" @click="domainDetails();">&caron;</div>
     </div>
     <div class="body" v-if="!closed">
-      <div class="container" v-if="token">
+      <div class="container-c" v-if="token">
         <!-- Description -->
         <div class="description row" v-if="token.extension">
           <p class="descr">Description</p>
