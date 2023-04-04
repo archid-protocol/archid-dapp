@@ -27,7 +27,27 @@
         <div class="domain-record row" v-if="domainRecord">
           <div class="col resolver">
             <p class="descr">Domain Record</p>
-            <div class="domain-resolver value">{{domainRecord.address}}</div><!-- XXX TODO: UpdateResolver impl.  -->
+            <div 
+              :class="{'domain-resolver': true, 'value': true, 'configurable': owner.owner == viewer && owner}"
+              @click="editDomainRecordHandler();"
+              v-if="!editingResolver || (owner.owner !== viewer && owner)"
+            >{{domainRecord.address}}</div>
+            <div class="input-group domain-record" v-if="editingResolver && owner.owner == viewer && owner">
+              <input 
+                type="text" 
+                class="metadata-token-description form-control" 
+                name="token_description"
+                v-model="updates.resolver"
+                placeholder="Archway address for this domain"
+              />
+              <span class="input-group-text pointer exit edit-descr" @click="editDomainRecordHandler();">&times;</span>
+            </div>
+            <button 
+              class="btn btn-primary btn-update-resolver"
+              v-if="editingResolver && owner.owner == viewer && owner"
+              @click="executeUpdateResolver();"
+              :disabled="!updates.resolver || updates.resolver.length < 46"
+            >Update Record</button>
           </div>
           <div class="col expiry">
             <p class="descr">Expiration date</p>
@@ -432,7 +452,7 @@ import { ResolveRecord } from '../../util/query';
 import { Token, OwnerOf } from '../../util/token';
 import {
   RenewRegistration,
-//   UpdateResolver,
+  UpdateResolver,
   RegisterSubDomain,
   UpdataUserDomainData,
   RemoveSubDomain,
@@ -585,6 +605,11 @@ export default {
         this.editingText = true;
       }
     },
+    editDomainRecordHandler: function () {
+      if (!this.owner || !this.viewer) return;
+      if (this.owner.owner !== this.viewer) return;
+      this.editingResolver = !this.editingResolver;
+    },
     addAccount: function () {
       if (
         !this.newAccountModel.account_type 
@@ -706,14 +731,9 @@ export default {
       if (!this.domain || typeof this.domain !== 'string') return;
       if (!this.updates.expiry || typeof this.updates.expiry !== 'number') return;
       if (!this.baseCost || typeof this.baseCost !== 'number') return;
+      this.resetFormIters();
       let cost = this.baseCost * this.updates.expiry;
       let domain = this.domain.slice(0,-5);
-      console.log("Renew Registration Params", {
-        domain: domain,
-        expiry: this.updates.expiry,
-        cost: cost,
-        client: this.cwClient
-      });
       this.executeResult = await RenewRegistration(
         domain,
         this.updates.expiry,
@@ -729,7 +749,69 @@ export default {
       if (!this.updates.metadata) return;
       this.updates.metadata.accounts = [...this.updates.metadata.accounts, ...this.newDomainItems.accounts];
       this.updates.metadata.websites = [...this.updates.metadata.websites, ...this.newDomainItems.websites];
-      
+      this.resetFormIters();
+      // Do update metadata
+      let domain = this.domain.slice(0,-5);
+      this.executeResult = await UpdataUserDomainData(
+        domain,
+        this.updates.metadata,
+        this.cwClient
+      );
+      console.log('UpdataUserDomainData tx', this.executeResult);
+      // Refresh domain
+      await this.dataResolutionHandler(true);
+    },
+    executeUpdateResolver: async function () {
+      if (!this.updates.resolver || !this.domain) return;
+      this.resetFormIters();
+      let domain = this.domain.slice(0,-5);
+      this.executeResult = await UpdateResolver(
+        domain,
+        this.updates.resolver,
+        this.cwClient
+      );
+      console.log('UpdateResolver tx', this.executeResult);
+      // Refresh domain
+      await this.dataResolutionHandler(true);
+    },
+    executeRegisterSubdomain: async function (subdomain) {
+      if (typeof subdomain !== 'object') return;
+      if (!subdomain.domain || !subdomain.subdomain || !subdomain.new_resolver || !subdomain.new_owner || !subdomain.expiration) return;
+      this.resetFormIters();
+      this.result.execute = await RegisterSubDomain(
+        subdomain.domain,
+        subdomain.subdomain,
+        subdomain.new_resolver,
+        subdomain.new_owner,
+        true,
+        subdomain.expiration,
+        this.cwClient
+      );
+      console.log('RegisterSubDomain tx', this.result.execute);
+      // Refresh domain
+      await this.dataResolutionHandler(true);
+    },
+    executeRemoveSubdomain: async function (subdomain) {
+      if (typeof subdomain !== 'object') return;
+      if (!this.domain || !subdomain['name']) return;
+      this.resetFormIters();
+      let domain = this.domain.slice(0,-5);
+      this.executeResult = await RemoveSubDomain(
+        domain,
+        subdomain.name,
+        this.cwClient
+      );
+      console.log('RemoveSubDomain tx', this.executeResult);
+      // Refresh domain
+      await this.dataResolutionHandler(true);
+    },
+
+    // Util
+    validEmailChars: function (email) {
+      let re = /\S+@\S+\.\S+/;
+      return re.test(email);
+    },
+    resetFormIters: function () {
       if (!this.isSubdomain) {
         // Reset forms and data
         this.newDomainItems.accounts = [];
@@ -743,57 +825,7 @@ export default {
           this.ui.websites.push({open: false});
         }
       }
-
-      // Do update metadata
-      let domain = this.domain.slice(0,-5);
-      this.executeResult = await UpdataUserDomainData(
-        domain,
-        this.updates.metadata,
-        this.cwClient
-      );
-      console.log('UpdataUserDomainData tx', this.executeResult);
-
-      // Refresh domain
-      await this.dataResolutionHandler(true);
-    },
-    executeRegisterSubdomain: async function (subdomain) {
-      if (typeof subdomain !== 'object') return;
-      if (!subdomain.domain || !subdomain.subdomain || !subdomain.new_resolver || !subdomain.new_owner || !subdomain.expiration) return;
-
-      this.result.execute = await RegisterSubDomain(
-        subdomain.domain,
-        subdomain.subdomain,
-        subdomain.new_resolver,
-        subdomain.new_owner,
-        true,
-        subdomain.expiration,
-        this.cwClient
-      );
-      console.log('RegisterSubDomain tx', this.result.execute);
-
-      // Refresh domain
-      await this.dataResolutionHandler(true);
-    },
-    executeRemoveSubdomain: async function (subdomain) {
-      if (typeof subdomain !== 'object') return;
-      if (!this.domain || !subdomain['name']) return;
-      let domain = this.domain.slice(0,-5);
-      this.executeResult = await RemoveSubDomain(
-        domain,
-        subdomain.name,
-        this.cwClient
-      );
-      console.log('RemoveSubDomain tx', this.executeResult);
-
-      // Refresh domain
-      await this.dataResolutionHandler(true);
-    },
-
-    // Util
-    validEmailChars: function (email) {
-      let re = /\S+@\S+\.\S+/;
-      return re.test(email);
-    },
+    }
   },
 }
 </script>
@@ -929,7 +961,7 @@ div.metadata-token-description, p.configurable,
 input.metadata-subdomain-name {
   width: 75%;
 }
-p.configurable {
+.configurable {
   cursor: pointer;
 }
 .new-subdomain-item.creating div input {
@@ -937,5 +969,8 @@ p.configurable {
 }
 .new-subdomain-item.creating div span.input-group-text {
   height: 38px;
+}
+.btn-update-resolver {
+  margin-top: 1em;
 }
 </style>
