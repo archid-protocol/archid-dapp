@@ -578,7 +578,12 @@ export default {
     editDescriptionHandler: function () {
       if (!this.owner || !this.viewer) return;
       if (this.owner.owner !== this.viewer) return;
-      this.editingText = !this.editingText;
+      if (this.editingText) {
+        this.editing = true;
+        this.editingText = false;
+      } else {
+        this.editingText = true;
+      }
     },
     addAccount: function () {
       if (
@@ -920,7 +925,7 @@ div.creating {
 p.subdomain {
   margin-bottom: 1em;
 }
-div.metadata-token-description,
+div.metadata-token-description, p.configurable,
 input.metadata-subdomain-name {
   width: 75%;
 }
