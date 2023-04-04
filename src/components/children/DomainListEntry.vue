@@ -11,20 +11,30 @@
         <!-- Description -->
         <div class="description row" v-if="token.extension">
           <p class="descr">Description</p>
-          <p class="value token-description">{{token.extension.description}}</p>
+          <p :class="{'value': true, 'token-description': true, 'configurable': owner.owner == viewer && owner}" @click="editDescriptionHandler();" v-if="!editingText || (owner.owner !== viewer && owner)">{{token.extension.description}}</p>
+          <div class="input-group metadata-token-description" v-if="editingText && owner.owner == viewer && owner">
+            <input 
+              type="text" 
+              class="metadata-token-description form-control" 
+              name="token_description"
+              v-model="updates.metadata.description"
+              placeholder="Describe your ArchID domain"
+            />
+            <span class="input-group-text pointer exit edit-descr" @click="editDescriptionHandler();">&times;</span>
+          </div>
         </div>
         <!-- Domain Record -->
         <div class="domain-record row" v-if="domainRecord">
           <div class="col resolver">
             <p class="descr">Domain Record</p>
-            <div class="domain-resolver value">{{domainRecord.address}}</div>
+            <div class="domain-resolver value">{{domainRecord.address}}</div><!-- XXX TODO: UpdateResolver impl.  -->
           </div>
           <div class="col expiry">
             <p class="descr">Expiration date</p>
             <p class="value">{{ niceDate(domainRecord.expiration) }}</p>
           </div>
           <div class="col ctrl">
-            <button class="btn btn-inverse" v-if="!isReadOnly || (owner.owner == viewer && owner)" @click="executeUpdateMetadata();" :disabled="!editing">Update</button>
+            <button class="btn btn-inverse" v-if="!isReadOnly || (owner.owner == viewer && owner)" @click="executeUpdateMetadata();" :disabled="!editing && !editingText">Update</button>
             <button class="btn btn-inverse" @click="modals.renew = !modals.renew" v-if="!isSubdomain">Extend</button>
           </div>
         </div>
@@ -323,18 +333,21 @@
                   <label class="subdomain-label" for="subdomain_name">
                     <span>Subdomain</span>
                   </label>
-                  <input 
-                    type="text" 
-                    class="metadata-subdomain-name form-control"
-                    name="subdomain_name"
-                    v-model="newSubdomainModel.subdomain"
-                    placeholder="Prefix"
-                  /><span class="subdomain-suffix">.{{domain}}</span><br/>
+                  <div class="input-group">
+                    <input 
+                      type="text" 
+                      class="metadata-subdomain-name form-control"
+                      name="subdomain_name"
+                      v-model="newSubdomainModel.subdomain"
+                      placeholder="Prefix"
+                    />
+                    <span class="input-group-text">.{{domain}}</span>
+                  </div>
                   <label class="subdomain-label" for="subdomain_record">
                     <span>Subdomain Record</span>
                   </label>
                   <div class="row">
-                    <div class="left">
+                    <div class="input-group">
                       <input 
                         type="text" 
                         class="metadata-subdomain-record form-control"
@@ -342,16 +355,15 @@
                         v-model="newSubdomainModel.new_resolver"
                         placeholder="Archway address"
                       />
+                      <span class="input-group-text pointer" @click="newSubdomainModel.new_resolver = owner.owner;">Resolve to me</span>
                     </div>
-                    <div class="right">
-                      <button class="btn btn-inverse" @click="newSubdomainModel.new_resolver = owner.owner;">Resolve to me</button>
-                    </div>
+                    
                   </div>
                   <label class="subdomain-label" for="subdomain_owner">
                     <span>Subdomain Owner</span>
                   </label>
                   <div class="row">
-                    <div class="left">
+                    <div class="input-group">
                       <input 
                         type="text" 
                         class="metadata-subdomain-record form-control"
@@ -359,9 +371,7 @@
                         v-model="newSubdomainModel.new_owner"
                         placeholder="Archway address"
                       />
-                    </div>
-                    <div class="right">
-                      <button class="btn btn-inverse" @click="newSubdomainModel.new_owner = owner.owner;">Mint to me</button>
+                      <span class="input-group-text pointer" @click="newSubdomainModel.new_owner = owner.owner;">Mint to me</span>
                     </div>
                   </div>
                   <!-- Add Subdomain Button -->
@@ -450,6 +460,8 @@ export default {
     owner: null,
     viewer: null,
     editing: false,
+    editingText: false,
+    editingResolver: false,
     registering: false,
     domainRecord: null,
     executeResult: null,
@@ -562,6 +574,11 @@ export default {
         this.cwClient
       );
       console.log('ResolveRecord query', this.domainRecord);
+    },
+    editDescriptionHandler: function () {
+      if (!this.owner || !this.viewer) return;
+      if (this.owner.owner !== this.viewer) return;
+      this.editingText = !this.editingText;
     },
     addAccount: function () {
       if (
@@ -903,13 +920,17 @@ div.creating {
 p.subdomain {
   margin-bottom: 1em;
 }
+div.metadata-token-description,
 input.metadata-subdomain-name {
   width: 75%;
 }
-span.subdomain-suffix {
-  display: inline-block;
-  float: right;
-  top: -45px;
-  position: relative;
+p.configurable {
+  cursor: pointer;
+}
+.new-subdomain-item.creating div input {
+  width: 50%;
+}
+.new-subdomain-item.creating div span.input-group-text {
+  height: 38px;
 }
 </style>
