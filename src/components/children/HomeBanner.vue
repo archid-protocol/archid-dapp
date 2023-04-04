@@ -108,7 +108,6 @@ export default {
   methods: {
     connectHandler: function () {
       const connectEl = document.getElementById('connect_modal');
-      console.log(connectEl);
       connectEl.click();
     },
     setTokenContract: async function () {
