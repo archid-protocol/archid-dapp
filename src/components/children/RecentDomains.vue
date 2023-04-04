@@ -108,18 +108,29 @@ export default {
   display: inline-block;
 }
 .badge {
-  padding: 1em;
   margin-right: 1em;
-  border: 1px solid #333;
   border-radius: 8px;
+  align-items: center;
+  padding: 16px;
+  gap: 10px;
+  width: 218px;
+  height: 56px;
+  background: #FFFFFF;
 }
 .badge-label.domain {
-  font-size: 16px;
   color: #666666;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 150%;
+  letter-spacing: -0.01em;
 }
 .badge-label.time {
   font-size: 12px;
   color: #777777;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 120%;
 }
 .badge-link {
   color: inherit;

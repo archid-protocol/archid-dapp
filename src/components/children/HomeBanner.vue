@@ -1,5 +1,5 @@
 <template>
-  <div class="welcome" v-if="account" :style="'background-image: url(' + welcomeBannerBg + ');'">
+  <div class="welcome" v-if="account" :style="'background-image: url(' + computedBanner + ');'">
     <div class="details" v-if="!search.result">
       <div class="title">
         <div class="ln-1">Hello, <span class="your-name">{{ account.slice(0,12) }}</span></div>
@@ -163,6 +163,12 @@ export default {
         base_cost: this.config.base_cost,
       };
       this.$emit('registration', registration);
+    },
+  },
+  computed: {
+    computedBanner: function () {
+      let banner = (!this.search.result) ? this.welcomeBannerBg : 'none';
+      return banner;
     },
   },
 }
