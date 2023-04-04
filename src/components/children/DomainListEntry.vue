@@ -297,8 +297,8 @@
                     <label v-if="subdomain.resolver">Subdomain Record</label>
                     <div class="subdomain-domain value" v-if="subdomain.resolver">{{subdomain.resolver}}</div>
                     <!-- Subdomain Expiration -->
-                    <p class="descr subdomain" v-if="subdomain.expiry">Expiration date</p>
-                    <p class="value subdomain" v-if="subdomain.expiry">{{ niceDate(subdomain.expiry) }}</p>
+                    <label class="subdomain-expiry" v-if="subdomain.expiry">Expiration date</label>
+                    <div class="value subdomain-expiry" v-if="subdomain.expiry">{{ niceDate(subdomain.expiry) }}</div>
                     <hr class="footer-hr" v-if="!isReadOnly || (owner.owner == viewer && owner)" />
                     <div class="account-item remove" v-if="!isReadOnly || (owner.owner == viewer && owner)">
                       <p>
