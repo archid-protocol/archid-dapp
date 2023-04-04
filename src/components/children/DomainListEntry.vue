@@ -73,6 +73,7 @@
                   <div class="left">
                     <a :href="account.profile" target="_blank" v-if="account.account_type !== accountLabels.email">{{account.account_type}}</a>
                     <a :href="'mailto:'+account.username" v-if="account.account_type == accountLabels.email">{{account.account_type}}</a>
+                    <span class="italic">(draft)</span>
                   </div>
                   <div class="right">
                     <div :class="{'caret': true, 'active': ui.newAccounts[i].open}" v-if="ui.newAccounts[i]" @click="ui.newAccounts[i].open = !ui.newAccounts[i].open">&caron;</div>
@@ -212,6 +213,7 @@
                 <div class="website-item item" v-for="(website, i) in newDomainItems.websites" :key="i+'-new-websites-add'">
                   <div class="left">
                     <a :href="website.url" target="_blank">{{website.url}}</a>
+                    <span class="italic">(draft)</span>
                   </div>
                   <div class="right">
                     <div :class="{'caret': true, 'active': ui.newWebsites[i].open}" v-if="ui.newWebsites[i]" @click="ui.newWebsites[i].open = !ui.newWebsites[i].open">&caron;</div>
@@ -278,12 +280,100 @@
             <div class="title subdomains-title">
               <span class="icon icon-subdomains"></span>
               <h5>Subdomains</h5>
-              <div class="float-right add subdomain" v-if="!isReadOnly || (owner.owner == viewer && owner)">
-                <span>+</span>
+              <div class="float-right add subdomain" v-if="!isReadOnly || (owner.owner == viewer && owner)" @click="creating.subdomain = !creating.subdomain;">
+                <span v-if="!creating.subdomain">+</span>
+                <span v-if="creating.subdomain">&times;</span>
               </div>
               <div class="subdomains-list">
+                <!-- Current Subdomains -->
                 <div class="subdomain-item item" v-for="(subdomain, i) in token.extension.subdomains" :key="i+'-subdomains'">
-                  <router-link :to="'/domains/' + subdomain.name + '.' + domain">{{subdomain.name + '.' + domain}}</router-link>
+                  <div class="left">
+                    <router-link :to="'/domains/' + subdomain.name + '.' + domain">{{subdomain.name + '.' + domain}}</router-link>
+                  </div>
+                  <div class="right">
+                    <div :class="{'caret': true, 'active': ui.subdomains[i].open}" v-if="ui.subdomains[i]" @click="ui.subdomains[i].open = !ui.subdomains[i].open">&caron;</div>
+                  </div>
+                  <div class="subdomain-item item-details" v-if="ui.subdomains[i].open">
+                    <hr class="title-hr" />
+                    <!-- Subdomain Record -->
+                    <label v-if="subdomain.resolver">Subdomain Record</label>
+                    <div class="subdomain-domain value" v-if="subdomain.resolver">{{subdomain.resolver}}</div>
+                    <!-- Subdomain Expiration -->
+                    <p class="descr subdomain" v-if="subdomain.expiry">Expiration date</p>
+                    <p class="value subdomain" v-if="subdomain.expiry">{{ niceDate(subdomain.expiry) }}</p>
+                    <hr class="footer-hr" v-if="!isReadOnly || (owner.owner == viewer && owner)" />
+                    <div class="account-item remove" v-if="!isReadOnly || (owner.owner == viewer && owner)">
+                      <p>
+                        <span class="pointer" @click="executeRemoveSubdomain(subdomain)">&times; Remove</span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+
+                <!-- Add a Subdomain form -->
+                <div class="new-subdomain-item creating" v-if="creating.subdomain">
+                  <!-- Add Subdomain Titlebar -->
+                  <div class="new-subdomain-title">
+                    <div class="left">
+                      <h5>New Subdomain</h5>
+                    </div>
+                    <div class="right">
+                      <span class="close-x" @click="creating.subdomain = !creating.subdomain;">&times;</span>
+                    </div>
+                    <hr class="title-hr" />
+                  </div>
+                  <!-- Website URL -->
+                  <label class="subdomain-label" for="subdomain_name">
+                    <span>Subdomain</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    class="metadata-subdomain-name form-control"
+                    name="subdomain_name"
+                    v-model="newSubdomainModel.subdomain"
+                    placeholder="Prefix"
+                  /><span class="subdomain-suffix">.{{domain}}</span><br/>
+                  <label class="subdomain-label" for="subdomain_record">
+                    <span>Subdomain Record</span>
+                  </label>
+                  <div class="row">
+                    <div class="left">
+                      <input 
+                        type="text" 
+                        class="metadata-subdomain-record form-control"
+                        name="subdomain_record"
+                        v-model="newSubdomainModel.new_resolver"
+                        placeholder="Archway address"
+                      />
+                    </div>
+                    <div class="right">
+                      <button class="btn btn-inverse" @click="newSubdomainModel.new_resolver = owner.owner;">Resolve to me</button>
+                    </div>
+                  </div>
+                  <label class="subdomain-label" for="subdomain_owner">
+                    <span>Subdomain Owner</span>
+                  </label>
+                  <div class="row">
+                    <div class="left">
+                      <input 
+                        type="text" 
+                        class="metadata-subdomain-record form-control"
+                        name="subdomain_owner"
+                        v-model="newSubdomainModel.new_owner"
+                        placeholder="Archway address"
+                      />
+                    </div>
+                    <div class="right">
+                      <button class="btn btn-inverse" @click="newSubdomainModel.new_owner = owner.owner;">Mint to me</button>
+                    </div>
+                  </div>
+                  <!-- Add Subdomain Button -->
+                  <button 
+                    class="btn btn-primary full-width" 
+                    @click="addSubdomain();"
+                    :disabled="!newSubdomainModel.subdomain || !newSubdomainModel.new_resolver || !newSubdomainModel.new_owner"
+                  >Register</button>
                 </div>
               </div>
             </div>
@@ -337,9 +427,9 @@ import { Token, OwnerOf } from '../../util/token';
 import {
   RenewRegistration,
 //   UpdateResolver,
-//   RegisterSubDomain,
+  RegisterSubDomain,
   UpdataUserDomainData,
-//   RemoveSubDomain
+  RemoveSubDomain,
 } from '../../util/execute';
 
 import { DateFormat } from '../../util/datetime';
@@ -364,6 +454,7 @@ export default {
     owner: null,
     viewer: null,
     editing: false,
+    registering: false,
     domainRecord: null,
     executeResult: null,
     ui: {
@@ -529,8 +620,14 @@ export default {
       this.creating.website = false;
       this.editing = true;
     },
-    addSubdomain: function () {
-      console.log('TODO');
+    addSubdomain: async function () {
+      if (!this.newSubdomainModel.subdomain || !this.newSubdomainModel.new_resolver || !this.newSubdomainModel.new_owner) return;
+      // Decouple account to be added, from tmp account model
+      let subdomain = JSON.parse(JSON.stringify(this.newSubdomainModel));
+      subdomain.domain = this.domain.slice(0,-5);
+      subdomain.mint = true;
+      subdomain.expiration = this.updates.metadata.expiry;
+      await this.executeRegisterSubdomain(subdomain);
     },
     removeAccount: function (index) {
       if (typeof index !== 'number') return;
@@ -554,6 +651,9 @@ export default {
       }
       this.ui.websites = websitesUi;
     },
+    removeSubdomain: function (index) {
+      console.log("TODO: removeSubdomain", index);
+    },
     removeNewAccount: function (index) {
       if (typeof index !== 'number') return;
       if (index < 0 || index > (this.newDomainItems.accounts - 1)) return;
@@ -573,6 +673,16 @@ export default {
         websitesUi.push({open: false});
       }
       this.ui.newWebsites = websitesUi;
+    },
+    removeNewSubdomain: function (index) {
+      if (typeof index !== 'number') return;
+      if (index < 0 || index > (this.newDomainItems.subdomains - 1)) return;
+      this.newDomainItems.subdomains.splice(index, 1);
+      let subdomainsUi = [];
+      for (let i = 0; i < this.newDomainItems.subdomains; i++) {
+        subdomainsUi.push({open: false});
+      }
+      this.ui.newSubdomains = subdomainsUi;
     },
     executeRenewRegistration: async function () {
       if (!this.domain || typeof this.domain !== 'string') return;
@@ -602,16 +712,18 @@ export default {
       this.updates.metadata.accounts = [...this.updates.metadata.accounts, ...this.newDomainItems.accounts];
       this.updates.metadata.websites = [...this.updates.metadata.websites, ...this.newDomainItems.websites];
       
-      // Reset forms and data
-      this.newDomainItems.accounts = [];
-      this.newDomainItems.websites = [];
-      this.ui.accounts = [];
-      this.ui.websites = [];
-      for (let i = 0; i < this.updates.metadata.accounts.length; i++) {
-        this.ui.accounts.push({open: false});
-      }
-      for (let i = 0; i < this.updates.metadata.websites.length; i++) {
-        this.ui.websites.push({open: false});
+      if (!this.isSubdomain) {
+        // Reset forms and data
+        this.newDomainItems.accounts = [];
+        this.newDomainItems.websites = [];
+        this.ui.accounts = [];
+        this.ui.websites = [];
+        for (let i = 0; i < this.updates.metadata.accounts.length; i++) {
+          this.ui.accounts.push({open: false});
+        }
+        for (let i = 0; i < this.updates.metadata.websites.length; i++) {
+          this.ui.websites.push({open: false});
+        }
       }
 
       // Do update metadata
@@ -623,7 +735,39 @@ export default {
       );
       console.log('UpdataUserDomainData tx', this.executeResult);
 
-      // Refresh domain data
+      // Refresh domain
+      await this.dataResolutionHandler(true);
+    },
+    executeRegisterSubdomain: async function (subdomain) {
+      if (typeof subdomain !== 'object') return;
+      if (!subdomain.domain || !subdomain.subdomain || !subdomain.new_resolver || !subdomain.new_owner || !subdomain.expiration) return;
+
+      this.result.execute = await RegisterSubDomain(
+        subdomain.domain,
+        subdomain.subdomain,
+        subdomain.new_resolver,
+        subdomain.new_owner,
+        true,
+        subdomain.expiration,
+        this.cwClient
+      );
+      console.log('RegisterSubDomain tx', this.result.execute);
+
+      // Refresh domain
+      await this.dataResolutionHandler(true);
+    },
+    executeRemoveSubdomain: async function (subdomain) {
+      if (typeof subdomain !== 'object') return;
+      if (!this.domain || !subdomain['name']) return;
+      let domain = this.domain.slice(0,-5);
+      this.executeResult = await RemoveSubDomain(
+        domain,
+        subdomain.name,
+        this.cwClient
+      );
+      console.log('RemoveSubDomain tx', this.executeResult);
+
+      // Refresh domain
       await this.dataResolutionHandler(true);
     },
 
@@ -759,5 +903,17 @@ div.creating {
 }
 .remove {
   color: #FF4D00;
+}
+p.subdomain {
+  margin-bottom: 1em;
+}
+input.metadata-subdomain-name {
+  width: 75%;
+}
+span.subdomain-suffix {
+  display: inline-block;
+  float: right;
+  top: -45px;
+  position: relative;
 }
 </style>

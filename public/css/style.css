@@ -56,3 +56,6 @@ a, a:active, a:focus, a:hover {
 .full-width {
     width: 100%;
 }
+.italic {
+    font-style: italic;
+}
