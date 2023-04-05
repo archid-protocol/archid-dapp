@@ -34,6 +34,9 @@
   <div class="page-content" v-if="connected || route == '/'">
     <router-view :key="render" />
   </div>
+  <div class="footer-content">
+    <Footer />
+  </div>
 
   <transition name="modal" v-if="!connected">
     <div v-if="modal" class="modal-wrapper">
@@ -62,9 +65,11 @@
 <script>
 import { Client, Accounts } from './util/client';
 
+import Footer from './components/children/Footer.vue';
+
 export default {
   name: 'archid-dapp',
-  components: {},
+  components: { Footer },
   data: () => ({
     cwClient: null,
     accounts: [],

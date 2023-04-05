@@ -258,4 +258,7 @@ p.home3-1 {
 .bottom-banner .container-sm {
   margin-top: 2em;
 }
+.content-3-banner {
+  margin-bottom: -192px;
+}
 </style>

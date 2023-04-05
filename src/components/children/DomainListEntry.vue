@@ -155,7 +155,7 @@
                     class="metadata-account-username form-control" 
                     name="account_username"
                     v-model="newAccountModel.username" 
-                    placeholder="@archid"
+                    placeholder="@archidapp"
                     v-if="newAccountModel.account_type == accountLabels.twitter"
                   />
                   <input 
@@ -181,7 +181,7 @@
                     class="metadata-account-profile form-control" 
                     :name="'account_profile'"
                     v-model="newAccountModel.profile" 
-                    placeholder="https://twitter.com/archid"
+                    placeholder="https://twitter.com/archidapp"
                     v-if="newAccountModel.account_type == accountLabels.twitter"
                   />
                   <input 

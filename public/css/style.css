@@ -4,6 +4,7 @@ html, body {
 div.page {
     max-width: 90vw;
     padding: 3em;
+    padding-bottom: 0;
     margin: auto;
 }
 a, a:active, a:focus, a:hover {
