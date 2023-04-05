@@ -1,5 +1,5 @@
 <template>
-  <div class="welcome" v-if="account" :style="'background-image: url(' + computedBanner + ');'">
+  <div :class="{'welcome': true, 'banner': true, 'sm': search.result}" v-if="account" :style="'background-image: url(' + computedBanner + ');'">
     <div class="details" v-if="!search.result">
       <div class="title">
         <div class="ln-1">Hello, <span class="your-name">{{ account.slice(0,12) }}</span></div>
@@ -12,6 +12,7 @@
     </div>
     <div class="search" v-if="cwClient">
       <input 
+        id="domain"
         type="text" 
         placeholder="Your name"
         class="domain form-control"
@@ -179,11 +180,18 @@ export default {
   padding-bottom: 1.5em;
   background: #FF4D00;
   background-repeat: no-repeat;
-  background-size: 300px;
+  background-size: 450px;
   background-position: right 37px;
   color: #fff;
   border-radius: 8px;
   margin-bottom: 1em;
+}
+.welcome .details {
+  margin-top: 175px;
+}
+.welcome:not(.sm) .search {
+  position: relative;
+  top: 3em;
 }
 .title div, span.your-name {
   font-style: normal;
@@ -248,7 +256,7 @@ hr {
 input.domain {
   display: inline-block;
   padding: 16px;
-  height: 65px
+  height: 65px;
 }
 div.subtitle {
   max-width: 655px;
@@ -258,7 +266,8 @@ div.subtitle {
 }
 div.subtitle p {
   font-weight: 400;
-  font-size: 16px;
+  /* font-size: 16px; */
+  font-size: 18px;
   line-height: 150%;
   align-items: center;
   letter-spacing: -0.01em;
