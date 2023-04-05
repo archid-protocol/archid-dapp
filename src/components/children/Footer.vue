@@ -94,6 +94,9 @@ ul, li {
 .footer {
   margin-bottom: 8em;
 }
+.row {
+  justify-content: space-evenly;
+}
 .row.tp {
   padding-bottom: 2em;
 }
