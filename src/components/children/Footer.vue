@@ -91,6 +91,26 @@ ul, li {
   list-style: none;
   padding: 0;
 }
+li {
+  font-style: normal;
+  font-weight: 400;
+  /* font-size: 14px; */
+  font-size: 16px;
+  line-height: 120%;
+  letter-spacing: -0.01em;
+  color: #000000;
+}
+h4 {
+  font-style: normal;
+  font-weight: 600;
+  /* font-size: 14px; */
+  font-size: 16px;
+  line-height: 120%;
+  color: #000000;
+}
+h4, li {
+  margin-bottom: 14px;
+}
 .footer {
   margin-bottom: 8em;
 }
@@ -99,6 +119,14 @@ ul, li {
 }
 .row.tp {
   padding-bottom: 2em;
+}
+.bottom {
+  font-style: normal;
+  font-weight: 400;
+  /* font-size: 12px; */
+  font-size: 14px;
+  line-height: 120%;
+  color: rgba(0, 0, 0, 0.667);
 }
 a, a:active, a:focus, 
 a:link, a:hover,

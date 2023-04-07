@@ -9,7 +9,7 @@
     <div class="body" v-if="!closed">
       <div class="container-c" v-if="token">
         <!-- Description -->
-        <div class="description row" v-if="token.extension">
+        <div class="description" v-if="token.extension">
           <p class="descr">Description</p>
           <p :class="{'value': true, 'token-description': true, 'configurable': owner.owner == viewer && owner}" @click="editDescriptionHandler();" v-if="!editingText || (owner.owner !== viewer && owner)">{{token.extension.description}}</p>
           <div class="input-group metadata-token-description" v-if="editingText && owner.owner == viewer && owner">
@@ -963,6 +963,7 @@ input.metadata-subdomain-name {
 }
 .configurable {
   cursor: pointer;
+  float: left;
 }
 .new-subdomain-item.creating div input {
   width: 50%;
