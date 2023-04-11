@@ -73,7 +73,8 @@
                 <!-- Current Accounts -->
                 <div class="account-item item" v-for="(account, i) in token.extension.accounts" :key="i+'-accounts'">
                   <div class="left">
-                    <a :href="account.profile" target="_blank" v-if="account.account_type !== accountLabels.email">{{account.account_type}}</a>
+                    <a :href="account.profile" target="_blank" v-if="account.account_type == accountLabels.github">GitHub</a>
+                    <a :href="account.profile" target="_blank" v-if="account.account_type == accountLabels.twitter">{{account.account_type}}</a>
                     <a :href="'mailto:'+account.username" v-if="account.account_type == accountLabels.email">{{account.account_type}}</a>
                   </div>
                   <div class="right" v-if="ui.accounts[i]">
@@ -953,5 +954,8 @@ input.metadata-subdomain-name {
 }
 .btn-update-resolver {
   margin-top: 1em;
+}
+.account-item .left a {
+  text-transform: capitalize;
 }
 </style>

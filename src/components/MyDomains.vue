@@ -139,10 +139,6 @@ export default {
 </script>
 
 <style scoped>
-.page {
-  max-width: 90vw;
-  padding: 3em;
-}
 ul {
   padding-left: 0;
 }

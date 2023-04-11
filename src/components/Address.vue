@@ -1,11 +1,27 @@
 <template>
   <div class="page">
-    <h3 v-if="account">archid - domains owned by <span class="account">{{ account }}</span></h3>
+    <div class="address-banner">
+      <div class="title" v-if="account">
+        <h3>Domains owned by <span class="account">{{ account }}</span></h3>
+      </div>
+    </div>
+
     <ul v-if="tokens.length">
       <li v-for="(domain, i) in tokens" :key="i">
-        <router-link :to="'/domains/' + domain">{{ domain }}</router-link>
+        <DomainListEntry
+          v-bind:domain="domain"
+          v-bind:cw721="cw721"
+          v-bind:cwClient="cwClient"
+          v-bind:isSubdomain="isSubdomain(domain)"
+          v-bind:isReadOnly="false"
+          v-bind:baseCost="parseInt(config.base_cost)"
+          v-bind:collapsible="true"
+          :key="'item-'+i"
+        >
+        </DomainListEntry>
       </li>
     </ul>
+
     <div v-else>
       <p v-if="loaded">No domains found for account {{ account }}</p>
     </div>
@@ -17,11 +33,14 @@ import { Client, Accounts } from '../util/client';
 import { Config } from '../util/query';
 import { TokensOf } from '../util/token';
 
+import DomainListEntry from './children/DomainListEntry.vue';
+
 export default {
   name: 'Profile',
-  components: {},
+  components: { DomainListEntry },
   data: () => ({
     cwClient: null,
+    config: null,
     cw721: null,
     account: null,
     accounts: [],
@@ -53,8 +72,8 @@ export default {
 
     // Query
     setTokenContract: async function () {
-      let cw721Query = await Config(this.cwClient);
-      this.cw721 = cw721Query.cw721;
+      this.config = await Config(this.cwClient);
+      this.cw721 = this.config.cw721;
       return;
     },
     tokenIds: async function () {
@@ -63,20 +82,35 @@ export default {
       this.tokens = (query['tokens']) ? query.tokens : [];
       console.log('My tokens query', this.tokens);
     },
+
+    // Util
+    isSubdomain: function (domain = null) {
+      if (!domain || typeof domain !== 'string') return null;
+      return (domain.slice(0,-5).indexOf(".") >= 0) ? true : false
+    },
   },
 }
 </script>
 
 <style scoped>
-.page {
-  max-width: 90vw;
-  padding: 3em;
+.address-banner {
+  padding: 4em;
+  background: #FF4D00;
+  color: #fff;
+  border-radius: 8px;
+  margin-bottom: 1em;
+}
+ul {
+  padding-left: 0;
 }
 ul, ul li {
   list-style: none;
 }
 ul li {
-  padding: 1em;
+  padding: 32px;
+  margin-bottom: 1em;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 16px;
 }
 span.account {
   font-style: italic;
