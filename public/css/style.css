@@ -1,6 +1,29 @@
 html, body {
     background: #F2EFED;
 }
+div.logo {
+    position: absolute;
+    top: 58px;
+    left: 8%;
+}
+div.user.connect {
+    position: absolute;
+    top: 58px;
+    right: 8%;
+    min-width: 500px;
+    text-align: right;
+}
+ul.navigation {
+    position: absolute;
+    right: 8%;
+    top: 118px;
+    padding: 32px;
+    gap: 32px;
+    min-width: 327px;
+    background: #FFFFFF;
+    box-shadow: -8px 0px 124px rgba(0, 0, 0, 0.16);
+    border-radius: 16px;
+}
 div.page {
     max-width: 90vw;
     padding: 3em;
@@ -77,4 +100,63 @@ div.banner.sm {
 }
 .txt-focus {
     color: #FF4D00;
+}
+
+/* Icons */
+.caret, .caret-inv {
+    font-size: 2em;
+    display: block;
+    text-align: right;
+    cursor: pointer;
+}
+.caret-inv:not(.active) {
+    transform: scaley(-1);
+}
+.caret.active {
+    transform: scaley(-1);
+}
+.icon {
+    width: 18px;
+    height: 18px;
+    color: #000000;
+    margin-right: 8px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    display: inline-block;
+    position: relative;
+}
+.icon-github {
+    background-image: url('/img/icon-github.svg');
+    top: 3px;
+}
+.icon-twitter {
+    background-image: url('/img/icon-twitter.svg');
+    top: 4px;
+}
+.icon-accounts {
+    background-image: url('/img/icon-accounts.svg');
+    top: 1px;
+    margin-left: 5px;
+}
+.icon-globe,
+.icon-websites {
+    background-image: url('/img/icon-globe.svg');
+    top: 4px;
+    margin-left: 2px;
+    width: 22px;
+    height: 22px;
+}
+.icon-subdomains {
+    background-image: url('/img/icon-subdomains.svg');
+    top: 4px;
+    margin-left: 2px;
+    width: 22px;
+    height: 22px;
+}
+.icon-archid {
+    background-image: url('/img/icon-archid.svg');
+    top: 4px;
+    margin-left: 2px;
+    width: 22px;
+    height: 22px;
 }

@@ -73,8 +73,8 @@
                 <!-- Current Accounts -->
                 <div class="account-item item" v-for="(account, i) in token.extension.accounts" :key="i+'-accounts'">
                   <div class="left">
-                    <a :href="account.profile" target="_blank" v-if="account.account_type == accountLabels.github">GitHub</a>
-                    <a :href="account.profile" target="_blank" v-if="account.account_type == accountLabels.twitter">{{account.account_type}}</a>
+                    <a :href="account.profile" target="_blank" v-if="account.account_type == accountLabels.github"><span class="icon icon-github"></span>GitHub</a>
+                    <a :href="account.profile" target="_blank" v-if="account.account_type == accountLabels.twitter"><span class="icon icon-twitter"></span>{{account.account_type}}</a>
                     <a :href="'mailto:'+account.username" v-if="account.account_type == accountLabels.email">{{account.account_type}}</a>
                   </div>
                   <div class="right" v-if="ui.accounts[i]">
@@ -849,16 +849,6 @@ div.right {
   background: #ffffff;
   border-radius: 4px;
 }
-div.caret {
-  text-align: right;
-  font-size: 2em;
-  display: block;
-  text-align: right;
-  cursor: pointer;
-}
-div.caret.active {
-  transform: scaley(-1);
-}
 .ctrl button {
   float: right;
   margin-left: 0.5rem;
@@ -957,5 +947,8 @@ input.metadata-subdomain-name {
 }
 .account-item .left a {
   text-transform: capitalize;
+}
+.item .left a {
+  text-decoration: none;
 }
 </style>

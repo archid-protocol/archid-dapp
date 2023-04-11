@@ -1,27 +1,41 @@
 <template>
   <div class="loggedout" v-if="!connected">
     <div class="logo">
-      <span class="icon icon-archid">ArchID</span>
+      <span class="icon icon-archid"></span>
+      <span class="brand-a">Arch</span>
+      <span class="brand-b">ID</span>
     </div>
-    <div class="connect">
-      <a id="connect_modal" class="btn btn-primary btn-show-modal" @click="modal = !modal;">Connect Wallet</a>
+    <div class="connect user">
+      <a id="connect_modal" class="btn btn-primary btn-show-modal pointer" @click="modal = !modal;">Connect Wallet</a>
     </div>
   </div>
   <div class="loggedin" v-else>
     <div class="logo">
-      <router-link class="home-logo" to="/" @click="route = '/';">
-        <span class="icon icon-archid">ArchID</span>
+      <router-link to="/" @click="route = '/'; showNav = false;">
+        <span class="icon icon-archid"></span>
+        <span class="brand-a">Arch</span>
+        <span class="brand-b">ID</span>
       </router-link>
     </div>
-    <div class="user" v-if="accounts.length">
-      <a id="user_account" @click="showNav = !showNav;">{{ accountDisplayFormat(accounts[0].address) }}</a>
+    <div class="connect user" v-if="accounts.length">
+      <a id="user_account">
+        <div class="menu-target main row">
+          <div class="col">
+            <span class="balance">{{ formatFromMicro(accounts[0].balance.amount) }} arch</span>
+          </div>
+          <div class="col">
+            <span class="address">{{ accountDisplayFormat(accounts[0].address) }}</span>
+          </div>
+          <div class="col">
+            <span :class="{'caret-inv': true, 'active': true}" v-if="!showNav" @click="showNav = !showNav;">&caron;</span>
+            <span class="close-x menu" v-if="showNav" @click="showNav = !showNav;">&times;</span>
+          </div>
+        </div>  
+      </a>
     </div>
     <ul class="navigation" v-if="showNav">
       <li>
         <router-link to="/" @click="route = '/';showNav = false;">Home</router-link>
-      </li>
-      <li>
-        <router-link to="/test" @click="route = '/test';showNav = false;">Test Bench</router-link>
       </li>
       <li>
         <router-link to="/domains" @click="route = '/domains';showNav = false;">Domains</router-link>
@@ -64,6 +78,7 @@
 
 <script>
 import { Client, Accounts } from './util/client';
+import { FromMicro } from './util/denom';
 
 import Footer from './components/children/Footer.vue';
 
@@ -79,6 +94,7 @@ export default {
     route: null,
     showNav: false,
     render: 0,
+    formatFromMicro: FromMicro,
   }),
   mounted: function () {
     if (window) {
@@ -115,7 +131,7 @@ export default {
           let walletType = sessionStorage.getItem("connected");
           this.cwClient = await Client(walletType);
           this.accounts = await Accounts(this.cwClient);
-          console.log('Home client', {cwClient: this.cwClient, accounts: this.accounts, walletType: walletType});
+          console.log('App', {cwClient: this.cwClient, accounts: this.accounts, walletType: walletType});
         }, 100);
       } catch (e) {
         await this.resumeConnectedState((attempts + 1));
@@ -124,7 +140,7 @@ export default {
     accountDisplayFormat: function (account = null) {
       if (!account) return "";
       return account.slice(0,12) + "..." + account.slice(-5);
-    },
+    }
   }
 }
 </script>
@@ -136,8 +152,7 @@ ul, ul li {
 ul li {
   padding: 1em;
 }
-#connect_modal, #user_account {
-  cursor: pointer;
+#connect_modal {
   float: right;
 }
 .loggedout {
@@ -173,5 +188,45 @@ ul li {
 }
 .home-logo, .home-logo:active, .home-logo:focus {
   text-decoration: none;
+}
+div.logo, div.logo a {
+  text-decoration: none;
+}
+.brand-a, .brand-b {  
+  width: 64px;
+  height: 22px;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 22px;
+  line-height: 100%;
+  letter-spacing: -0.07em;
+  color: #FFFFFF;
+}
+.brand-b {
+  opacity: 0.75;
+}
+.menu-target.main {
+  clear: both;
+  display: inline-block;
+}
+#user_account {
+  color: #ffffff;
+}
+span.address {
+  font-weight: 400;
+  /* font-size: 12px; */
+  font-size: 14px;
+  line-height: 120%;
+  align-items: center;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  margin-right: 20px;
+}
+.caret-inv {
+  float: right;
+}
+.caret-inv, .close-x.menu  {
+  top: -25px;
+  position: relative;
 }
 </style>
