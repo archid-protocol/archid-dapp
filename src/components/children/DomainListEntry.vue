@@ -76,8 +76,8 @@
                     <a :href="account.profile" target="_blank" v-if="account.account_type !== accountLabels.email">{{account.account_type}}</a>
                     <a :href="'mailto:'+account.username" v-if="account.account_type == accountLabels.email">{{account.account_type}}</a>
                   </div>
-                  <div class="right">
-                    <div :class="{'caret': true, 'active': ui.accounts[i].open}" v-if="ui.accounts[i]" @click="ui.accounts[i].open = !ui.accounts[i].open">&caron;</div>
+                  <div class="right" v-if="ui.accounts[i]">
+                    <div :class="{'caret': true, 'active': ui.accounts[i].open}" @click="ui.accounts[i].open = !ui.accounts[i].open">&caron;</div>
                   </div>
                   <div class="account-item item-details" v-if="ui.accounts[i].open">
                     <hr class="title-hr" />
@@ -163,7 +163,7 @@
                     class="metadata-account-username form-control" 
                     name="account_username"
                     v-model="newAccountModel.username" 
-                    placeholder="archid"
+                    placeholder="archid-protocol"
                     v-if="newAccountModel.account_type == accountLabels.github"
                   />
                   <input 
@@ -189,7 +189,7 @@
                     class="metadata-account-profile form-control" 
                     :name="'account_profile'"
                     v-model="newAccountModel.profile" 
-                    placeholder="https://github.com/archid"
+                    placeholder="https://github.com/archid-protocol"
                     v-if="newAccountModel.account_type == accountLabels.github"
                   />
                   <!-- Add Account Button -->
@@ -330,7 +330,7 @@
                     <label class="subdomain-expiry" v-if="subdomain.expiry">Expiration date</label>
                     <div class="value subdomain-expiry" v-if="subdomain.expiry">{{ niceDate(subdomain.expiry) }}</div>
                     <hr class="footer-hr" v-if="!isReadOnly || (owner.owner == viewer && owner)" />
-                    <div class="account-item remove" v-if="!isReadOnly || (owner.owner == viewer && owner)">
+                    <div class="subdomain-item remove" v-if="!isReadOnly || (owner.owner == viewer && owner)">
                       <p>
                         <span class="pointer" @click="executeRemoveSubdomain(subdomain)">&times; Remove</span>
                       </p>
@@ -676,56 +676,33 @@ export default {
       if (typeof index !== 'number') return;
       if (index < 0 || index > (this.updates.metadata.accounts.length - 1)) return;
       this.updates.metadata.accounts.splice(index, 1);
+      this.ui.accounts.splice(index, 1);
       this.editing = true;
-      let accountsUi = [];
-      for (let i = 0; i < this.updates.metadata.accounts; i++) {
-        accountsUi.push({open: false});
-      }
-      this.ui.accounts = accountsUi;
     },
     removeWebsite: function (index) {
       if (typeof index !== 'number') return;
       if (index < 0 || index > (this.updates.metadata.websites.length - 1)) return;
       this.updates.metadata.websites.splice(index, 1);
+      this.ui.websites.splice(index, 1);
       this.editing = true;
-      let websitesUi = [];
-      for (let i = 0; i < this.updates.metadata.websites; i++) {
-        websitesUi.push({open: false});
-      }
-      this.ui.websites = websitesUi;
-    },
-    removeSubdomain: function (index) {
-      console.log("TODO: removeSubdomain", index);
     },
     removeNewAccount: function (index) {
       if (typeof index !== 'number') return;
       if (index < 0 || index > (this.newDomainItems.accounts - 1)) return;
       this.newDomainItems.accounts.splice(index, 1);
-      let accountsUi = [];
-      for (let i = 0; i < this.newDomainItems.accounts; i++) {
-        accountsUi.push({open: false});
-      }
-      this.ui.newAccounts = accountsUi;
+      this.ui.newAccounts.splice(index, 1);
     },
     removeNewWebsite: function (index) {
       if (typeof index !== 'number') return;
       if (index < 0 || index > (this.newDomainItems.websites - 1)) return;
       this.newDomainItems.websites.splice(index, 1);
-      let websitesUi = [];
-      for (let i = 0; i < this.newDomainItems.websites; i++) {
-        websitesUi.push({open: false});
-      }
-      this.ui.newWebsites = websitesUi;
+      this.ui.newWebsites.splice(index, 1);
     },
     removeNewSubdomain: function (index) {
       if (typeof index !== 'number') return;
       if (index < 0 || index > (this.newDomainItems.subdomains - 1)) return;
       this.newDomainItems.subdomains.splice(index, 1);
-      let subdomainsUi = [];
-      for (let i = 0; i < this.newDomainItems.subdomains; i++) {
-        subdomainsUi.push({open: false});
-      }
-      this.ui.newSubdomains = subdomainsUi;
+      this.ui.newSubdomains.splice(index, 1);
     },
     executeRenewRegistration: async function () {
       if (!this.domain || typeof this.domain !== 'string') return;
