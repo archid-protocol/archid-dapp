@@ -18,6 +18,7 @@
           v-bind:isSubdomain="isSubdomain(domain)"
           v-bind:isReadOnly="false"
           v-bind:baseCost="parseInt(config.base_cost)"
+          v-bind:collapsible="true"
           :key="'item-'+i"
         >
         </DomainListEntry>
@@ -32,6 +33,7 @@
           v-bind:isSubdomain="isSubdomain(domain)"
           v-bind:isReadOnly="false"
           v-bind:baseCost="parseInt(config.base_cost)"
+          v-bind:collapsible="true"
           :key="'item-'+i"
         >
         </DomainListEntry>

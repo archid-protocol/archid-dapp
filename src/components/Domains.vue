@@ -18,6 +18,7 @@
           v-bind:isSubdomain="isSubdomain(domain)"
           v-bind:isReadOnly="true"
           v-bind:baseCost="parseInt(config.base_cost)"
+          v-bind:collapsible="true"
           :key="'item-'+i"
         >
         </DomainListEntry>
@@ -32,6 +33,7 @@
           v-bind:isSubdomain="isSubdomain(domain)"
           v-bind:isReadOnly="true"
           v-bind:baseCost="parseInt(config.base_cost)"
+          v-bind:collapsible="true"
           :key="'item-'+i"
         >
         </DomainListEntry>
@@ -137,10 +139,6 @@ export default {
 </script>
 
 <style scoped>
-.page {
-  max-width: 90vw;
-  padding: 3em;
-}
 ul {
   padding-left: 0;
 }

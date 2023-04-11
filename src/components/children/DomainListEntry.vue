@@ -4,15 +4,15 @@
       <router-link class="domain-name header" v-if="domain" :to="'/domains/' + domain">{{domain}}</router-link>
     </div>
     <div class="right">
-      <div :class="{'caret': true, 'active': !closed}" @click="domainDetails();">&caron;</div>
+      <div :class="{'caret': true, 'active': !closed}" @click="domainDetails();" v-if="collapsible">&caron;</div>
     </div>
-    <div class="body" v-if="!closed">
+    <div class="body" v-if="!closed || !collapsible">
       <div class="container-c" v-if="token">
         <!-- Description -->
-        <div class="description" v-if="token.extension">
+        <div class="description" v-if="token.extension && owner">
           <p class="descr">Description</p>
-          <p :class="{'value': true, 'token-description': true, 'configurable': owner.owner == viewer && owner}" @click="editDescriptionHandler();" v-if="!editingText || (owner.owner !== viewer && owner)">{{token.extension.description}}</p>
-          <div class="input-group metadata-token-description" v-if="editingText && owner.owner == viewer && owner">
+          <p :class="{'value': true, 'token-description': true, 'configurable': owner.owner == viewer}" @click="editDescriptionHandler();" v-if="!editingText || (owner.owner !== viewer && owner)">{{token.extension.description}}</p>
+          <div class="input-group metadata-token-description" v-if="editingText && owner.owner == viewer">
             <input 
               type="text" 
               class="metadata-token-description form-control" 
@@ -24,15 +24,15 @@
           </div>
         </div>
         <!-- Domain Record -->
-        <div class="domain-record row" v-if="domainRecord">
+        <div class="domain-record row" v-if="domainRecord && owner">
           <div class="col resolver">
             <p class="descr">Domain Record</p>
             <div 
-              :class="{'domain-resolver': true, 'value': true, 'configurable': owner.owner == viewer && owner}"
+              :class="{'domain-resolver': true, 'value': true, 'configurable': owner.owner == viewer}"
               @click="editDomainRecordHandler();"
-              v-if="!editingResolver || (owner.owner !== viewer && owner)"
+              v-if="!editingResolver || (owner.owner !== viewer)"
             >{{domainRecord.address}}</div>
-            <div class="input-group domain-record" v-if="editingResolver && owner.owner == viewer && owner">
+            <div class="input-group domain-record" v-if="editingResolver && owner.owner == viewer">
               <input 
                 type="text" 
                 class="metadata-token-description form-control" 
@@ -44,7 +44,7 @@
             </div>
             <button 
               class="btn btn-primary btn-update-resolver"
-              v-if="editingResolver && owner.owner == viewer && owner"
+              v-if="editingResolver && owner.owner == viewer"
               @click="executeUpdateResolver();"
               :disabled="!updates.resolver || updates.resolver.length < 46"
             >Update Record</button>
@@ -54,18 +54,18 @@
             <p class="value">{{ niceDate(domainRecord.expiration) }}</p>
           </div>
           <div class="col ctrl">
-            <button class="btn btn-inverse" v-if="!isReadOnly || (owner.owner == viewer && owner)" @click="executeUpdateMetadata();" :disabled="!editing && !editingText">Update</button>
+            <button class="btn btn-inverse" v-if="!isReadOnly || (owner.owner == viewer)" @click="executeUpdateMetadata();" :disabled="!editing && !editingText">Update</button>
             <button class="btn btn-inverse" @click="modals.renew = !modals.renew" v-if="!isSubdomain">Extend</button>
           </div>
         </div>
         <!-- Identities -->
-        <div class="row id-row" v-if="!isSubdomain">
+        <div class="row id-row" v-if="!isSubdomain && owner">
           <!-- Accounts -->
           <div class="col accounts clear">
             <div class="title accounts-title">
               <span class="icon icon-accounts"></span>
               <h5>Accounts</h5>
-              <div class="float-right add account" v-if="!isReadOnly || (owner.owner == viewer && owner)" @click="creating.account = !creating.account;">
+              <div class="float-right add account" v-if="!isReadOnly || (owner.owner == viewer)" @click="creating.account = !creating.account;">
                 <span v-if="!creating.account">+</span>
                 <span v-if="creating.account">&times;</span>
               </div>
@@ -79,7 +79,7 @@
                   <div class="right" v-if="ui.accounts[i]">
                     <div :class="{'caret': true, 'active': ui.accounts[i].open}" @click="ui.accounts[i].open = !ui.accounts[i].open">&caron;</div>
                   </div>
-                  <div class="account-item item-details" v-if="ui.accounts[i].open">
+                  <div class="account-item item-details" v-if="ui.accounts[i].open && owner">
                     <hr class="title-hr" />
                     <!-- Username -->
                     <label>
@@ -90,8 +90,8 @@
                     <!-- Profile -->
                     <label v-if="account.profile">Profile</label>
                     <div class="account-profile value" v-if="account.profile">{{account.profile}}</div>
-                    <hr class="footer-hr" v-if="!isReadOnly || (owner.owner == viewer && owner)" />
-                    <div class="account-item remove" v-if="!isReadOnly || (owner.owner == viewer && owner)">
+                    <hr class="footer-hr" v-if="!isReadOnly || (owner.owner == viewer)" />
+                    <div class="account-item remove" v-if="!isReadOnly || (owner.owner == viewer)">
                       <p>
                         <span class="pointer" @click="removeAccount(i)">&times; Remove</span>
                       </p>
@@ -107,7 +107,7 @@
                   <div class="right">
                     <div :class="{'caret': true, 'active': ui.newAccounts[i].open}" v-if="ui.newAccounts[i]" @click="ui.newAccounts[i].open = !ui.newAccounts[i].open">&caron;</div>
                   </div>
-                  <div class="account-item item-details" v-if="ui.newAccounts[i].open">
+                  <div class="account-item item-details" v-if="ui.newAccounts[i].open && owner">
                     <hr class="title-hr" />
                     <!-- Username -->
                     <label>
@@ -118,8 +118,8 @@
                     <!-- Profile -->
                     <label v-if="account.profile">Profile</label>
                     <div class="account-profile value" v-if="account.profile">{{account.profile}}</div>
-                    <hr class="footer-hr" v-if="!isReadOnly || (owner.owner == viewer && owner)" />
-                    <div class="account-item remove" v-if="!isReadOnly || (owner.owner == viewer && owner)">
+                    <hr class="footer-hr" v-if="!isReadOnly || (owner.owner == viewer)" />
+                    <div class="account-item remove" v-if="!isReadOnly || (owner.owner == viewer)">
                       <p>
                         <span class="pointer" @click="removeNewAccount(i)">&times; Remove</span>
                       </p>
@@ -204,10 +204,10 @@
           </div>
           <!-- Websites & Apps -->
           <div class="col websites clear">
-            <div class="title websites-title">
+            <div class="title websites-title" v-if="owner">
               <span class="icon icon-websites"></span>
               <h5>Websites & Apps</h5>
-              <div class="float-right add account" v-if="!isReadOnly || (owner.owner == viewer && owner)" @click="creating.website = !creating.website;">
+              <div class="float-right add account" v-if="!isReadOnly || (owner.owner == viewer)" @click="creating.website = !creating.website;">
                 <span v-if="!creating.website">+</span>
                 <span v-if="creating.website">&times;</span>
               </div>
@@ -220,7 +220,7 @@
                   <div class="right">
                     <div :class="{'caret': true, 'active': ui.websites[i].open}" v-if="ui.websites[i]" @click="ui.websites[i].open = !ui.websites[i].open">&caron;</div>
                   </div>
-                  <div class="website-item item-details" v-if="ui.websites[i].open">
+                  <div class="website-item item-details" v-if="ui.websites[i].open && owner">
                     <hr class="title-hr" />
                     <!-- Website URL -->
                     <label v-if="website.url">
@@ -230,8 +230,8 @@
                     <!-- Website Domain -->
                     <label v-if="website.domain">Domain</label>
                     <div class="website-domain value" v-if="website.domain">{{website.domain}}</div>
-                    <hr class="footer-hr" v-if="!isReadOnly || (owner.owner == viewer && owner)" />
-                    <div class="account-item remove" v-if="!isReadOnly || (owner.owner == viewer && owner)">
+                    <hr class="footer-hr" v-if="!isReadOnly || (owner.owner == viewer)" />
+                    <div class="account-item remove" v-if="!isReadOnly || (owner.owner == viewer)">
                       <p>
                         <span class="pointer" @click="removeWebsite(i)">&times; Remove</span>
                       </p>
@@ -246,7 +246,7 @@
                   <div class="right">
                     <div :class="{'caret': true, 'active': ui.newWebsites[i].open}" v-if="ui.newWebsites[i]" @click="ui.newWebsites[i].open = !ui.newWebsites[i].open">&caron;</div>
                   </div>
-                  <div class="website-item item-details" v-if="ui.newWebsites[i].open">
+                  <div class="website-item item-details" v-if="ui.newWebsites[i].open && owner">
                     <hr class="title-hr" />
                     <!-- Website URL -->
                     <label v-if="website.url">
@@ -256,8 +256,8 @@
                     <!-- Website Domain -->
                     <label v-if="website.profile">Domain</label>
                     <div class="website-profile value" v-if="website.profile">{{website.profile}}</div>
-                    <hr class="footer-hr" v-if="!isReadOnly || (owner.owner == viewer && owner)" />
-                    <div class="website-item remove" v-if="!isReadOnly || (owner.owner == viewer && owner)">
+                    <hr class="footer-hr" v-if="!isReadOnly || (owner.owner == viewer)" />
+                    <div class="website-item remove" v-if="!isReadOnly || (owner.owner == viewer)">
                       <p>
                         <span class="pointer" @click="removeNewWebsite(i)">&times; Remove</span>
                       </p>
@@ -305,10 +305,10 @@
           </div>
           <!-- Subdomains -->
           <div class="col subdomains clear">
-            <div class="title subdomains-title">
+            <div class="title subdomains-title" v-if="owner">
               <span class="icon icon-subdomains"></span>
               <h5>Subdomains</h5>
-              <div class="float-right add subdomain" v-if="!isReadOnly || (owner.owner == viewer && owner)" @click="creating.subdomain = !creating.subdomain;">
+              <div class="float-right add subdomain" v-if="!isReadOnly || (owner.owner == viewer)" @click="creating.subdomain = !creating.subdomain;">
                 <span v-if="!creating.subdomain">+</span>
                 <span v-if="creating.subdomain">&times;</span>
               </div>
@@ -321,7 +321,7 @@
                   <div class="right">
                     <div :class="{'caret': true, 'active': ui.subdomains[i].open}" v-if="ui.subdomains[i]" @click="ui.subdomains[i].open = !ui.subdomains[i].open">&caron;</div>
                   </div>
-                  <div class="subdomain-item item-details" v-if="ui.subdomains[i].open">
+                  <div class="subdomain-item item-details" v-if="ui.subdomains[i].open && owner">
                     <hr class="title-hr" />
                     <!-- Subdomain Record -->
                     <label v-if="subdomain.resolver">Subdomain Record</label>
@@ -330,7 +330,7 @@
                     <label class="subdomain-expiry" v-if="subdomain.expiry">Expiration date</label>
                     <div class="value subdomain-expiry" v-if="subdomain.expiry">{{ niceDate(subdomain.expiry) }}</div>
                     <hr class="footer-hr" v-if="!isReadOnly || (owner.owner == viewer && owner)" />
-                    <div class="subdomain-item remove" v-if="!isReadOnly || (owner.owner == viewer && owner)">
+                    <div class="subdomain-item remove" v-if="!isReadOnly || (owner.owner == viewer)">
                       <p>
                         <span class="pointer" @click="executeRemoveSubdomain(subdomain)">&times; Remove</span>
                       </p>
@@ -474,6 +474,7 @@ export default {
     isSubdomain: Boolean,
     isReadOnly: Boolean,
     baseCost: Number,
+    collapsible: Boolean,
   },
   data: () => ({
     token: null,
@@ -540,7 +541,9 @@ export default {
     niceDate: DateFormat,
     formatFromMicro: FromMicro,
   }),
-  mounted: async function () {},
+  mounted: async function () {
+    if (!this.collapsible) await this.domainDetails();
+  },
   methods: {
     domainDetails: async function () {
       if (!this.token || !this.owner || !this.domainRecord) {

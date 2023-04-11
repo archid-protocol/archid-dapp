@@ -4,27 +4,34 @@
       <div class="title" v-if="domain">
         <h3>{{domain}}</h3>
       </div>
+      <div class="domain-record-data" v-if="token.extension">
+        <p v-if="owner">
+          <strong>Owned by: </strong>
+          <router-link :to="'/address/' + owner.owner">{{ owner.owner }}</router-link>
+        </p>
+        <p v-if="domainRecord.address">
+          <strong>Resolves to: </strong>
+          <router-link :to="'/address/' + domainRecord.address">{{ domainRecord.address }}</router-link>
+        </p>
+      </div>
     </div>
 
-    <div class="query-result nft-metadata" v-if="token.extension">
-      <p v-if="owner">
-        <strong>Owned by: </strong>
-        <router-link :to="'/address/' + owner.owner">{{ owner.owner }}</router-link>
-      </p>
-      <p v-if="domainRecord.address">
-        <strong>Resolves to: </strong>
-        <router-link :to="'/address/' + domainRecord.address">{{ domainRecord.address }}</router-link>
-      </p>
-      <p>
-        <strong>Token data:</strong>
-      </p>
-      <pre v-html="metadataQueryResult"></pre>
-    </div>
-    <div class="query-result domain-record" v-if="domainRecord.address">
-      <p>
-        <strong>Domain record:</strong>
-      </p>
-      <pre v-html="domainRecordQueryResult"></pre>
+    <div class="token-metadata" v-if="domain && cw721 && config">
+      <ul>
+        <li>
+          <DomainListEntry
+            v-bind:domain="domain"
+            v-bind:cw721="cw721"
+            v-bind:cwClient="cwClient"
+            v-bind:isSubdomain="isSubdomain(domain)"
+            v-bind:isReadOnly="true"
+            v-bind:baseCost="parseInt(config.base_cost)"
+            v-bind:collapsible="false"
+            :key="domain"
+          >
+          </DomainListEntry>
+        </li>
+      </ul>
     </div>
   </div>
 </template>
@@ -34,12 +41,15 @@ import { Client, Accounts } from '../util/client';
 import { Config, ResolveRecord } from '../util/query';
 import { Token, OwnerOf } from '../util/token';
 
+import DomainListEntry from './children/DomainListEntry.vue';
+
 export default {
-  name: 'Tokens',
-  components: {},
+  name: 'Domain',
+  components: { DomainListEntry },
   data: () => ({
     cwClient: null,
     accounts: null,
+    config: null,
     cw721: null,
     token: {},
     owner: null,
@@ -72,8 +82,8 @@ export default {
 
     // Query
     setTokenContract: async function () {
-      let cw721Query = await Config(this.cwClient);
-      this.cw721 = cw721Query.cw721;
+      this.config = await Config(this.cwClient);
+      this.cw721 = this.config.cw721;
       return;
     },
     tokenData: async function () {
@@ -97,6 +107,12 @@ export default {
       if (typeof this.domainRecord == 'undefined') this.domainRecord = {error: "Error reading from Registry"};
       console.log('ResolveRecord query', this.domainRecord);
     },
+
+    // Util
+    isSubdomain: function (domain = null) {
+      if (!domain || typeof domain !== 'string') return null;
+      return (domain.slice(0,-5).indexOf(".") >= 0) ? true : false
+    },
   },
   computed: {
     metadataQueryResult: function () {
@@ -118,5 +134,17 @@ export default {
   color: #fff;
   border-radius: 8px;
   margin-bottom: 1em;
+}
+ul {
+  padding-left: 0;
+}
+ul, ul li {
+  list-style: none;
+}
+ul li {
+  padding: 32px;
+  margin-bottom: 1em;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 16px;
 }
 </style>
