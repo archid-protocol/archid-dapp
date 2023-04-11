@@ -6,11 +6,11 @@
       </div>
       <div class="domain-record-data" v-if="token.extension">
         <p v-if="owner">
-          <strong>Owned by: </strong>
+          <strong>Owned by </strong>
           <router-link :to="'/address/' + owner.owner">{{ owner.owner }}</router-link>
         </p>
         <p v-if="domainRecord.address">
-          <strong>Resolves to: </strong>
+          <strong>Resolves to </strong>
           <router-link :to="'/address/' + domainRecord.address">{{ domainRecord.address }}</router-link>
         </p>
       </div>
