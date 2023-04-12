@@ -246,6 +246,7 @@ hr {
 .submit.register {
   float: right;
   width: 230px;
+  text-align: right;
 }
 .submit.register, .submit.register div {
   display: inline-block;
