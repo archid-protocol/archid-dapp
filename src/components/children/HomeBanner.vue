@@ -30,7 +30,7 @@
     <div class="search-result inner">
       <div class="result left" v-html="search.result"></div>
       <div class="result right" v-if="config.base_cost">
-        <div class="cost" v-if="!registration.taken">{{ formatFromMicro(config.base_cost) }}<span class="arch-logo">arch</span> / year</div>
+        <div class="cost" v-if="!registration.taken">{{ formatFromMicro(config.base_cost) }}<span class="icon icon-denom-alt"></span> / year</div>
         <!-- 
         XXX TODO: Implement USD price when price feeds become available
         <div class="cost-usd"></div> 
@@ -66,7 +66,7 @@
           <a :class="{'active': registration.expiry == 3, 'btn-3year': true}" @click="registration.expiry = 3;">3 years</a>
         </div>
         <div class="submit register">
-          <div class="cost">{{ formatFromMicro((config.base_cost * registration.expiry)) }}<span class="arch-logo">arch</span></div>
+          <div class="cost">{{ formatFromMicro((config.base_cost * registration.expiry)) }}<span class="icon icon-denom-alt"></span></div>
           <button class="btn btn-primary btn-register" @click="registrationHandler();">Register</button>
         </div>
       </div>
@@ -193,6 +193,9 @@ export default {
   position: relative;
   top: 3em;
 }
+.welcome.sm .search {
+  margin-top: 1em;
+}
 .title div, span.your-name {
   font-style: normal;
   font-weight: 600;
@@ -224,12 +227,12 @@ span.domain-suffix {
 .search-result.inner, .register-ctrl {
   clear: both;
 }
-.search-result .result {
+
+.submit .cost, .search-result .result {
   font-weight: 500;
   font-size: 32px;
   line-height: 130%;
   display: inline-block;
-  width: 50%;
 }
 .search-result .result.right {
   float: right;
@@ -242,12 +245,15 @@ hr {
 }
 .submit.register {
   float: right;
+  width: 230px;
 }
 .submit.register, .submit.register div {
   display: inline-block;
 }
 .submit.register div {
-  margin-right: 1em;
+  margin-right: 35px;
+  left: 24px;
+  position: relative;
 }
 .taken-domain-data .right, .taken-domain-data .left {
   width: 50%;
@@ -271,5 +277,12 @@ div.subtitle p {
   line-height: 150%;
   align-items: center;
   letter-spacing: -0.01em;
+}
+.icon-denom-alt {
+  margin-left: 9px;
+}
+.btn-register {
+  top: -5px;
+  position: relative;
 }
 </style>

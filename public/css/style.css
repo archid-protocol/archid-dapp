@@ -173,3 +173,10 @@ div.banner.sm {
     height: 22px;
     top: 5px;
 }
+
+.icon-denom-alt {
+    background-image: url('/img/icon-denom-alt.svg');
+    width: 32px;
+    height: 32px;
+    top: 4px;
+}
