@@ -23,6 +23,7 @@ ul.navigation {
     background: #FFFFFF;
     box-shadow: -8px 0px 124px rgba(0, 0, 0, 0.16);
     border-radius: 16px;
+    z-index: 100;
 }
 div.page {
     max-width: 90vw;
