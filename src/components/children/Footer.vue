@@ -2,7 +2,9 @@
   <div class="footer container-xl">
     <div class="row tp">
       <div class="col">
-        <div class="top">ArchID</div><!-- XXX TODO: Logo goes here -->
+        <div class="top">
+          <span class="icon icon-archid alt"></span>
+        </div>
       </div>
       <div class="col">
         <div class="top">

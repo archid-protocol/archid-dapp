@@ -133,6 +133,10 @@ div.banner.sm {
     background-image: url('/img/icon-twitter.svg');
     top: 4px;
 }
+.icon-discord {
+    background-image: url('/img/icon-discord.svg');
+    top: 4px;
+}
 .icon-accounts {
     background-image: url('/img/icon-accounts.svg');
     top: 1px;
@@ -155,8 +159,17 @@ div.banner.sm {
 }
 .icon-archid {
     background-image: url('/img/icon-archid.svg');
-    top: 4px;
+    top: 3px;
     margin-left: 2px;
     width: 22px;
     height: 22px;
+}
+.icon-archid.alt {
+    background-image: url('/img/icon-archid-alt.svg');
+}
+.icon-denom {
+    background-image: url('/img/icon-denom.svg');
+    width: 22px;
+    height: 22px;
+    top: 5px;
 }

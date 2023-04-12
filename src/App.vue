@@ -21,7 +21,8 @@
       <a id="user_account">
         <div class="menu-target main row">
           <div class="col">
-            <span class="balance">{{ formatFromMicro(accounts[0].balance.amount) }} arch</span>
+            <span class="balance">{{ formatFromMicro(accounts[0].balance.amount) }}</span>
+            <span class="icon icon-denom"></span>
           </div>
           <div class="col">
             <span class="address">{{ accountDisplayFormat(accounts[0].address) }}</span>
@@ -152,6 +153,12 @@ ul, ul li {
 ul li {
   padding: 1em;
 }
+li a {
+  text-decoration: none;
+}
+li a:hover {
+  opacity: 0.75;
+}
 #connect_modal {
   float: right;
 }
@@ -182,6 +189,10 @@ ul li {
 .close-x {
   float: right;
   cursor: pointer;
+}
+.btn-show-modal, .btn-show-modal:hover, .btn-show-modal:active, .btn-show-modal:focus {
+  background-color: transparent;
+  border-color: transparent;
 }
 .btn-connect {
   margin: 1em;
@@ -228,5 +239,9 @@ span.address {
 .caret-inv, .close-x.menu  {
   top: -25px;
   position: relative;
+}
+.icon-denom {
+  margin-left: 3px;
+  margin-right: -5px;
 }
 </style>
