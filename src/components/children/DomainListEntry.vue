@@ -55,7 +55,7 @@
           </div>
           <div class="col ctrl">
             <button class="btn btn-inverse" v-if="!isReadOnly || (owner.owner == viewer)" @click="executeUpdateMetadata();" :disabled="!editing && !editingText">Update</button>
-            <button class="btn btn-inverse" @click="modals.renew = !modals.renew" v-if="!isSubdomain">Extend</button>
+            <button class="btn btn-inverse" @click="modals.renew = !modals.renew" v-if="!isSubdomain && !isReadOnly || (owner.owner == viewer)">Extend</button>
           </div>
         </div>
         <!-- Identities -->
