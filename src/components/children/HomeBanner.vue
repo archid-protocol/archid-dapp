@@ -245,15 +245,14 @@ hr {
 }
 .submit.register {
   float: right;
-  width: 230px;
+  min-width: 230px;
   text-align: right;
 }
 .submit.register, .submit.register div {
   display: inline-block;
 }
 .submit.register div {
-  margin-right: 35px;
-  left: 24px;
+  margin-right: 5px;
   position: relative;
 }
 .taken-domain-data .right, .taken-domain-data .left {
