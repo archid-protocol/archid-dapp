@@ -113,7 +113,7 @@ export default {
   align-items: center;
   padding: 16px;
   gap: 10px;
-  width: 218px;
+  min-width: 218px;
   height: 56px;
   background: #FFFFFF;
 }
