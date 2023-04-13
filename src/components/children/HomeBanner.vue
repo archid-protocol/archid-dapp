@@ -139,10 +139,10 @@ export default {
       let searchText = rawText + '.arch';
       if (this.tokens.indexOf(searchText) >= 0) {
         this.updateSelectedDomain(this.tokens[this.tokens.indexOf(searchText)]);
-        return '<span class="search-target">' + searchText + '</span> is not available';
+        return '<span class="icon icon-not-available"></span><span class="search-target">' + searchText + '</span> is not available';
       } else {
         this.registration.domain = rawText;
-        return '<span class="search-target">' + searchText + '</span> is available';
+        return '<span class="icon icon-available"></span><span class="search-target">' + searchText + '</span> is available';
       }
     },
     searchHandler: function () {

@@ -1,5 +1,11 @@
+@font-face {
+    font-family: Inter;
+    src: url('/font/inter/Inter-VariableFont_slnt,wght.ttf');
+}
+
 html, body {
     background: #F2EFED;
+    font-family: Inter;
 }
 div.logo {
     position: absolute;
@@ -174,10 +180,21 @@ div.banner.sm {
     height: 22px;
     top: 5px;
 }
-
 .icon-denom-alt {
     background-image: url('/img/icon-denom-alt.svg');
     width: 32px;
     height: 32px;
     top: 4px;
+}
+.icon-available {
+    background-image: url('/img/icon-available.svg');
+    width: 36px;
+    height: 36px;
+    top: 7px;
+}
+.icon-not-available {
+    background-image: url('/img/icon-not-available.svg');
+    width: 36px;
+    height: 36px;
+    top: 7px;
 }
