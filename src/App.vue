@@ -44,8 +44,13 @@
       <li>
         <router-link to="/my-domains" @click="route = '/my-domains';showNav = false;">My Domains</router-link>
       </li>
+      <li>
+        <div class="pointer disconnect" @click="disconnectWallet();">Logout</div>
+      </li>
     </ul>
   </div>
+
+  <!-- Page Content -->
   <div class="page-content">
     <router-view :key="render" />
   </div>
@@ -59,20 +64,26 @@
   <transition name="modal" v-if="!connected">
     <div v-if="modal" class="modal-wrapper">
       <div class="modalt">
-        <div class="modal-header">
+        <div class="modal-header t">
           <span class="close-x" @click="modal = !modal">&times;</span>
         </div>
         <div class="modal-body">
-          <button 
-            id="connect_keplr" 
-            class="btn-connect btn-keplr" 
-            @click="connectWallet('keplr');"
-          >Keplr</button>
-          <button 
-            id="connect_cosmostation" 
-            class="btn-connect btn-cosmostation" 
-            @click="connectWallet('cosmostation');"
-          >Cosmostation</button>
+          <div class="wallet-choice">
+            <p class="title">Choose a wallet to connect</p>
+            <p class="subtitle">Select from the supported wallets to get started.</p>
+            <ul class="wallet-connect row">
+              <li 
+                id="connect_keplr" 
+                class="btn-connect btn-keplr" 
+                @click="connectWallet('keplr');"
+              ><span class="icon icon-keplr"></span>Keplr</li>
+              <li 
+                id="connect_cosmostation" 
+                class="btn-connect btn-cosmostation" 
+                @click="connectWallet('cosmostation');"
+              ><span class="icon icon-cosmostation"></span>Cosmostation</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
@@ -141,6 +152,10 @@ export default {
         await this.resumeConnectedState((attempts + 1));
       }
     },
+    disconnectWallet: async function () {
+      sessionStorage.removeItem("connected");
+      window.location.reload();
+    },
     accountDisplayFormat: function (account = null) {
       if (!account) return "";
       return account.slice(0,12) + "..." + account.slice(-5);
@@ -159,7 +174,7 @@ ul li {
 li a {
   text-decoration: none;
 }
-li a:hover {
+li a:hover, .wallet-connect li:hover, li .disconnect:hover {
   opacity: 0.75;
 }
 #connect_modal {
@@ -181,24 +196,36 @@ li a:hover {
 }
 .modalt {
   clear: both;
-  margin: 15% auto;
   padding: 20px;
   border: 1px solid #888;
   width: 80%;
   max-width: 450px;
-  background: #ffffff;
   border-radius: 4px;
+  background: #FFFFFF;
+  box-shadow: -8px 0px 124px rgba(0, 0, 0, 0.16);
+  border-radius: 16px;
+  position: absolute;
+  right: 8%;
+  top: 118px;
+}
+.modal-header.t {
+  border: none;
+  display: block;
 }
 .close-x {
   float: right;
-  cursor: pointer;
 }
 .btn-show-modal, .btn-show-modal:hover, .btn-show-modal:active, .btn-show-modal:focus {
   background-color: transparent;
   border-color: transparent;
 }
 .btn-connect {
-  margin: 1em;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  margin-right: 1em;
+  margin-left: 1em;
+  cursor: pointer;
+  color: #000000;
 }
 .home-logo, .home-logo:active, .home-logo:focus {
   text-decoration: none;
@@ -251,5 +278,34 @@ span.address {
   text-align: center;
   margin-top: 2em;
   margin-bottom: 2em;
+}
+.wallet-choice .title {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 150%;
+  align-items: center;
+  letter-spacing: -0.01em;
+}
+.wallet-choice .subtitle {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 150%;
+  align-items: center;
+  letter-spacing: -0.01em;
+  color: #666666;
+}
+.wallet-connect {
+  padding: 0;
+}
+.wallet-connect li {
+  display: inline-block;
+  padding: 16px;
+  gap: 8px;
+  background: #FFFFFF;
+  box-shadow: 0px 15px 54px rgba(0, 0, 0, 0.06);
+  border-radius: 8px;
+  max-width: 90%;
 }
 </style>
