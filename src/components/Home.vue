@@ -105,6 +105,7 @@ export default {
     executeResult: null,
   }),
   mounted: async function () {
+    console.log("wtf~!!!!!!");
     if (window) {
       let connected = window.sessionStorage.getItem('connected');
       if (connected) {
