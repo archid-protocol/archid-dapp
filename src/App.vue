@@ -63,7 +63,7 @@
 
   <transition name="modal" v-if="!connected">
     <div v-if="modal" class="modal-wrapper">
-      <div class="modalt">
+      <div class="modalr">
         <div class="modal-header t">
           <span class="close-x" @click="modal = !modal">&times;</span>
         </div>
@@ -203,31 +203,6 @@ li a:hover, .wallet-connect li:hover, li .disconnect:hover {
 }
 .loggedout {
   clear: both;
-}
-.modal-wrapper {
-  position: fixed;
-  z-index: 1;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgb(0,0,0);
-  background-color: rgba(0,0,0,0.4);
-}
-.modalt {
-  clear: both;
-  padding: 20px;
-  border: 1px solid #888;
-  width: 80%;
-  max-width: 450px;
-  border-radius: 4px;
-  background: #FFFFFF;
-  box-shadow: -8px 0px 124px rgba(0, 0, 0, 0.16);
-  border-radius: 16px;
-  position: absolute;
-  right: 8%;
-  top: 118px;
 }
 .modal-header.t {
   border: none;

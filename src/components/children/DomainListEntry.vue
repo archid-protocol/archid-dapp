@@ -411,16 +411,26 @@
     </div>
   </div>
 
+  <Notification
+    v-bind:type="notify.type"
+    v-bind:title="notify.title"
+    v-bind:msg="notify.msg"
+    v-bind:img="notify.img"
+    v-if="notify.type"
+    @closeNotification="closeNotification"
+  >
+  </Notification>
+
   <transition name="modal">
     <div v-if="modals.renew" class="modal-wrapper">
       <div class="modalt">
         <div class="modal-header">
           <div class="left">
-            <p>Extend <span class="modal-title modal-domain-title" v-if="domain">{{domain}}</span></p>
+            <p class="modal-extend-title">Extend <span class="modal-title modal-domain-title" v-if="domain">{{domain}}</span></p>
             <p class="modal-descr">How long would you like to extend the domain life time?</p>
           </div>
           <div class="right">
-            <span class="close-x" @click="modals.renew = !modals.renew;">&times;</span>
+            <span class="close-x extend" @click="modals.renew = !modals.renew;">&times;</span>
           </div>
         </div>
         <div class="modal-body">
@@ -433,7 +443,7 @@
           </div>
           <div class="right">
             <span class="cost" v-if="baseCost && updates.expiry">{{ formatFromMicro((baseCost * updates.expiry)) }}</span>
-            <span class="arch-logo">arch</span>
+            <span class="icon icon-denom"></span>
           </div>
         </div>
         <div class="modal-footer">
@@ -460,6 +470,8 @@ import {
 import { DateFormat } from '../../util/datetime';
 import { FromMicro } from '../../util/denom';
 
+import Notification from './Notification.vue'
+
 const ACCOUNT_TYPES = ['twitter', 'github', 'email'];
 const TWITTER = ACCOUNT_TYPES[0];
 const GITHUB = ACCOUNT_TYPES[1];
@@ -475,6 +487,7 @@ export default {
     baseCost: Number,
     collapsible: Boolean,
   },
+  components: { Notification },
   data: () => ({
     token: null,
     owner: null,
@@ -535,6 +548,12 @@ export default {
     },
     modals: {
       renew: false,
+    },
+    notify: {
+      type: null,
+      title: null,
+      msg: null,
+      img: null,
     },
     closed: true,
     niceDate: DateFormat,
@@ -706,10 +725,27 @@ export default {
       this.newDomainItems.subdomains.splice(index, 1);
       this.ui.newSubdomains.splice(index, 1);
     },
+    closeNotification: function () {
+      this.notify = {
+        type: null,
+        title: null,
+        msg: null,
+        img: null,
+      };
+    },
     executeRenewRegistration: async function () {
       if (!this.domain || typeof this.domain !== 'string') return;
       if (!this.updates.expiry || typeof this.updates.expiry !== 'number') return;
       if (!this.baseCost || typeof this.baseCost !== 'number') return;
+
+      // Waiting notification
+      this.notify = {
+        type: "loading",
+        title: null,
+        msg: "Renewing registration for " + this.domain,
+        img: null,
+      };
+
       this.resetFormIters();
       let cost = this.baseCost * this.updates.expiry;
       let domain = this.domain.slice(0,-5);
@@ -721,14 +757,40 @@ export default {
       );
       this.modals.renew = false;
       console.log('RenewRegistration tx', this.executeResult);
-      // Resolve new expiration in UI
-      await this.dataResolutionHandler(true);
+
+      if (!this.executeResult['error']) {
+        this.notify = {
+          type: "success",
+          title: "Your domain was extended",
+          msg: "Everyone will continue to reach your selected address through your Archway domain.",
+          img: null,
+        };
+        // Resolve new expiration in UI
+        await this.dataResolutionHandler(true);
+      } else {
+        // Error notification
+        this.notify = {
+          type: "error",
+          title: null,
+          msg: this.executeResult.error,
+          img: null,
+        };
+      }
     },
     executeUpdateMetadata: async function () {
       if (!this.updates.metadata) return;
       this.updates.metadata.accounts = [...this.updates.metadata.accounts, ...this.newDomainItems.accounts];
       this.updates.metadata.websites = [...this.updates.metadata.websites, ...this.newDomainItems.websites];
       this.resetFormIters();
+
+      // Waiting notification
+      this.notify = {
+        type: "loading",
+        title: null,
+        msg: "Updating " + this.domain,
+        img: null,
+      };
+
       // Do update metadata
       let domain = this.domain.slice(0,-5);
       this.executeResult = await UpdataUserDomainData(
@@ -737,12 +799,39 @@ export default {
         this.cwClient
       );
       console.log('UpdataUserDomainData tx', this.executeResult);
-      // Refresh domain
-      await this.dataResolutionHandler(true);
+
+      if (!this.executeResult['error']) {
+        // Success notification
+        this.notify = {
+          type: "success",
+          title: "Update complete",
+          msg: this.domain + " has been updated",
+          img: null,
+        };
+        // Refresh domain
+        await this.dataResolutionHandler(true);
+      } else {
+        // Error notification
+        this.notify = {
+          type: "error",
+          title: null,
+          msg: this.executeResult.error,
+          img: null,
+        };
+      }
     },
     executeUpdateResolver: async function () {
       if (!this.updates.resolver || !this.domain) return;
       this.resetFormIters();
+
+      // Waiting notification
+      this.notify = {
+        type: "loading",
+        title: null,
+        msg: "Updating domain record for " + this.domain,
+        img: null,
+      };
+
       let domain = this.domain.slice(0,-5);
       this.executeResult = await UpdateResolver(
         domain,
@@ -750,14 +839,41 @@ export default {
         this.cwClient
       );
       console.log('UpdateResolver tx', this.executeResult);
-      // Refresh domain
-      await this.dataResolutionHandler(true);
+
+      if (!this.executeResult['error']) {
+        // Success notification
+        this.notify = {
+          type: "success",
+          title: "Update complete",
+          msg: "The domain record for " + this.domain + " has been updated",
+          img: null,
+        };
+        // Refresh domain
+        await this.dataResolutionHandler(true);
+      } else {
+        // Error notification
+        this.notify = {
+          type: "error",
+          title: null,
+          msg: this.executeResult.error,
+          img: null,
+        };
+      }
     },
     executeRegisterSubdomain: async function (subdomain) {
       if (typeof subdomain !== 'object') return;
       if (!subdomain.domain || !subdomain.subdomain || !subdomain.new_resolver || !subdomain.new_owner || !subdomain.expiration) return;
       this.resetFormIters();
-      this.result.execute = await RegisterSubDomain(
+
+      // Waiting notification
+      this.notify = {
+        type: "loading",
+        title: null,
+        msg: "Registering subdomain " + subdomain.subdomain + "." + this.domain,
+        img: null,
+      };
+
+      this.executeResult = await RegisterSubDomain(
         subdomain.domain,
         subdomain.subdomain,
         subdomain.new_resolver,
@@ -766,14 +882,41 @@ export default {
         subdomain.expiration,
         this.cwClient
       );
-      console.log('RegisterSubDomain tx', this.result.execute);
-      // Refresh domain
-      await this.dataResolutionHandler(true);
+      console.log('RegisterSubDomain tx', this.executeResult);
+
+      if (!this.executeResult['error']) {
+        // Success notification
+        this.notify = {
+          type: "success",
+          title: "Subdomain registered complete",
+          msg: "You registered " + subdomain.subdomain + "." + this.domain,
+          img: null,
+        };
+        // Refresh domain
+        await this.dataResolutionHandler(true);
+      } else {
+        // Error notification
+        this.notify = {
+          type: "error",
+          title: null,
+          msg: this.executeResult.error,
+          img: null,
+        };
+      }
     },
     executeRemoveSubdomain: async function (subdomain) {
       if (typeof subdomain !== 'object') return;
       if (!this.domain || !subdomain['name']) return;
       this.resetFormIters();
+
+      // Waiting notification
+      this.notify = {
+        type: "loading",
+        title: null,
+        msg: "Removing subdomain " + subdomain.name + "." + this.domain,
+        img: null,
+      };
+
       let domain = this.domain.slice(0,-5);
       this.executeResult = await RemoveSubDomain(
         domain,
@@ -781,8 +924,26 @@ export default {
         this.cwClient
       );
       console.log('RemoveSubDomain tx', this.executeResult);
-      // Refresh domain
-      await this.dataResolutionHandler(true);
+
+      if (!this.executeResult['error']) {
+        // Success notification
+        this.notify = {
+          type: "success",
+          title: "Subdomain removed",
+          msg: "You removed " + subdomain.name + "." + this.domain,
+          img: null,
+        };
+        // Refresh domain
+        await this.dataResolutionHandler(true);
+      } else {
+        // Error notification
+        this.notify = {
+          type: "error",
+          title: null,
+          msg: this.executeResult.error,
+          img: null,
+        };
+      }
     },
 
     // Util
@@ -825,27 +986,6 @@ div.left {
 div.right {
   width: 30%;
   text-align: right;
-}
-.modal-wrapper {
-  position: fixed;
-  z-index: 1;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgb(0,0,0);
-  background-color: rgba(0,0,0,0.4);
-}
-.modalt {
-  clear: both;
-  margin: 15% auto;
-  padding: 20px;
-  border: 1px solid #888;
-  width: 80%;
-  max-width: 595px;
-  background: #ffffff;
-  border-radius: 4px;
 }
 .ctrl button {
   float: right;
@@ -948,5 +1088,37 @@ input.metadata-subdomain-name {
 }
 .item .left a {
   text-decoration: none;
+}
+.close-x.extend {
+  top: -48px;
+  position: relative;
+}
+.modal-extend-title {
+  font-style: normal;
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 150%;
+  letter-spacing: -0.03em;
+  color: #000000;
+}
+.modal-extend-title .modal-domain-title {
+  font-style: normal;
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 150%;
+  letter-spacing: -0.03em;
+  color: #FF4D00;
+  text-transform: capitalize;
+}
+span.cost {
+  font-style: normal;
+  font-weight: 500;
+  font-size: 32px;
+  line-height: 130%;
+  letter-spacing: -0.02em;
+  color: #000000;
+}
+.icon-denom {
+  margin-left: 8px;
 }
 </style>

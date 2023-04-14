@@ -85,6 +85,16 @@
       </div>
     </div>
   </div>
+
+  <Notification
+    v-bind:type="notify.type"
+    v-bind:title="notify.title"
+    v-bind:msg="notify.msg"
+    v-bind:img="notify.img"
+    v-if="notify.type"
+    @closeNotification="closeNotification"
+  >
+  </Notification>
 </template>
 
 <script>
@@ -93,16 +103,23 @@ import { Register } from '../util/execute';
 
 import HomeBanner from './children/HomeBanner.vue';
 import RecentDomains from './children/RecentDomains.vue';
+import Notification from './children/Notification.vue'
 
 export default {
   name: 'Home',
-  components: { HomeBanner, RecentDomains },
+  components: { HomeBanner, RecentDomains, Notification },
   data: () => ({
     cwClient: null,
     cw721: null,
     accounts: null,
     accountDisplay: null,
     executeResult: null,
+    notify: {
+      type: null,
+      title: null,
+      msg: null,
+      img: null,
+    },
   }),
   mounted: async function () {
     if (window) {
@@ -129,16 +146,51 @@ export default {
         await this.resumeConnectedState((attempts + 1));
       }
     },
+    closeNotification: function () {
+      this.notify = {
+        type: null,
+        title: null,
+        msg: null,
+        img: null,
+      };
+    },
     registration: async function (params) {
       if (!params.name || !params.expiry || !params.base_cost) return;
+
+      // Waiting notification
+      this.notify = {
+        type: "loading",
+        title: null,
+        msg: "Registering " + params.name + ".arch",
+        img: null,
+      };
+
       this.executeResult = await Register(
         params.name,
         params.years,
         Number(params.base_cost),
         this.cwClient
       );
-      if (typeof this.executeResult == 'undefined') console.error({error: "Error calling entry point in Registry"});
+      
       console.log('Register tx', this.executeResult);
+
+      if (!this.executeResult['error']) {
+        // Success notification
+        this.notify = {
+          type: "success",
+          title: "Your domain is ready",
+          msg: "You registered " + params.name + ".arch",
+          img: null,
+        };
+      } else {
+        // Error notification
+        this.notify = {
+          type: "error",
+          title: null,
+          msg: this.executeResult.error,
+          img: null,
+        };
+      }
     },
     registerHandler: function () {
       const searchEl = document.getElementById('domain');
