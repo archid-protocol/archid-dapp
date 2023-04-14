@@ -46,8 +46,11 @@
       </li>
     </ul>
   </div>
-  <div class="page-content" v-if="connected || route == '/'">
+  <div class="page-content">
     <router-view :key="render" />
+  </div>
+  <div class="no-auth row" v-if="!connected">
+    <h3>Connect your wallet to view data on this page.</h3>
   </div>
   <div class="footer-content">
     <Footer />
@@ -243,5 +246,10 @@ span.address {
 .icon-denom {
   margin-left: 3px;
   margin-right: -5px;
+}
+.no-auth {
+  text-align: center;
+  margin-top: 2em;
+  margin-bottom: 2em;
 }
 </style>

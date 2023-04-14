@@ -41,7 +41,9 @@ async function Register(name, years = 1, base_cost = BASE_DOMAIN_COST, client = 
     return tx;
   } catch (e) {
     console.error(e);
-    return {};
+    return {
+      error: String(e)
+    };
   }
 }
 
@@ -81,7 +83,9 @@ async function RenewRegistration(name, years = 1, base_cost = BASE_DOMAIN_COST, 
     return tx;
   } catch (e) {
     console.error(e);
-    return {};
+    return {
+      error: String(e)
+    };
   }
 }
 
@@ -119,7 +123,9 @@ async function UpdateResolver(name, new_resolver, client = null) {
     return tx;
   } catch (e) {
     console.error(e);
-    return {};
+    return {
+      error: String(e)
+    };
   }
 }
 
@@ -171,7 +177,9 @@ async function RegisterSubDomain(domain, subdomain, new_resolver, new_owner, min
     return tx;
   } catch (e) {
     console.error(e);
-    return {};
+    return {
+      error: String(e)
+    };
   }
 }
 
@@ -211,7 +219,9 @@ async function UpdataUserDomainData(name, metadata_update, client = null) {
     return tx;
   } catch (e) {
     console.error(e);
-    return {};
+    return {
+      error: String(e)
+    };
   }
 }
 
@@ -247,7 +257,9 @@ async function UpdateConfig(update_config, client = null) {
     return tx;
   } catch (e) {
     console.error(e);
-    return {};
+    return {
+      error: String(e)
+    };
   }
 }
 
@@ -284,7 +296,9 @@ async function Withdraw(amount, client = null) {
     return tx;
   } catch (e) {
     console.error(e);
-    return {};
+    return {
+      error: String(e)
+    };
   }
 }
 
@@ -323,7 +337,9 @@ async function RemoveSubDomain(domain, subdomain, client = null) {
     return tx;
   } catch (e) {
     console.error(e);
-    return {};
+    return {
+      error: String(e)
+    };
   }
 }
 
