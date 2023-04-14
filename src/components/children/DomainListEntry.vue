@@ -407,9 +407,7 @@
           </div>
         </div>
       </div>
-      <div class="loading" v-if="!token">
-        <p>Loading domain data...</p>
-      </div>
+      <div class="loading default" v-if="!token"></div>
     </div>
   </div>
 

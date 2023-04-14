@@ -68,7 +68,7 @@
           <span class="close-x" @click="modal = !modal">&times;</span>
         </div>
         <div class="modal-body">
-          <div class="wallet-choice">
+          <div class="wallet-choice" v-if="!connecting">
             <p class="title">Choose a wallet to connect</p>
             <p class="subtitle">Select from the supported wallets to get started.</p>
             <ul class="wallet-connect row">
@@ -83,6 +83,21 @@
                 @click="connectWallet('cosmostation');"
               ><span class="icon icon-cosmostation"></span>Cosmostation</li>
             </ul>
+          </div>
+          <div v-if="connecting">
+            <ul class="wallet-connect row">
+              <li 
+                id="connect_keplr" 
+                class="btn-connect btn-keplr" 
+                v-if="walletType == walletTypes[0]"
+              ><span class="icon icon-keplr"></span>Keplr</li>
+              <li 
+                id="connect_cosmostation" 
+                class="btn-connect btn-cosmostation" 
+                v-if="walletType == walletTypes[1]"
+              ><span class="icon icon-cosmostation"></span>Cosmostation</li>
+            </ul>
+            <div class="loading default"></div>
           </div>
         </div>
       </div>
@@ -104,7 +119,9 @@ export default {
     cwClient: null,
     accounts: [],
     connected: false,
-    walletType: ['keplr', 'cosmostation'],
+    connecting: false,
+    walletTypes: ['keplr', 'cosmostation'],
+    walletType: null,
     modal: false,
     route: null,
     showNav: false,
@@ -123,8 +140,9 @@ export default {
   },
   methods: {
     connectWallet: async function (wallet = "keplr") {
-      if (this.walletType.indexOf(wallet) == -1) return;
+      if (this.walletTypes.indexOf(wallet) == -1) return;
 
+      this.connecting = true;
       this.walletType = wallet;
       this.cwClient = await Client(this.walletType);
       this.accounts = await Accounts(this.cwClient);
@@ -132,8 +150,11 @@ export default {
       try {
         if (!this.accounts[0].address) return;
         this.connected = true;
+        this.connecting = false;
         window.sessionStorage.setItem('connected', this.walletType);
       } catch(e) {
+        this.connected = false;
+        this.connecting = false;
         console.error(e);
       }
       this.render += 1;
