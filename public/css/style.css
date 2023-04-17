@@ -221,6 +221,10 @@ div.banner.sm {
     top: 6px;
 }
 
+.icon-warning {
+    background-image: url('/img/icon-warning.svg');
+}
+
 /* Modals */
 .modal-wrapper {
     position: fixed;

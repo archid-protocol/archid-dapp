@@ -476,6 +476,7 @@ const ACCOUNT_TYPES = ['twitter', 'github', 'email'];
 const TWITTER = ACCOUNT_TYPES[0];
 const GITHUB = ACCOUNT_TYPES[1];
 const EMAIL = ACCOUNT_TYPES[2];
+const SUCCESS_IMG = 'notification-success.svg';
 
 export default {
   props: {
@@ -741,7 +742,7 @@ export default {
       // Waiting notification
       this.notify = {
         type: "loading",
-        title: null,
+        title: "Getting your domain ready",
         msg: "Renewing registration for " + this.domain,
         img: null,
       };
@@ -763,7 +764,7 @@ export default {
           type: "success",
           title: "Your domain was extended",
           msg: "Everyone will continue to reach your selected address through your Archway domain.",
-          img: null,
+          img: SUCCESS_IMG,
         };
         // Resolve new expiration in UI
         await this.dataResolutionHandler(true);
@@ -771,7 +772,7 @@ export default {
         // Error notification
         this.notify = {
           type: "error",
-          title: null,
+          title: "Something went wrong",
           msg: this.executeResult.error,
           img: null,
         };
@@ -786,7 +787,7 @@ export default {
       // Waiting notification
       this.notify = {
         type: "loading",
-        title: null,
+        title: "Getting your domain ready",
         msg: "Updating " + this.domain,
         img: null,
       };
@@ -805,8 +806,8 @@ export default {
         this.notify = {
           type: "success",
           title: "Update complete",
-          msg: this.domain + " has been updated",
-          img: null,
+          msg: "The data for " + this.domain + " has been updated",
+          img: SUCCESS_IMG,
         };
         // Refresh domain
         await this.dataResolutionHandler(true);
@@ -814,7 +815,7 @@ export default {
         // Error notification
         this.notify = {
           type: "error",
-          title: null,
+          title: "Something went wrong",
           msg: this.executeResult.error,
           img: null,
         };
@@ -827,8 +828,8 @@ export default {
       // Waiting notification
       this.notify = {
         type: "loading",
-        title: null,
-        msg: "Updating domain record for " + this.domain,
+        title: "Getting your domain record ready",
+        msg: "Updating the record for " + this.domain,
         img: null,
       };
 
@@ -846,7 +847,7 @@ export default {
           type: "success",
           title: "Update complete",
           msg: "The domain record for " + this.domain + " has been updated",
-          img: null,
+          img: SUCCESS_IMG,
         };
         // Refresh domain
         await this.dataResolutionHandler(true);
@@ -854,7 +855,7 @@ export default {
         // Error notification
         this.notify = {
           type: "error",
-          title: null,
+          title: "Something went wrong",
           msg: this.executeResult.error,
           img: null,
         };
@@ -868,7 +869,7 @@ export default {
       // Waiting notification
       this.notify = {
         type: "loading",
-        title: null,
+        title: "Creating your new subdomain",
         msg: "Registering subdomain " + subdomain.subdomain + "." + this.domain,
         img: null,
       };
@@ -888,9 +889,9 @@ export default {
         // Success notification
         this.notify = {
           type: "success",
-          title: "Subdomain registered complete",
+          title: "Subdomain registeration complete",
           msg: "You registered " + subdomain.subdomain + "." + this.domain,
-          img: null,
+          img: SUCCESS_IMG,
         };
         // Refresh domain
         await this.dataResolutionHandler(true);
@@ -898,7 +899,7 @@ export default {
         // Error notification
         this.notify = {
           type: "error",
-          title: null,
+          title: "Something went wrong",
           msg: this.executeResult.error,
           img: null,
         };
@@ -912,7 +913,7 @@ export default {
       // Waiting notification
       this.notify = {
         type: "loading",
-        title: null,
+        title: "Burning your subdomain forever",
         msg: "Removing subdomain " + subdomain.name + "." + this.domain,
         img: null,
       };
@@ -929,9 +930,9 @@ export default {
         // Success notification
         this.notify = {
           type: "success",
-          title: "Subdomain removed",
+          title: "Your subdomain was removed",
           msg: "You removed " + subdomain.name + "." + this.domain,
-          img: null,
+          img: SUCCESS_IMG,
         };
         // Refresh domain
         await this.dataResolutionHandler(true);
@@ -939,7 +940,7 @@ export default {
         // Error notification
         this.notify = {
           type: "error",
-          title: null,
+          title: "Something went wrong",
           msg: this.executeResult.error,
           img: null,
         };

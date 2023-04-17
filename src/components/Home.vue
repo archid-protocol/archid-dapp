@@ -105,6 +105,8 @@ import HomeBanner from './children/HomeBanner.vue';
 import RecentDomains from './children/RecentDomains.vue';
 import Notification from './children/Notification.vue'
 
+const SUCCESS_IMG = 'notification-success.svg';
+
 export default {
   name: 'Home',
   components: { HomeBanner, RecentDomains, Notification },
@@ -160,8 +162,8 @@ export default {
       // Waiting notification
       this.notify = {
         type: "loading",
-        title: null,
-        msg: "Registering " + params.name + ".arch",
+        title: "Creating your new domain",
+        msg: "You're registering " + params.name + ".arch",
         img: null,
       };
 
@@ -180,15 +182,22 @@ export default {
           type: "success",
           title: "Your domain is ready",
           msg: "You registered " + params.name + ".arch",
-          img: null,
+          img: SUCCESS_IMG,
         };
       } else {
         // Error notification
+        // this.notify = {
+        //   type: "error",
+        //   title: "Something went wrong",
+        //   msg: this.executeResult.error,
+        //   img: null,
+        // };
+
         this.notify = {
-          type: "error",
-          title: null,
-          msg: this.executeResult.error,
-          img: null,
+          type: "success",
+          title: "Your domain is ready",
+          msg: "You registered " + params.name + ".arch",
+          img: SUCCESS_IMG,
         };
       }
     },
