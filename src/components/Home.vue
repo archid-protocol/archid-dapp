@@ -186,18 +186,11 @@ export default {
         };
       } else {
         // Error notification
-        // this.notify = {
-        //   type: "error",
-        //   title: "Something went wrong",
-        //   msg: this.executeResult.error,
-        //   img: null,
-        // };
-
         this.notify = {
-          type: "success",
-          title: "Your domain is ready",
-          msg: "You registered " + params.name + ".arch",
-          img: SUCCESS_IMG,
+          type: "error",
+          title: "Something went wrong",
+          msg: this.executeResult.error,
+          img: null,
         };
       }
     },
