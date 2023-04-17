@@ -1,9 +1,11 @@
 <template>
   <div class="loggedout" v-if="!connected">
     <div class="logo">
-      <span class="icon icon-archid"></span>
-      <span class="brand-a">Arch</span>
-      <span class="brand-b">ID</span>
+      <router-link to="/" @click="route = '/'; showNav = false;">
+        <span class="icon icon-archid"></span>
+        <span class="brand-a">Arch</span>
+        <span class="brand-b">ID</span>
+      </router-link>
     </div>
     <div class="connect user">
       <a id="connect_modal" class="btn btn-primary btn-show-modal pointer" @click="modal = !modal;">Connect Wallet</a>
@@ -98,6 +100,9 @@
               ><span class="icon icon-cosmostation"></span>Cosmostation</li>
             </ul>
             <div class="loading default"></div>
+            <div class="cancel reset">
+              <p class="cancel" @click="connectCancel();">Cancel</p>
+            </div>
           </div>
         </div>
       </div>
@@ -144,10 +149,10 @@ export default {
 
       this.connecting = true;
       this.walletType = wallet;
-      this.cwClient = await Client(this.walletType);
-      this.accounts = await Accounts(this.cwClient);
-      
+
       try {
+        this.cwClient = await Client(this.walletType);
+        this.accounts = await Accounts(this.cwClient);
         if (!this.accounts[0].address) return;
         this.connected = true;
         this.connecting = false;
@@ -172,6 +177,10 @@ export default {
       } catch (e) {
         await this.resumeConnectedState((attempts + 1));
       }
+    },
+    connectCancel: function () {
+      this.connected = false;
+      this.connecting = false;
     },
     disconnectWallet: async function () {
       sessionStorage.removeItem("connected");
@@ -303,5 +312,24 @@ span.address {
   box-shadow: 0px 15px 54px rgba(0, 0, 0, 0.06);
   border-radius: 8px;
   max-width: 90%;
+}
+.loading.default {
+  margin-top: 1.75em;
+  margin-bottom: 1.75em;
+}
+div.cancel.reset {
+  padding: 1em;
+  border-top: 1px solid #F2EFED;
+  margin-top: 1.5em;
+}
+.cancel p.cancel {
+  padding-top: 1em;
+  cursor: pointer;
+  text-align: center;
+  color: #FF4D00;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 150%;
 }
 </style>
