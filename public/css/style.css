@@ -223,6 +223,8 @@ div.banner.sm {
 
 .icon-warning {
     background-image: url('/img/icon-warning.svg');
+    width: 24px;
+    height: 24px;
 }
 
 /* Modals */

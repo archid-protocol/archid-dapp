@@ -477,6 +477,7 @@ const TWITTER = ACCOUNT_TYPES[0];
 const GITHUB = ACCOUNT_TYPES[1];
 const EMAIL = ACCOUNT_TYPES[2];
 const SUCCESS_IMG = 'notification-success.svg';
+const REMOVED_IMG = 'notification-domain-removed.svg';
 
 export default {
   props: {
@@ -932,7 +933,7 @@ export default {
           type: "success",
           title: "Your subdomain was removed",
           msg: "You removed " + subdomain.name + "." + this.domain,
-          img: SUCCESS_IMG,
+          img: REMOVED_IMG,
         };
         // Refresh domain
         await this.dataResolutionHandler(true);

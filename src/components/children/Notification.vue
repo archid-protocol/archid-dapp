@@ -1,6 +1,12 @@
 <template>
     <div class="notification" v-if="msg && type">
-        <div class="img" v-if="img" :style="'background-image: url(/img/' + img + ');'"></div>
+        <div class="info-alert" v-if="type == types[0]">
+          <span class="icon icon-warning"></span>
+        </div>
+        <div class="rm-img" v-if="img == removedImg">
+          <div class="img" :style="'background-image: url(/img/' + img + ');'"></div>
+        </div>
+        <div class="img" v-if="img && img !== removedImg" :style="'background-image: url(/img/' + img + ');'"></div>
         <div :class="type">
             <h3 class="title">{{title}}</h3>
             <p class="body" v-html="msg" v-if="type !== types[0]"></p>
@@ -18,6 +24,9 @@ const TYPES = ["error", "success", "loading"];
 const ERROR = TYPES[0];
 const SUCCESS = TYPES[1];
 const LOADING = TYPES[2];
+
+const REMOVED_IMG = 'notification-domain-removed.svg';
+
 export default {
   props: {
     type: String,
@@ -28,6 +37,7 @@ export default {
   emits: ['closeNotification'],
   data: () => ({
     types: TYPES,
+    removedImg: REMOVED_IMG,
   }),
   mounted: async function () {
     if (this.type !== ERROR && this.type !== SUCCESS && this.type !== LOADING) console.warn("Problem loading notification", this);
@@ -58,6 +68,21 @@ div.notification {
   border-radius: 16px;
   width: 327px;
   height: 452px;
+}
+div.rm-img {
+  background: #F2EFED;
+  border-radius: 8px;
+  position: relative;
+  height: 141px;
+  top: -15px;
+}
+div.rm-img .img {
+  display: block;
+  width: 167.16px;
+  height: 158.98px;
+  margin: auto;
+  position: relative;
+  top: -33px;
 }
 div.img {
   height: 141px;
@@ -98,5 +123,8 @@ p.body {
   font-weight: 400;
   font-size: 16px;
   line-height: 150%;
+}
+.info-alert {
+  margin-bottom: 1em;
 }
 </style>
