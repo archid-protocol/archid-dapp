@@ -118,7 +118,7 @@ import { FromMicro } from './util/denom';
 import Footer from './components/children/Footer.vue';
 
 export default {
-  name: 'archid-dapp',
+  name: 'ArchID',
   components: { Footer },
   data: () => ({
     cwClient: null,
