@@ -1,10 +1,12 @@
 <template>
-  <div class="domain-item collapsible">
-    <div class="left">
-      <router-link class="domain-name header" v-if="domain" :to="'/domains/' + domain">{{domain}}</router-link>
-    </div>
-    <div class="right">
-      <div :class="{'caret': true, 'active': !closed}" @click="domainDetails();" v-if="collapsible">&caron;</div>
+  <div :class="{'domain-item': true, 'collapsible': true, 'expanded': !closed || !collapsible}">
+    <div class="head">
+      <div class="left">
+        <router-link class="domain-name header" v-if="domain" :to="'/domains/' + domain">{{domain}}</router-link>
+      </div>
+      <div class="right">
+        <div :class="{'caret': true, 'active': !closed}" @click="domainDetails();" v-if="collapsible">&caron;</div>
+      </div>
     </div>
     <div class="body" v-if="!closed || !collapsible">
       <div class="container-c" v-if="token">
@@ -978,6 +980,11 @@ export default {
   font-size: 32px;
   line-height: 130%;
   text-decoration: none;
+}
+.expanded div.head {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  margin-bottom: 1em;
+  padding-bottom: 1.25em;
 }
 div.left, div.right {
   display: inline-block;
