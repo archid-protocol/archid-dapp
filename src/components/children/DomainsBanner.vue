@@ -61,11 +61,12 @@ export default {
 
 <style scoped>
 .domain-banner {
-  padding: 4em;
+  padding: 1.25em;
   background: #FF4D00;
   color: #fff;
   border-radius: 8px;
   margin-bottom: 1em;
+  height: 325px;
 }
 .button-group {
   border-radius: 4px;
@@ -89,5 +90,40 @@ export default {
 }
 input {
   width: 100%;
+}
+.type-filter.left {
+  position: relative; 
+  top: -10px;
+}
+.text-filter input {
+  padding: 16px;
+  max-width: 462px;
+  height: 56px;
+  background: #FFFFFF;
+  border: 1px solid #F2EFED;
+  border-radius: 8px;
+  top: 12px;
+  float: right;
+  position: relative;
+}
+div.title {
+  padding-top: 82px;
+}
+div.title h3 {
+  font-style: normal;
+  font-weight: 600;
+  font-size: 64px;
+  line-height: 120%;
+  letter-spacing: -0.05em;
+  color: #FFFFFF;
+}
+div.search {
+  padding: 16px;
+  gap: 32px;
+  position: relative;
+  background: #FFFFFF;
+  border-radius: 8px;
+  margin-top: 1.25em;
+  clear: both;
 }
 </style>

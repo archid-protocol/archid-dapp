@@ -2,7 +2,8 @@
   <div class="page">
     <div class="address-banner">
       <div class="title" v-if="account">
-        <h3>Domains owned by <span class="account">{{ account }}</span></h3>
+        <h3>{{ accountDisplayFormat(account) }}</h3>
+        <h4>Domains</h4>
       </div>
     </div>
 
@@ -88,17 +89,23 @@ export default {
       if (!domain || typeof domain !== 'string') return null;
       return (domain.slice(0,-5).indexOf(".") >= 0) ? true : false
     },
+    accountDisplayFormat: function (account = null) {
+      if (!account) return "";
+      let ucfirst = account.substr(0,1).toUpperCase();
+      return ucfirst + account.slice(1,13) + "..." + account.slice(-7);
+    }
   },
 }
 </script>
 
 <style scoped>
 .address-banner {
-  padding: 4em;
+  padding: 1.25em;
   background: #FF4D00;
   color: #fff;
   border-radius: 8px;
   margin-bottom: 1em;
+  height: 325px;
 }
 ul {
   padding-left: 0;
@@ -114,5 +121,24 @@ ul li {
 }
 span.account {
   font-style: italic;
+}
+div.title {
+  padding-top: 160px;
+}
+div.title h3 {
+  font-style: normal;
+  font-weight: 600;
+  font-size: 64px;
+  line-height: 120%;
+  letter-spacing: -0.05em;
+  color: #FFFFFF;
+}
+div.title h4 {
+  font-style: normal;
+  font-weight: 500;
+  font-size: 32px;
+  line-height: 130%;
+  letter-spacing: -0.02em;
+  color: #FFFFFF;
 }
 </style>

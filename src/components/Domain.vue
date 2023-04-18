@@ -2,9 +2,9 @@
   <div class="page">
     <div class="domain-banner">
       <div class="title" v-if="domain">
-        <h3>{{domain}}</h3>
+        <h3>{{ domainDisplayFormat(domain) }}</h3>
       </div>
-      <div class="domain-record-data" v-if="token.extension">
+      <!-- <div class="domain-record-data" v-if="token.extension">
         <p v-if="owner">
           <strong>Owned by </strong>
           <router-link :to="'/address/' + owner.owner">{{ owner.owner }}</router-link>
@@ -13,7 +13,7 @@
           <strong>Resolves to </strong>
           <router-link :to="'/address/' + domainRecord.address">{{ domainRecord.address }}</router-link>
         </p>
-      </div>
+      </div> -->
     </div>
 
     <div class="token-metadata" v-if="domain && cw721 && config">
@@ -113,6 +113,11 @@ export default {
       if (!domain || typeof domain !== 'string') return null;
       return (domain.slice(0,-5).indexOf(".") >= 0) ? true : false
     },
+    domainDisplayFormat: function (domain = null) {
+      if (!domain) return "";
+      let ucfirst = domain.substr(0,1).toUpperCase();
+      return ucfirst + domain.slice(1);
+    }
   },
   computed: {
     metadataQueryResult: function () {
@@ -129,11 +134,12 @@ export default {
 
 <style scoped>
 .domain-banner {
-  padding: 4em;
+  padding: 1.25em;
   background: #FF4D00;
   color: #fff;
   border-radius: 8px;
   margin-bottom: 1em;
+  height: 325px;
 }
 ul {
   padding-left: 0;
@@ -146,5 +152,16 @@ ul li {
   margin-bottom: 1em;
   background: rgba(255, 255, 255, 0.6);
   border-radius: 16px;
+}
+div.title {
+  padding-top: 210px;
+}
+div.title h3 {
+  font-style: normal;
+  font-weight: 600;
+  font-size: 64px;
+  line-height: 120%;
+  letter-spacing: -0.05em;
+  color: #FFFFFF;
 }
 </style>
