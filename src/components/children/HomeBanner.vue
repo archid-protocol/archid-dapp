@@ -135,7 +135,7 @@ export default {
       if (!this.tokens.length) return '';
       if (!text) return '';
       if (typeof text !== 'string') return '';
-      let rawText = text.replace(/[^a-z0-9-]/g,'');
+      let rawText = text.toLowerCase().replace(/[^a-z0-9-]/g,'');
       let searchText = rawText + '.arch';
       if (this.tokens.indexOf(searchText) >= 0) {
         this.updateSelectedDomain(this.tokens[this.tokens.indexOf(searchText)]);
