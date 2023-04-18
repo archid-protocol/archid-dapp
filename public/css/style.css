@@ -222,6 +222,8 @@ div.banner.sm {
 }
 .icon-upload {
     background-image: url('/img/icon-upload.svg');
+    width: 16px;
+    height: 16px;
 }
 .icon-warning {
     background-image: url('/img/icon-warning.svg');

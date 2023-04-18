@@ -10,56 +10,84 @@
     </div>
     <div class="body" v-if="!closed || !collapsible">
       <div class="container-c" v-if="token">
-        <!-- Description -->
-        <div class="description" v-if="token.extension && owner">
-          <p class="descr">Description</p>
-          <p :class="{'value': true, 'token-description': true, 'configurable': owner.owner == viewer}" @click="editDescriptionHandler();" v-if="!editingText || (owner.owner !== viewer && owner)">{{token.extension.description}}</p>
-          <div class="input-group metadata-token-description" v-if="editingText && owner.owner == viewer">
-            <input 
-              type="text" 
-              class="metadata-token-description form-control" 
-              name="token_description"
-              v-model="updates.metadata.description"
-              placeholder="Describe your ArchID domain"
-            />
-            <span class="input-group-text pointer exit edit-descr" @click="editDescriptionHandler();">&times;</span>
-          </div>
-        </div>
-        <!-- Domain Record -->
-        <div class="domain-record row" v-if="domainRecord && owner">
-          <div class="col resolver">
-            <p class="descr">Domain Record</p>
-            <div 
-              :class="{'domain-resolver': true, 'value': true, 'configurable': owner.owner == viewer}"
-              @click="editDomainRecordHandler();"
-              v-if="!editingResolver || (owner.owner !== viewer)"
-            >{{domainRecord.address}}</div>
-            <div class="input-group domain-record" v-if="editingResolver && owner.owner == viewer">
-              <input 
-                type="text" 
-                class="metadata-token-description form-control" 
-                name="token_description"
-                v-model="updates.resolver"
-                placeholder="Archway address for this domain"
-              />
-              <span class="input-group-text pointer exit edit-descr" @click="editDomainRecordHandler();">&times;</span>
+        <div class="domain-data top row">
+          <!-- Col 1; Image -->
+          <div class="col img-t">
+            <div class="token-img wrapper">
+              <div class="img token-img" :style="'background-image: url(' + tokenImg + ');'">
+                <div class="upload btn-upload pointer" v-if="!isReadOnly || (owner.owner == viewer)">
+                  <span class="icon icon-upload"></span>
+                </div>
+              </div>
             </div>
-            <button 
-              class="btn btn-primary btn-update-resolver"
-              v-if="editingResolver && owner.owner == viewer"
-              @click="executeUpdateResolver();"
-              :disabled="!updates.resolver || updates.resolver.length < 46"
-            >Update Record</button>
           </div>
-          <div class="col expiry">
-            <p class="descr">Expiration date</p>
-            <p class="value">{{ niceDate(domainRecord.expiration) }}</p>
+          <!-- Col 2; Description, Expiry, Extend -->
+          <div class="col">
+            <!-- Description -->
+            <div class="description" v-if="token.extension && owner">
+              <p class="descr">Description</p>
+              <p :class="{'value': true, 'token-description': true, 'configurable': owner.owner == viewer}" @click="editDescriptionHandler();" v-if="!editingText || (owner.owner !== viewer && owner)">{{token.extension.description}}</p>
+              <div class="input-group metadata-token-description" v-if="editingText && owner.owner == viewer">
+                <input 
+                  type="text" 
+                  class="metadata-token-description form-control" 
+                  name="token_description"
+                  v-model="updates.metadata.description"
+                  placeholder="Describe your ArchID domain"
+                  @keyup="editingDescr = true;"
+                />
+                <span class="input-group-text pointer exit edit-descr" @click="editDescriptionHandler();">&times;</span>
+              </div>
+            </div>
+            <!-- Expiration -->
+            <div class="expiry">
+              <p class="descr">Expiration date</p>
+              <p class="value">{{ niceDate(domainRecord.expiration) }}</p>
+            </div>
+            <!-- Btn. Extend -->
+            <div class="ctrl">
+              <button class="btn btn-inverse" @click="modals.renew = !modals.renew" v-if="!isSubdomain && !isReadOnly || (owner.owner == viewer)">Extend</button>
+            </div>
           </div>
-          <div class="col ctrl">
-            <button class="btn btn-inverse" v-if="!isReadOnly || (owner.owner == viewer)" @click="executeUpdateMetadata();" :disabled="!editing && !editingText">Update</button>
-            <button class="btn btn-inverse" @click="modals.renew = !modals.renew" v-if="!isSubdomain && !isReadOnly || (owner.owner == viewer)">Extend</button>
+          <!-- Col 3; Owner, Domain Record -->
+          <div class="col">
+            <!-- Owner -->
+            <div class="domain-owner-record">
+              <div class="owner" v-if="owner">
+                <p class="descr">Owner</p>
+                <div class="domain-owner value">{{ owner.owner }}</div>
+              </div>
+            </div>
+            <!-- Domain Record -->
+            <div class="domain-record" v-if="domainRecord && owner">
+              <div class="resolver">
+                <p class="descr">Domain Record</p>
+                <div 
+                  :class="{'domain-resolver': true, 'value': true, 'configurable': owner.owner == viewer}"
+                  @click="editDomainRecordHandler();"
+                  v-if="!editingResolver || (owner.owner !== viewer)"
+                >{{domainRecord.address}}</div>
+                <div class="input-group domain-record" v-if="editingResolver && owner.owner == viewer">
+                  <input 
+                    type="text" 
+                    class="metadata-token-description form-control" 
+                    name="token_description"
+                    v-model="updates.resolver"
+                    placeholder="Archway address for this domain"
+                  />
+                  <span class="input-group-text pointer exit edit-descr" @click="editDomainRecordHandler();">&times;</span>
+                </div>
+                <button 
+                  class="btn btn-primary btn-update-resolver"
+                  v-if="editingResolver && owner.owner == viewer"
+                  @click="executeUpdateResolver();"
+                  :disabled="!updates.resolver || updates.resolver.length < 46"
+                >Update Record</button>
+              </div>
+            </div>
           </div>
         </div>
+
         <!-- Identities -->
         <div class="row id-row" v-if="!isSubdomain && owner">
           <!-- Accounts -->
@@ -408,6 +436,17 @@
             </div>
           </div>
         </div>
+
+        <div class="row edit-ctrl" v-if="editing || editingDescr">
+          <div class="left">
+            <h3 class="unsaved-changes">You have unsaved changes.</h3>
+          </div>
+          <div class="right">
+            <button class="btn btn-inverse" v-if="!isReadOnly || (owner.owner == viewer)" @click="dataResolutionHandler(true)">Revert Changes</button>
+            <button class="btn btn-primary" v-if="!isReadOnly || (owner.owner == viewer)" @click="executeUpdateMetadata();">Save Changes</button>
+          </div>
+        </div>
+
       </div>
       <div class="loading default" v-if="!token"></div>
     </div>
@@ -478,8 +517,13 @@ const ACCOUNT_TYPES = ['twitter', 'github', 'email'];
 const TWITTER = ACCOUNT_TYPES[0];
 const GITHUB = ACCOUNT_TYPES[1];
 const EMAIL = ACCOUNT_TYPES[2];
+
+const IPFS_GATEWAY_PREFIX = 'https://ipfs.io/ipfs/';
+const IPFS_CID_PREFIX = 'ipfs://';
+
 const SUCCESS_IMG = 'notification-success.svg';
 const REMOVED_IMG = 'notification-domain-removed.svg';
+const DEFAULT_TOKEN_IMG = '/img/token.svg';
 
 export default {
   props: {
@@ -498,6 +542,7 @@ export default {
     viewer: null,
     editing: false,
     editingText: false,
+    editingDescr: false,
     editingResolver: false,
     registering: false,
     domainRecord: null,
@@ -623,12 +668,7 @@ export default {
     editDescriptionHandler: function () {
       if (!this.owner || !this.viewer) return;
       if (this.owner.owner !== this.viewer) return;
-      if (this.editingText) {
-        this.editing = true;
-        this.editingText = false;
-      } else {
-        this.editingText = true;
-      }
+      this.editingText = !this.editingText;
     },
     editDomainRecordHandler: function () {
       if (!this.owner || !this.viewer) return;
@@ -971,6 +1011,14 @@ export default {
       }
     }
   },
+  computed: {
+    tokenImg: function () {
+      if (!this.updates.metadata) return DEFAULT_TOKEN_IMG;
+      else if (!this.updates.metadata['image']) return DEFAULT_TOKEN_IMG;
+      let img = (this.updates.metadata.image.substr(0,7) == IPFS_CID_PREFIX) ? this.updates.metadata.image.replace(IPFS_CID_PREFIX, IPFS_GATEWAY_PREFIX) : this.updates.metadata.image;
+      return img;
+    },
+  }
 }
 </script>
 
@@ -996,12 +1044,8 @@ div.right {
   width: 30%;
   text-align: right;
 }
-.ctrl button {
-  float: right;
-  margin-left: 0.5rem;
-}
-.ctrl, .row {
-  clear: both;
+div.expiry {
+  display: inline-block;
 }
 div.value {
   padding: 16px;
@@ -1129,5 +1173,60 @@ span.cost {
 }
 .icon-denom {
   margin-left: 8px;
+}
+h3.unsaved-changes {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 130%;
+  letter-spacing: -0.02em;
+  color: #000000;
+}
+.row.edit-ctrl {
+  padding-top: 2em;
+}
+.row.edit-ctrl .right button {
+  margin-right: 8px;
+}
+.metadata-token-description.form-control,
+.input-group-text.edit-descr {
+  margin-bottom: 16px;
+}
+.owner .domain-owner {
+  margin-bottom: 16px;
+}
+.domain-resolver.value, .owner .domain-owner {
+  width: 100%;
+}
+.col.img-t {
+  max-width: 280px;
+}
+.token-img.wrapper {
+  padding: 16px;
+  gap: 16px;
+  width: 233px;
+  height: 228px;
+  background: #F2EFED;
+  border-radius: 16px;
+}
+.img.token-img {
+  width: auto;
+  height: 190px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  top: 9px;
+  position: relative;
+}
+div.upload.btn-upload {
+  padding: 12px;
+  background: #FFFFFF;
+  border-radius: 8px;
+  display: inline-block;
+  float: right;
+  position: relative;
+  top: -14px;
+}
+.icon.icon-upload {
+  margin: 3px;
 }
 </style>
