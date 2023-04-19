@@ -1,0 +1,35 @@
+@media screen and (max-width: 1600px) {
+    div.logo {
+        left: 10%;
+    }
+    div.user.connect {
+        right: 10%;
+    }
+}
+
+@media screen and (max-width: 1250px) {
+    .welcome-banner .welcome {
+        min-height: 800px;
+    }
+    .welcome .details {
+        margin-top: 2em !important;
+    }
+}
+
+@media screen and (max-width: 1000px) {
+    div.logo {
+        left: 12%;
+    }
+    div.user.connect {
+        right: 12%;
+    }
+}
+
+@media screen and (max-width: 700px) {
+    div.logo {
+        left: 14%;
+    }
+    div.user.connect {
+        right: 14%;
+    }
+}

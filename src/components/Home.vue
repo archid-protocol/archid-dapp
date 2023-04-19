@@ -64,7 +64,7 @@
         <div class="ln-1 heading txt-primary">One name</div>
         <div class="ln-2 heading txt-focus">For everything Archway</div>
       </div>
-      <img class="content-2-img home5" src="/img/home5.svg" />
+      <img class="content-2-img home5 img-fluid" src="/img/home5.svg" />
     </div>
     <div class="home content content-3">
       <div class="row token-header">
