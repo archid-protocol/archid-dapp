@@ -45,8 +45,8 @@
               <p class="value">{{ niceDate(domainRecord.expiration) }}</p>
             </div>
             <!-- Btn. Extend -->
-            <div class="ctrl">
-              <button class="btn btn-inverse" @click="modals.renew = !modals.renew" v-if="!isSubdomain && !isReadOnly || (owner.owner == viewer)">Extend</button>
+            <div class="ctrl" v-if="!isSubdomain && owner">
+              <button class="btn btn-inverse" @click="modals.renew = !modals.renew" v-if="owner.owner == viewer">Extend</button>
             </div>
           </div>
           <!-- Col 3; Owner, Domain Record -->
@@ -91,7 +91,7 @@
         <!-- Identities -->
         <div class="row id-row" v-if="!isSubdomain && owner">
           <!-- Accounts -->
-          <div class="col accounts clear">
+          <div class="col accounts clear" v-if="viewer == owner.owner || token.extension.accounts.length">
             <div class="title accounts-title">
               <span class="icon icon-accounts"></span>
               <h5>Accounts</h5>
@@ -234,7 +234,7 @@
             </div>
           </div>
           <!-- Websites & Apps -->
-          <div class="col websites clear">
+          <div class="col websites clear" v-if="viewer == owner.owner || token.extension.websites.length">
             <div class="title websites-title" v-if="owner">
               <span class="icon icon-websites"></span>
               <h5>Websites & Apps</h5>
@@ -335,7 +335,7 @@
             </div>
           </div>
           <!-- Subdomains -->
-          <div class="col subdomains clear">
+          <div class="col subdomains clear" v-if="viewer == owner.owner || token.extension.subdomains.length">
             <div class="title subdomains-title" v-if="owner">
               <span class="icon icon-subdomains"></span>
               <h5>Subdomains</h5>
@@ -363,10 +363,31 @@
                     <hr class="footer-hr" v-if="!isReadOnly || (owner.owner == viewer && owner)" />
                     <div class="subdomain-item remove" v-if="!isReadOnly || (owner.owner == viewer)">
                       <p>
-                        <span class="pointer" @click="executeRemoveSubdomain(subdomain)">&times; Remove</span>
+                        <span class="pointer" @click="modals.removeSubdomain = !modals.removeSubdomain;">&times; Remove</span>
                       </p>
                     </div>
                   </div>
+                  <transition name="modal">
+                    <div v-if="modals.removeSubdomain" class="modal-wrapper">
+                      <div class="modalt">
+                        <div class="modal-header">
+                          <div class="left">
+                            <p class="modal-subdomain-remove-title">Are you sure you want to remove <span class="modal-title modal-domain-title" v-if="subdomain">{{subdomain.name + domain}}</span>?</p>
+                          </div>
+                          <div class="right">
+                            <span class="close-x subdomain-remove" @click="modals.removeSubdomain = !modals.removeSubdomain;">&times;</span>
+                          </div>
+                        </div>
+                        <div class="modal-body">
+                          <p class="descr">This action cannot be undone</p>
+                        </div>
+                        <div class="modal-footer">
+                          <button class="btn btn-inverse" @click="modals.removeSubdomain = !modals.removeSubdomain;">Cancel</button>
+                          <button class="btn btn-primary" @click="removeSubdomainHandler(subdomain);">Continue</button>
+                        </div>
+                      </div>
+                    </div>
+                  </transition>
                 </div>
                 <!-- Add a Subdomain form -->
                 <div class="new-subdomain-item creating" v-if="creating.subdomain">
@@ -442,7 +463,7 @@
             <h3 class="unsaved-changes">You have unsaved changes.</h3>
           </div>
           <div class="right">
-            <button class="btn btn-inverse" v-if="!isReadOnly || (owner.owner == viewer)" @click="dataResolutionHandler(true)">Revert Changes</button>
+            <button class="btn btn-inverse" v-if="!isReadOnly || (owner.owner == viewer)" @click="cancelUpdateHandler();">Revert Changes</button>
             <button class="btn btn-primary" v-if="!isReadOnly || (owner.owner == viewer)" @click="executeUpdateMetadata();">Save Changes</button>
           </div>
         </div>
@@ -523,7 +544,7 @@ const IPFS_CID_PREFIX = 'ipfs://';
 
 const SUCCESS_IMG = 'notification-success.svg';
 const REMOVED_IMG = 'notification-domain-removed.svg';
-const DEFAULT_TOKEN_IMG = '/img/token.svg';
+const DEFAULT_TOKEN_IMG = 'token.svg';
 
 export default {
   props: {
@@ -597,6 +618,7 @@ export default {
     },
     modals: {
       renew: false,
+      removeSubdomain: false,
     },
     notify: {
       type: null,
@@ -768,6 +790,19 @@ export default {
       if (index < 0 || index > (this.newDomainItems.subdomains - 1)) return;
       this.newDomainItems.subdomains.splice(index, 1);
       this.ui.newSubdomains.splice(index, 1);
+    },
+    removeSubdomainHandler: function (subdomain = null) {
+      if (!subdomain) return;
+      if (typeof subdomain !== 'object') return;
+      this.modals.removeSubdomain = false;
+      this.executeRemoveSubdomain(subdomain);
+    },
+    cancelUpdateHandler: async function () {
+      await this.dataResolutionHandler(true);
+      this.editingDescr = false;
+      this.editing = false;
+      this.editingText = false;
+      this.editingResolver = false;
     },
     closeNotification: function () {
       this.notify = {
@@ -1013,8 +1048,8 @@ export default {
   },
   computed: {
     tokenImg: function () {
-      if (!this.updates.metadata) return DEFAULT_TOKEN_IMG;
-      else if (!this.updates.metadata['image']) return DEFAULT_TOKEN_IMG;
+      if (!this.updates.metadata) return '/img/' + DEFAULT_TOKEN_IMG;
+      else if (!this.updates.metadata['image']) return '/img/' + DEFAULT_TOKEN_IMG;
       let img = (this.updates.metadata.image.substr(0,7) == IPFS_CID_PREFIX) ? this.updates.metadata.image.replace(IPFS_CID_PREFIX, IPFS_GATEWAY_PREFIX) : this.updates.metadata.image;
       return img;
     },
@@ -1146,7 +1181,7 @@ input.metadata-subdomain-name {
   top: -48px;
   position: relative;
 }
-.modal-extend-title {
+.modal-extend-title, .modal-subdomain-remove-title {
   font-style: normal;
   font-weight: 500;
   font-size: 24px;
@@ -1154,7 +1189,8 @@ input.metadata-subdomain-name {
   letter-spacing: -0.03em;
   color: #000000;
 }
-.modal-extend-title .modal-domain-title {
+.modal-extend-title .modal-domain-title,
+.modal-subdomain-remove-title .modal-domain-title {
   font-style: normal;
   font-weight: 500;
   font-size: 24px;
