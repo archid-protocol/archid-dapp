@@ -184,7 +184,6 @@ export default {
   background-position: right 37px;
   color: #fff;
   border-radius: 8px;
-  margin-bottom: 1em;
 }
 .welcome .details {
   margin-top: 175px;
