@@ -9,8 +9,8 @@
       >
       </DomainsBanner>
     </div>
-    <ul v-if="tokens.length && !search">
-      <li v-for="(domain, i) in tokens" :key="i">
+    <ul v-if="tokens.length">
+      <li v-for="(domain, i) in domainsList" :key="i">
         <DomainListEntry
           v-bind:domain="domain"
           v-bind:cw721="cw721"
@@ -22,24 +22,6 @@
           :key="'item-'+i"
         >
         </DomainListEntry>
-      </li>
-    </ul>
-    <ul v-if="tokens.length && search">
-      <li v-for="(domain, i) in filteredTokens" :key="i">
-        <DomainListEntry
-          v-bind:domain="domain"
-          v-bind:cw721="cw721"
-          v-bind:cwClient="cwClient"
-          v-bind:isSubdomain="isSubdomain(domain)"
-          v-bind:isReadOnly="true"
-          v-bind:baseCost="parseInt(config.base_cost)"
-          v-bind:collapsible="true"
-          :key="'item-'+i"
-        >
-        </DomainListEntry>
-      </li>
-      <li v-if="!filteredTokens.length">
-        <p>No domains matching "{{ search }}"</p>
       </li>
     </ul>
     <div v-if="!tokens.length">
@@ -133,6 +115,12 @@ export default {
     isSubdomain: function (domain = null) {
       if (!domain || typeof domain !== 'string') return null;
       return (domain.slice(0,-5).indexOf(".") >= 0) ? true : false
+    },
+  },
+  computed: {
+    domainsList: function () {
+      if (this.search) return this.filteredTokens;
+      else return this.tokens;
     },
   },
 }
