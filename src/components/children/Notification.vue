@@ -10,7 +10,7 @@
         <div :class="type">
             <h3 class="title">{{title}}</h3>
             <p class="body" v-html="msg" v-if="type !== types[0]"></p>
-            <p class="body" v-if="type == types[0]">{{errorFormat(msg)}}</p>
+            <p class="body" v-if="type == types[0]" :title="msg" :alt="msg">{{errorFormat(msg)}}</p>
             <div v-if="type == types[2]" class="loading default"></div>
         </div>
         <div class="dismiss cancel">
@@ -54,6 +54,7 @@ export default {
       if (!errorMsg) return '';
       let msg = errorMsg.replace('Error: ', '');
       msg = msg.replace('error: ', '');
+      if (msg.length >= 180) msg = msg.slice(0,180) + '...';
       return msg;
     },
   },
@@ -72,6 +73,7 @@ div.notification {
   border-radius: 16px;
   width: 327px;
   height: 452px;
+  z-index: 400;
 }
 div.rm-img {
   background: #F2EFED;
