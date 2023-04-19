@@ -121,6 +121,21 @@ div.banner.sm {
 .txt-focus {
     color: #FF4D00;
 }
+div.value {
+    padding: 16px;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 150%;
+    background: #F2EFED;
+    border-radius: 8px;
+    overflow-x: hidden;
+  }
+.descr {
+    color: #666666;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 150%;
+}
 
 /* Badges */
 .badge {
