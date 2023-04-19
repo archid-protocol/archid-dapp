@@ -3,10 +3,10 @@
         <div class="info-alert" v-if="type == types[0]">
           <span class="icon icon-warning"></span>
         </div>
-        <div class="rm-img" v-if="img == removedImg">
+        <div class="rm-img" v-if="img == images.mint || img == images.burn">
           <div class="img" :style="'background-image: url(/img/' + img + ');'"></div>
         </div>
-        <div class="img" v-if="img && img !== removedImg" :style="'background-image: url(/img/' + img + ');'"></div>
+        <div class="img" v-if="img && img !== images.mint && img !== images.burn" :style="'background-image: url(/img/' + img + ');'"></div>
         <div :class="type">
             <h3 class="title">{{title}}</h3>
             <p class="body" v-html="msg" v-if="type !== types[0]"></p>
@@ -25,7 +25,8 @@ const ERROR = TYPES[0];
 const SUCCESS = TYPES[1];
 const LOADING = TYPES[2];
 
-const REMOVED_IMG = 'notification-domain-removed.svg';
+const MINT_IMG = 'token.svg';
+const BURN_IMG = 'token-burned.svg';
 
 export default {
   props: {
@@ -37,7 +38,10 @@ export default {
   emits: ['closeNotification'],
   data: () => ({
     types: TYPES,
-    removedImg: REMOVED_IMG,
+    images: { 
+      mint: MINT_IMG,
+      burn: BURN_IMG,
+    }
   }),
   mounted: async function () {
     if (this.type !== ERROR && this.type !== SUCCESS && this.type !== LOADING) console.warn("Problem loading notification", this);

@@ -170,7 +170,8 @@
                     <hr class="title-hr" />
                   </div>
                   <!-- Account Type -->
-                  <select class="metadata-account-type form-control" v-model="newAccountModel.account_type">
+                  <label class="account-label" for="account_type">Type</label>
+                  <select class="metadata-account-type form-control" name="account_type" v-model="newAccountModel.account_type">
                     <option :value="null" disabled>Select account type</option>
                     <option :value="accountLabels.twitter">Twitter</option>
                     <option :value="accountLabels.github">GitHub</option>
@@ -367,23 +368,35 @@
                       </p>
                     </div>
                   </div>
+                  <!-- Remove Subdomain Modal -->
                   <transition name="modal">
                     <div v-if="modals.removeSubdomain" class="modal-wrapper">
                       <div class="modalt">
-                        <div class="modal-header">
+                        <div class="modal-header subdomain-remove">
                           <div class="left">
-                            <p class="modal-subdomain-remove-title">Are you sure you want to remove <span class="modal-title modal-domain-title" v-if="subdomain">{{subdomain.name + domain}}</span>?</p>
+                            <p class="modal-subdomain-remove-title">Are you sure you want to remove <span class="modal-title modal-domain-title" v-if="subdomain">{{subdomain.name + '.' + domain}}</span>?</p>
                           </div>
                           <div class="right">
                             <span class="close-x subdomain-remove" @click="modals.removeSubdomain = !modals.removeSubdomain;">&times;</span>
                           </div>
                         </div>
-                        <div class="modal-body">
-                          <p class="descr">This action cannot be undone</p>
+                        <div class="modal-body remove-subdomain">
+                          <p class="descr warn">This action cannot be undone.</p>
+                          <p class="descr warn">Confirm the cancelation by entering the subdomain below.</p>
+                          <div class="remove-subdomain-input">
+                            <label class="remove-subdomain label" for="remove_subdomain">Subdomain to remove</label>
+                            <input 
+                              type="text" 
+                              class="remove-subdomain form-control"
+                              name="remove_subdomain"
+                              v-model="burnConfirmation"
+                              :placeholder="subdomain.name + '.' + domain"
+                            />
+                          </div>
                         </div>
-                        <div class="modal-footer">
+                        <div class="modal-footer subdomain">
                           <button class="btn btn-inverse" @click="modals.removeSubdomain = !modals.removeSubdomain;">Cancel</button>
-                          <button class="btn btn-primary" @click="removeSubdomainHandler(subdomain);">Continue</button>
+                          <button class="btn btn-primary" @click="removeSubdomainHandler(subdomain);" :disabled="burnConfirmation !== (subdomain.name + '.' + domain)">Continue</button>
                         </div>
                       </div>
                     </div>
@@ -401,7 +414,7 @@
                     </div>
                     <hr class="title-hr" />
                   </div>
-                  <!-- Website URL -->
+                  <!-- Subdomain Name -->
                   <label class="subdomain-label" for="subdomain_name">
                     <span>Subdomain</span>
                   </label>
@@ -429,8 +442,8 @@
                       />
                       <span class="input-group-text pointer" @click="newSubdomainModel.new_resolver = owner.owner;">Resolve to me</span>
                     </div>
-                    
                   </div>
+                  <!-- Subdomain Owner -->
                   <label class="subdomain-label" for="subdomain_owner">
                     <span>Subdomain Owner</span>
                   </label>
@@ -473,6 +486,7 @@
     </div>
   </div>
 
+  <!-- Tx. Notifications -->
   <Notification
     v-bind:type="notify.type"
     v-bind:title="notify.title"
@@ -483,6 +497,7 @@
   >
   </Notification>
 
+  <!-- Extend Domain Modal -->
   <transition name="modal">
     <div v-if="modals.renew" class="modal-wrapper">
       <div class="modalt">
@@ -542,8 +557,8 @@ const EMAIL = ACCOUNT_TYPES[2];
 const IPFS_GATEWAY_PREFIX = 'https://ipfs.io/ipfs/';
 const IPFS_CID_PREFIX = 'ipfs://';
 
-const SUCCESS_IMG = 'notification-success.svg';
-const REMOVED_IMG = 'notification-domain-removed.svg';
+const EXTEND_IMG = 'extend.svg';
+const REMOVED_IMG = 'token-burned.svg';
 const DEFAULT_TOKEN_IMG = 'token.svg';
 
 export default {
@@ -567,6 +582,7 @@ export default {
     editingResolver: false,
     registering: false,
     domainRecord: null,
+    burnConfirmation: null,
     executeResult: null,
     ui: {
       accounts: [],
@@ -842,7 +858,7 @@ export default {
           type: "success",
           title: "Your domain was extended",
           msg: "Everyone will continue to reach your selected address through your Archway domain.",
-          img: SUCCESS_IMG,
+          img: EXTEND_IMG,
         };
         // Resolve new expiration in UI
         await this.dataResolutionHandler(true);
@@ -885,7 +901,7 @@ export default {
           type: "success",
           title: "Update complete",
           msg: "The data for " + this.domain + " has been updated",
-          img: SUCCESS_IMG,
+          img: DEFAULT_TOKEN_IMG,
         };
         // Refresh domain
         await this.dataResolutionHandler(true);
@@ -925,7 +941,7 @@ export default {
           type: "success",
           title: "Update complete",
           msg: "The domain record for " + this.domain + " has been updated",
-          img: SUCCESS_IMG,
+          img: DEFAULT_TOKEN_IMG,
         };
         // Refresh domain
         await this.dataResolutionHandler(true);
@@ -969,7 +985,7 @@ export default {
           type: "success",
           title: "Subdomain registeration complete",
           msg: "You registered " + subdomain.subdomain + "." + this.domain,
-          img: SUCCESS_IMG,
+          img: DEFAULT_TOKEN_IMG,
         };
         // Refresh domain
         await this.dataResolutionHandler(true);
@@ -1095,6 +1111,9 @@ div.value {
   font-weight: 400;
   font-size: 16px;
   line-height: 150%;
+}
+label {
+  margin-bottom: 0.25em;
 }
 div.id-row {
   margin-top: 2em;
@@ -1264,5 +1283,39 @@ div.upload.btn-upload {
 }
 .icon.icon-upload {
   margin: 3px;
+}
+.modal-header.subdomain-remove, 
+.modal-footer.subdomain {
+  border: none;
+}
+.modal-footer.subdomain {
+  justify-content: space-between;
+}
+.remove-subdomain.form-control {
+  background: #F2EFED;
+  border-radius: 8px;
+  height: 56px;
+  border: none;
+}
+div.remove-subdomain .descr {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 150%;
+  letter-spacing: -0.01em;
+  color: #000000;
+  margin-bottom: 2px;
+}
+label.remove-subdomain {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 150%;
+  letter-spacing: -0.01em;
+  color: #666666;
+  margin-bottom: 0.5em;
+}
+div.remove-subdomain-input {
+  padding-top: 2em;
 }
 </style>

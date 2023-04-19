@@ -105,7 +105,7 @@ import HomeBanner from './children/HomeBanner.vue';
 import RecentDomains from './children/RecentDomains.vue';
 import Notification from './children/Notification.vue'
 
-const SUCCESS_IMG = 'notification-success.svg';
+const DEFAULT_TOKEN_IMG = 'token.svg';
 
 export default {
   name: 'Home',
@@ -182,7 +182,7 @@ export default {
           type: "success",
           title: "Your domain is ready",
           msg: "You registered " + params.name + ".arch",
-          img: SUCCESS_IMG,
+          img: DEFAULT_TOKEN_IMG,
         };
       } else {
         // Error notification

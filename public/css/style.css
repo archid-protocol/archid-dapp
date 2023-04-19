@@ -265,6 +265,12 @@ div.banner.sm {
     right: 8%;
     top: 118px;
 }
+.modal-header .right .close-x {
+    position: relative;
+    top: -40px;
+    font-size: 32px;
+    font-weight: 300;
+}
 
 /* Animations */
 @keyframes loader {
