@@ -67,6 +67,9 @@ div.loading.default {
     color: #FF4D00;
     background-color: #F2EFED;
 }
+.btn-wrapper {
+    display: inline-block;
+}
 .button-group {
     border-radius: 4px;
     padding: 1em;
@@ -119,6 +122,21 @@ div.banner.sm {
     color: #FF4D00;
 }
 
+/* Badges */
+.badge {
+    padding: 9px 12px;
+    gap: 10px;
+    border-radius: 72px;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 120%;
+    letter-spacing: -0.01em;
+}
+.badge-warning {
+    background: rgba(255, 77, 0, 0.16);
+    color: #FF4D00;
+}
 /* Icons */
 .caret, .caret-inv {
     font-size: 2em;

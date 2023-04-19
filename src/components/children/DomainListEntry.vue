@@ -3,6 +3,7 @@
     <div class="head">
       <div class="left">
         <router-link class="domain-name header" v-if="domain" :to="'/domains/' + domain">{{domain}}</router-link>
+        <span class="badge badge-warning badge-unsaved-changes" v-if="editing || editingDescr || updatingImg">Unsaved Changes</span>
       </div>
       <div class="right">
         <div :class="{'caret': true, 'active': !closed}" @click="domainDetails();" v-if="collapsible">&caron;</div>
@@ -15,9 +16,53 @@
           <div class="col img-t">
             <div class="token-img wrapper">
               <div class="img token-img" :style="'background-image: url(' + tokenImg + ');'">
-                <div class="upload btn-upload pointer" v-if="!isReadOnly || (owner.owner == viewer)">
+                <div class="upload btn-upload pointer" v-if="!isReadOnly || (owner.owner == viewer)" @click="editingImg = !editingImg">
                   <span class="icon icon-upload"></span>
                 </div>
+              </div>
+            </div>
+            <div class="update-img" v-if="editingImg">
+              <p class="descr ipfs-or-web">Add a custom image using <a href="https://docs.ipfs.tech/concepts/content-addressing/" target="_blank">IPFS Content IDs</a>, or regular web URLs.</p>
+              <label for="token_img_type">Image Type</label>
+              <select class="metadata-token-img form-control" name="token_img_type" v-model="newImgModel.type">
+                <option value="null" disabled>Select image type</option>
+                <option value="ipfs">IPFS</option>
+                <option value="url">Web URL</option>
+              </select>
+              <div class="ipfs-images" v-if="newImgModel.type == 'ipfs'">
+                <label for="token_img">IPFS Content Identifier (CID)</label>
+                <input 
+                  type="text" 
+                  class="metadata-token-img form-control" 
+                  name="token_img"
+                  v-model="newImgModel.value"
+                  placeholder="QmYnh4B8Fp93Ax2taHJDx6XJuxJsvB4nFEDR8XxkDJekHq"
+                  @keyup="editImgHandler();"
+                />
+              </div>
+              <div class="web2-images" v-if="newImgModel.type == 'url'">
+                <label for="token_img">Image URL</label>
+                <input 
+                  type="text" 
+                  class="metadata-token-img form-control" 
+                  name="token_img"
+                  v-model="newImgModel.value"
+                  placeholder="https://archid.app/img/brand/token.png"
+                  @keyup="editImgHandler();"
+                />
+              </div>
+              <div class="img ctrl">
+                <div class="img-update btn-wrapper" v-if="newImgModel.value">
+                  <button 
+                    class="btn btn-primary btn-update-img"
+                    @click="createImgUpdate();"
+                    :disabled="newImgModel.value.length < 7"
+                  >Add Image</button>
+                </div>
+                <button 
+                  class="btn btn-inverse btn-update-img"
+                  @click="cancelEditImgHandler();"
+                >Cancel</button>
               </div>
             </div>
           </div>
@@ -471,7 +516,7 @@
           </div>
         </div>
 
-        <div class="row edit-ctrl" v-if="editing || editingDescr">
+        <div class="row edit-ctrl" v-if="editing || editingDescr || updatingImg">
           <div class="left">
             <h3 class="unsaved-changes">You have unsaved changes.</h3>
           </div>
@@ -556,6 +601,7 @@ const EMAIL = ACCOUNT_TYPES[2];
 
 const IPFS_GATEWAY_PREFIX = 'https://ipfs.io/ipfs/';
 const IPFS_CID_PREFIX = 'ipfs://';
+const URL_PREFIXES = ['http://', 'https://'];
 
 const EXTEND_IMG = 'extend.svg';
 const REMOVED_IMG = 'token-burned.svg';
@@ -580,6 +626,8 @@ export default {
     editingText: false,
     editingDescr: false,
     editingResolver: false,
+    editingImg: false,
+    updatingImg: false,
     registering: false,
     domainRecord: null,
     burnConfirmation: null,
@@ -622,6 +670,11 @@ export default {
       mint: null,
       expiration: null,
     },
+    newImgModel: {
+      type: null,
+      url: null,
+      value: null,
+    },
     newDomainItems: {
       accounts: [],
       subdomains: [],
@@ -658,6 +711,11 @@ export default {
     },
     dataResolutionHandler: async function (force = false) {
       if (this.token && this.owner && this.domainRecord && this.viewer && !force) return;
+      this.editingDescr = false;
+      this.editing = false;
+      this.editingText = false;
+      this.editingResolver = false;
+      this.updatingImg = false;
       let viewer;
       await this.tokenData();
       await this.ownerData();
@@ -712,6 +770,29 @@ export default {
       if (!this.owner || !this.viewer) return;
       if (this.owner.owner !== this.viewer) return;
       this.editingResolver = !this.editingResolver;
+    },
+    editImgHandler: function () {
+      if (this.newImgModel.value !== this.updates.metadata.image) this.editingImg = true;
+    },
+    cancelEditImgHandler: function () {
+      this.newImgModel = {
+        type: null,
+        url: null,
+        value: null,
+      };
+      this.editingImg = false;
+    },
+    createImgUpdate: function () {
+      if (!this.newImgModel.value || typeof this.newImgModel.value !== 'string') return;
+      let imgUpdate;
+      if (this.newImgModel.type == 'ipfs') {
+        imgUpdate = IPFS_CID_PREFIX + this.newImgModel.value;
+      } else {
+        imgUpdate = (this.newImgModel.value.indexOf(URL_PREFIXES[0]) > -1 || this.newImgModel.value.indexOf(URL_PREFIXES[1]) > -1) ? this.newImgModel.value : URL_PREFIXES[1] + this.newImgModel.value;
+      }
+      this.updates.metadata.image = imgUpdate;
+      this.editingImg = false;
+      this.updatingImg = true;
     },
     addAccount: function () {
       if (
@@ -815,10 +896,6 @@ export default {
     },
     cancelUpdateHandler: async function () {
       await this.dataResolutionHandler(true);
-      this.editingDescr = false;
-      this.editing = false;
-      this.editingText = false;
-      this.editingResolver = false;
     },
     closeNotification: function () {
       this.notify = {
@@ -874,8 +951,10 @@ export default {
     },
     executeUpdateMetadata: async function () {
       if (!this.updates.metadata) return;
-      this.updates.metadata.accounts = [...this.updates.metadata.accounts, ...this.newDomainItems.accounts];
-      this.updates.metadata.websites = [...this.updates.metadata.websites, ...this.newDomainItems.websites];
+      if (!this.isSubdomain) {
+        this.updates.metadata.accounts = [...this.updates.metadata.accounts, ...this.newDomainItems.accounts];
+        this.updates.metadata.websites = [...this.updates.metadata.websites, ...this.newDomainItems.websites];
+      }
       this.resetFormIters();
 
       // Waiting notification
@@ -1051,6 +1130,11 @@ export default {
         // Reset forms and data
         this.newDomainItems.accounts = [];
         this.newDomainItems.websites = [];
+        this.newImgModel = {
+          type: null,
+          url: null,
+          value: null,
+        };
         this.ui.accounts = [];
         this.ui.websites = [];
         for (let i = 0; i < this.updates.metadata.accounts.length; i++) {
@@ -1317,5 +1401,16 @@ label.remove-subdomain {
 }
 div.remove-subdomain-input {
   padding-top: 2em;
+}
+.metadata-token-img.form-control {
+  margin-bottom: 1em;
+}
+.img-update.btn-wrapper {
+  margin-right: 1em;
+}
+.badge-unsaved-changes {
+  position: relative;
+  top: -6px;
+  margin-left: 1.25em;
 }
 </style>
