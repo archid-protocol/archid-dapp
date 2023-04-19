@@ -11,9 +11,6 @@
     div.accounts-list, div.websites-list, div.subdomains-list {
         margin-top: 4em;
     }
-    div.col.accounts, div.col.websites, div.col.subdomains {
-        margin-top: 1em;
-    }
 }
 
 @media screen and (max-width: 1250px) {

@@ -137,380 +137,380 @@
         <div class="row id-row" v-if="!isSubdomain && owner">
           <!-- Accounts -->
           <div class="col accounts clear" v-if="viewer == owner.owner || token.extension.accounts.length">
-            <div class="title accounts-title">
+            <div class="title accounts-title row">
               <span class="icon icon-accounts"></span>
               <h5>Accounts</h5>
-              <div class="float-right add account" v-if="!isReadOnly || (owner.owner == viewer)" @click="creating.account = !creating.account;">
+              <div class="add account" v-if="!isReadOnly || (owner.owner == viewer)" @click="creating.account = !creating.account;">
                 <span v-if="!creating.account">+</span>
                 <span v-if="creating.account">&times;</span>
               </div>
-              <div class="accounts-list">
-                <!-- Current Accounts -->
-                <div class="account-item item" v-for="(account, i) in token.extension.accounts" :key="i+'-accounts'">
-                  <div class="left">
-                    <a :href="account.profile" target="_blank" v-if="account.account_type == accountLabels.github"><span class="icon icon-github"></span>GitHub</a>
-                    <a :href="account.profile" target="_blank" v-if="account.account_type == accountLabels.twitter"><span class="icon icon-twitter"></span>{{account.account_type}}</a>
-                    <a :href="'mailto:'+account.username" v-if="account.account_type == accountLabels.email">{{account.account_type}}</a>
-                  </div>
-                  <div class="right" v-if="ui.accounts[i]">
-                    <div :class="{'caret': true, 'active': ui.accounts[i].open}" @click="ui.accounts[i].open = !ui.accounts[i].open">&caron;</div>
-                  </div>
-                  <div class="account-item item-details" v-if="ui.accounts[i].open && owner">
-                    <hr class="title-hr" />
-                    <!-- Username -->
-                    <label>
-                      <span v-if="account.account_type !== accountLabels.email">Username</span>
-                      <span v-if="account.account_type == accountLabels.email">E-mail</span>
-                    </label>
-                    <div class="account-user value">{{account.username}}</div>
-                    <!-- Profile -->
-                    <label v-if="account.profile">Profile</label>
-                    <div class="account-profile value" v-if="account.profile">{{account.profile}}</div>
-                    <hr class="footer-hr" v-if="!isReadOnly || (owner.owner == viewer)" />
-                    <div class="account-item remove" v-if="!isReadOnly || (owner.owner == viewer)">
-                      <p>
-                        <span class="pointer" @click="removeAccount(i)">&times; Remove</span>
-                      </p>
-                    </div>
+            </div>
+            <div class="accounts-list">
+              <!-- Current Accounts -->
+              <div class="account-item item" v-for="(account, i) in token.extension.accounts" :key="i+'-accounts'">
+                <div class="left">
+                  <a :href="account.profile" target="_blank" v-if="account.account_type == accountLabels.github"><span class="icon icon-github"></span>GitHub</a>
+                  <a :href="account.profile" target="_blank" v-if="account.account_type == accountLabels.twitter"><span class="icon icon-twitter"></span>{{account.account_type}}</a>
+                  <a :href="'mailto:'+account.username" v-if="account.account_type == accountLabels.email">{{account.account_type}}</a>
+                </div>
+                <div class="right" v-if="ui.accounts[i]">
+                  <div :class="{'caret': true, 'active': ui.accounts[i].open}" @click="ui.accounts[i].open = !ui.accounts[i].open">&caron;</div>
+                </div>
+                <div class="account-item item-details" v-if="ui.accounts[i].open && owner">
+                  <hr class="title-hr" />
+                  <!-- Username -->
+                  <label>
+                    <span v-if="account.account_type !== accountLabels.email">Username</span>
+                    <span v-if="account.account_type == accountLabels.email">E-mail</span>
+                  </label>
+                  <div class="account-user value">{{account.username}}</div>
+                  <!-- Profile -->
+                  <label v-if="account.profile">Profile</label>
+                  <div class="account-profile value" v-if="account.profile">{{account.profile}}</div>
+                  <hr class="footer-hr" v-if="!isReadOnly || (owner.owner == viewer)" />
+                  <div class="account-item remove" v-if="!isReadOnly || (owner.owner == viewer)">
+                    <p>
+                      <span class="pointer" @click="removeAccount(i)">&times; Remove</span>
+                    </p>
                   </div>
                 </div>
-                <!-- Accounts to be added -->
-                <div class="account-item item" v-for="(account, i) in newDomainItems.accounts" :key="i+'-new-accounts'">
+              </div>
+              <!-- Accounts to be added -->
+              <div class="account-item item" v-for="(account, i) in newDomainItems.accounts" :key="i+'-new-accounts'">
+                <div class="left">
+                  <a :href="account.profile" target="_blank" v-if="account.account_type !== accountLabels.email">{{account.account_type}}</a>
+                  <a :href="'mailto:'+account.username" v-if="account.account_type == accountLabels.email">{{account.account_type}}</a>
+                </div>
+                <div class="right">
+                  <div :class="{'caret': true, 'active': ui.newAccounts[i].open}" v-if="ui.newAccounts[i]" @click="ui.newAccounts[i].open = !ui.newAccounts[i].open">&caron;</div>
+                </div>
+                <div class="account-item item-details" v-if="ui.newAccounts[i].open && owner">
+                  <hr class="title-hr" />
+                  <!-- Username -->
+                  <label>
+                    <span v-if="account.account_type !== accountLabels.email">Username</span>
+                    <span v-if="account.account_type == accountLabels.email">E-mail</span>
+                  </label>
+                  <div class="account-user value">{{account.username}}</div>
+                  <!-- Profile -->
+                  <label v-if="account.profile">Profile</label>
+                  <div class="account-profile value" v-if="account.profile">{{account.profile}}</div>
+                  <hr class="footer-hr" v-if="!isReadOnly || (owner.owner == viewer)" />
+                  <div class="account-item remove" v-if="!isReadOnly || (owner.owner == viewer)">
+                    <p>
+                      <span class="pointer" @click="removeNewAccount(i)">&times; Remove</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <!-- Add an Account form -->
+              <div class="new-account-item creating" v-if="creating.account">
+                <!-- Add Account Titlebar -->
+                <div class="new-account-title">
                   <div class="left">
-                    <a :href="account.profile" target="_blank" v-if="account.account_type !== accountLabels.email">{{account.account_type}}</a>
-                    <a :href="'mailto:'+account.username" v-if="account.account_type == accountLabels.email">{{account.account_type}}</a>
+                    <h5>New Account</h5>
                   </div>
                   <div class="right">
-                    <div :class="{'caret': true, 'active': ui.newAccounts[i].open}" v-if="ui.newAccounts[i]" @click="ui.newAccounts[i].open = !ui.newAccounts[i].open">&caron;</div>
+                    <span class="close-x" @click="creating.account = !creating.account;">&times;</span>
                   </div>
-                  <div class="account-item item-details" v-if="ui.newAccounts[i].open && owner">
-                    <hr class="title-hr" />
-                    <!-- Username -->
-                    <label>
-                      <span v-if="account.account_type !== accountLabels.email">Username</span>
-                      <span v-if="account.account_type == accountLabels.email">E-mail</span>
-                    </label>
-                    <div class="account-user value">{{account.username}}</div>
-                    <!-- Profile -->
-                    <label v-if="account.profile">Profile</label>
-                    <div class="account-profile value" v-if="account.profile">{{account.profile}}</div>
-                    <hr class="footer-hr" v-if="!isReadOnly || (owner.owner == viewer)" />
-                    <div class="account-item remove" v-if="!isReadOnly || (owner.owner == viewer)">
-                      <p>
-                        <span class="pointer" @click="removeNewAccount(i)">&times; Remove</span>
-                      </p>
-                    </div>
-                  </div>
+                  <hr class="title-hr" />
                 </div>
-                <!-- Add an Account form -->
-                <div class="new-account-item creating" v-if="creating.account">
-                  <!-- Add Account Titlebar -->
-                  <div class="new-account-title">
-                    <div class="left">
-                      <h5>New Account</h5>
-                    </div>
-                    <div class="right">
-                      <span class="close-x" @click="creating.account = !creating.account;">&times;</span>
-                    </div>
-                    <hr class="title-hr" />
-                  </div>
-                  <!-- Account Type -->
-                  <label class="account-label" for="account_type">Type</label>
-                  <select class="metadata-account-type form-control" name="account_type" v-model="newAccountModel.account_type">
-                    <option :value="null" disabled>Select account type</option>
-                    <option :value="accountLabels.twitter">Twitter</option>
-                    <option :value="accountLabels.github">GitHub</option>
-                    <option :value="accountLabels.email">E-mail Address</option>
-                  </select>
-                  <!-- Account Username -->
-                  <label class="account-label" for="account_username" v-if="newAccountModel.account_type">
-                    <span v-if="newAccountModel.account_type !== accountLabels.email">Username</span>
-                    <span v-if="newAccountModel.account_type == accountLabels.email">E-mail</span>
-                  </label>
-                  <input 
-                    type="text" 
-                    class="metadata-account-username form-control" 
-                    name="account_username"
-                    v-model="newAccountModel.username" 
-                    placeholder="@archidapp"
-                    v-if="newAccountModel.account_type == accountLabels.twitter"
-                  />
-                  <input 
-                    type="text" 
-                    class="metadata-account-username form-control" 
-                    name="account_username"
-                    v-model="newAccountModel.username" 
-                    placeholder="archid-protocol"
-                    v-if="newAccountModel.account_type == accountLabels.github"
-                  />
-                  <input 
-                    type="text" 
-                    class="metadata-account-username form-control" 
-                    name="account_username"
-                    v-model="newAccountModel.username" 
-                    placeholder="hello@archid.app"
-                    v-if="newAccountModel.account_type == accountLabels.email"
-                  />
-                  <!-- Account Profile -->
-                  <label class="account-label" for="account_profile" v-if="newAccountModel.account_type && newAccountModel.account_type !== accountLabels.email">Profile Link</label>
-                  <input 
-                    type="text" 
-                    class="metadata-account-profile form-control" 
-                    :name="'account_profile'"
-                    v-model="newAccountModel.profile" 
-                    placeholder="https://twitter.com/archidapp"
-                    v-if="newAccountModel.account_type == accountLabels.twitter"
-                  />
-                  <input 
-                    type="text" 
-                    class="metadata-account-profile form-control" 
-                    :name="'account_profile'"
-                    v-model="newAccountModel.profile" 
-                    placeholder="https://github.com/archid-protocol"
-                    v-if="newAccountModel.account_type == accountLabels.github"
-                  />
-                  <!-- Add Account Button -->
-                  <button 
-                    class="btn btn-primary full-width" 
-                    @click="addAccount();" 
-                    :disabled="!newAccountModel.account_type || !newAccountModel.username || (!newAccountModel.profile && newAccountModel.account_type !== accountLabels.email)"
-                  >Create</button>
-                </div>
+                <!-- Account Type -->
+                <label class="account-label" for="account_type">Type</label>
+                <select class="metadata-account-type form-control" name="account_type" v-model="newAccountModel.account_type">
+                  <option :value="null" disabled>Select account type</option>
+                  <option :value="accountLabels.twitter">Twitter</option>
+                  <option :value="accountLabels.github">GitHub</option>
+                  <option :value="accountLabels.email">E-mail Address</option>
+                </select>
+                <!-- Account Username -->
+                <label class="account-label" for="account_username" v-if="newAccountModel.account_type">
+                  <span v-if="newAccountModel.account_type !== accountLabels.email">Username</span>
+                  <span v-if="newAccountModel.account_type == accountLabels.email">E-mail</span>
+                </label>
+                <input 
+                  type="text" 
+                  class="metadata-account-username form-control" 
+                  name="account_username"
+                  v-model="newAccountModel.username" 
+                  placeholder="@archidapp"
+                  v-if="newAccountModel.account_type == accountLabels.twitter"
+                />
+                <input 
+                  type="text" 
+                  class="metadata-account-username form-control" 
+                  name="account_username"
+                  v-model="newAccountModel.username" 
+                  placeholder="archid-protocol"
+                  v-if="newAccountModel.account_type == accountLabels.github"
+                />
+                <input 
+                  type="text" 
+                  class="metadata-account-username form-control" 
+                  name="account_username"
+                  v-model="newAccountModel.username" 
+                  placeholder="hello@archid.app"
+                  v-if="newAccountModel.account_type == accountLabels.email"
+                />
+                <!-- Account Profile -->
+                <label class="account-label" for="account_profile" v-if="newAccountModel.account_type && newAccountModel.account_type !== accountLabels.email">Profile Link</label>
+                <input 
+                  type="text" 
+                  class="metadata-account-profile form-control" 
+                  :name="'account_profile'"
+                  v-model="newAccountModel.profile" 
+                  placeholder="https://twitter.com/archidapp"
+                  v-if="newAccountModel.account_type == accountLabels.twitter"
+                />
+                <input 
+                  type="text" 
+                  class="metadata-account-profile form-control" 
+                  :name="'account_profile'"
+                  v-model="newAccountModel.profile" 
+                  placeholder="https://github.com/archid-protocol"
+                  v-if="newAccountModel.account_type == accountLabels.github"
+                />
+                <!-- Add Account Button -->
+                <button 
+                  class="btn btn-primary full-width" 
+                  @click="addAccount();" 
+                  :disabled="!newAccountModel.account_type || !newAccountModel.username || (!newAccountModel.profile && newAccountModel.account_type !== accountLabels.email)"
+                >Create</button>
               </div>
             </div>
           </div>
           <!-- Websites & Apps -->
           <div class="col websites clear" v-if="viewer == owner.owner || token.extension.websites.length">
-            <div class="title websites-title" v-if="owner">
+            <div class="title websites-title row" v-if="owner">
               <span class="icon icon-websites"></span>
               <h5>Websites & Apps</h5>
-              <div class="float-right add account" v-if="!isReadOnly || (owner.owner == viewer)" @click="creating.website = !creating.website;">
+              <div class="add website" v-if="!isReadOnly || (owner.owner == viewer)" @click="creating.website = !creating.website;">
                 <span v-if="!creating.website">+</span>
                 <span v-if="creating.website">&times;</span>
               </div>
-              <div class="websites-list">
-                <!-- Current Websites -->
-                <div class="website-item item" v-for="(website, i) in token.extension.websites" :key="i+'-websites'">
-                  <div class="left">
-                    <a :href="website.url" target="_blank">{{website.url}}</a>
-                  </div>
-                  <div class="right">
-                    <div :class="{'caret': true, 'active': ui.websites[i].open}" v-if="ui.websites[i]" @click="ui.websites[i].open = !ui.websites[i].open">&caron;</div>
-                  </div>
-                  <div class="website-item item-details" v-if="ui.websites[i].open && owner">
-                    <hr class="title-hr" />
-                    <!-- Website URL -->
-                    <label v-if="website.url">
-                      <span>Website</span>
-                    </label>
-                    <div class="website-url value" v-if="website.url">{{website.url}}</div>
-                    <!-- Website Domain -->
-                    <label v-if="website.domain">Domain</label>
-                    <div class="website-domain value" v-if="website.domain">{{website.domain}}</div>
-                    <hr class="footer-hr" v-if="!isReadOnly || (owner.owner == viewer)" />
-                    <div class="account-item remove" v-if="!isReadOnly || (owner.owner == viewer)">
-                      <p>
-                        <span class="pointer" @click="removeWebsite(i)">&times; Remove</span>
-                      </p>
-                    </div>
-                  </div>
+            </div>
+            <div class="websites-list">
+              <!-- Current Websites -->
+              <div class="website-item item" v-for="(website, i) in token.extension.websites" :key="i+'-websites'">
+                <div class="left">
+                  <a :href="website.url" target="_blank">{{website.url}}</a>
                 </div>
-                <!-- Websites to be added -->
-                <div class="website-item item" v-for="(website, i) in newDomainItems.websites" :key="i+'-new-websites-add'">
-                  <div class="left">
-                    <a :href="website.url" target="_blank">{{website.url}}</a>
-                  </div>
-                  <div class="right">
-                    <div :class="{'caret': true, 'active': ui.newWebsites[i].open}" v-if="ui.newWebsites[i]" @click="ui.newWebsites[i].open = !ui.newWebsites[i].open">&caron;</div>
-                  </div>
-                  <div class="website-item item-details" v-if="ui.newWebsites[i].open && owner">
-                    <hr class="title-hr" />
-                    <!-- Website URL -->
-                    <label v-if="website.url">
-                      <span>Website</span>
-                    </label>
-                    <div class="website-user value">{{website.url}}</div>
-                    <!-- Website Domain -->
-                    <label v-if="website.profile">Domain</label>
-                    <div class="website-profile value" v-if="website.profile">{{website.profile}}</div>
-                    <hr class="footer-hr" v-if="!isReadOnly || (owner.owner == viewer)" />
-                    <div class="website-item remove" v-if="!isReadOnly || (owner.owner == viewer)">
-                      <p>
-                        <span class="pointer" @click="removeNewWebsite(i)">&times; Remove</span>
-                      </p>
-                    </div>
-                  </div>
+                <div class="right">
+                  <div :class="{'caret': true, 'active': ui.websites[i].open}" v-if="ui.websites[i]" @click="ui.websites[i].open = !ui.websites[i].open">&caron;</div>
                 </div>
-                <!-- Add an Website form -->
-                <div class="new-website-item creating" v-if="creating.website">
-                  <!-- Add Website Titlebar -->
-                  <div class="new-website-title">
-                    <div class="left">
-                      <h5>New Application</h5>
-                    </div>
-                    <div class="right">
-                      <span class="close-x" @click="creating.website = !creating.website;">&times;</span>
-                    </div>
-                    <hr class="title-hr" />
-                  </div>
+                <div class="website-item item-details" v-if="ui.websites[i].open && owner">
+                  <hr class="title-hr" />
                   <!-- Website URL -->
-                  <label class="website-label" for="website_url">
+                  <label v-if="website.url">
                     <span>Website</span>
                   </label>
-                  <input 
-                    type="text" 
-                    class="metadata-website-url form-control" 
-                    name="website_url"
-                    v-model="newWebsiteModel.url" 
-                    placeholder="https://archid.app"
-                  />
+                  <div class="website-url value" v-if="website.url">{{website.url}}</div>
                   <!-- Website Domain -->
-                  <select class="metadata-website-type form-control" v-model="newWebsiteModel.domain" v-if="updates.metadata.subdomains.length">
-                    <option :value="null" disabled>Select a domain</option>
-                    <option :value="domain">{{domain}}</option>
-                    <option :value="subdomain.name + '.' + domain" v-for="(subdomain, i) in updates.metadata.subdomains" :key="'subdomain_val-'+i">{{String(subdomain.name + '.' + domain)}}</option>
-                  </select>
-                  <!-- Add Website Button -->
-                  <button 
-                    class="btn btn-primary full-width" 
-                    @click="addWebsite();" 
-                    :disabled="!newWebsiteModel.url || !newWebsiteModel.domain"
-                  >Create</button>
+                  <label v-if="website.domain">Domain</label>
+                  <div class="website-domain value" v-if="website.domain">{{website.domain}}</div>
+                  <hr class="footer-hr" v-if="!isReadOnly || (owner.owner == viewer)" />
+                  <div class="account-item remove" v-if="!isReadOnly || (owner.owner == viewer)">
+                    <p>
+                      <span class="pointer" @click="removeWebsite(i)">&times; Remove</span>
+                    </p>
+                  </div>
                 </div>
+              </div>
+              <!-- Websites to be added -->
+              <div class="website-item item" v-for="(website, i) in newDomainItems.websites" :key="i+'-new-websites-add'">
+                <div class="left">
+                  <a :href="website.url" target="_blank">{{website.url}}</a>
+                </div>
+                <div class="right">
+                  <div :class="{'caret': true, 'active': ui.newWebsites[i].open}" v-if="ui.newWebsites[i]" @click="ui.newWebsites[i].open = !ui.newWebsites[i].open">&caron;</div>
+                </div>
+                <div class="website-item item-details" v-if="ui.newWebsites[i].open && owner">
+                  <hr class="title-hr" />
+                  <!-- Website URL -->
+                  <label v-if="website.url">
+                    <span>Website</span>
+                  </label>
+                  <div class="website-user value">{{website.url}}</div>
+                  <!-- Website Domain -->
+                  <label v-if="website.profile">Domain</label>
+                  <div class="website-profile value" v-if="website.profile">{{website.profile}}</div>
+                  <hr class="footer-hr" v-if="!isReadOnly || (owner.owner == viewer)" />
+                  <div class="website-item remove" v-if="!isReadOnly || (owner.owner == viewer)">
+                    <p>
+                      <span class="pointer" @click="removeNewWebsite(i)">&times; Remove</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <!-- Add an Website form -->
+              <div class="new-website-item creating" v-if="creating.website">
+                <!-- Add Website Titlebar -->
+                <div class="new-website-title">
+                  <div class="left">
+                    <h5>New Application</h5>
+                  </div>
+                  <div class="right">
+                    <span class="close-x" @click="creating.website = !creating.website;">&times;</span>
+                  </div>
+                  <hr class="title-hr" />
+                </div>
+                <!-- Website URL -->
+                <label class="website-label" for="website_url">
+                  <span>Website</span>
+                </label>
+                <input 
+                  type="text" 
+                  class="metadata-website-url form-control" 
+                  name="website_url"
+                  v-model="newWebsiteModel.url" 
+                  placeholder="https://archid.app"
+                />
+                <!-- Website Domain -->
+                <select class="metadata-website-type form-control" v-model="newWebsiteModel.domain" v-if="updates.metadata.subdomains.length">
+                  <option :value="null" disabled>Select a domain</option>
+                  <option :value="domain">{{domain}}</option>
+                  <option :value="subdomain.name + '.' + domain" v-for="(subdomain, i) in updates.metadata.subdomains" :key="'subdomain_val-'+i">{{String(subdomain.name + '.' + domain)}}</option>
+                </select>
+                <!-- Add Website Button -->
+                <button 
+                  class="btn btn-primary full-width" 
+                  @click="addWebsite();" 
+                  :disabled="!newWebsiteModel.url || !newWebsiteModel.domain"
+                >Create</button>
               </div>
             </div>
           </div>
           <!-- Subdomains -->
           <div class="col subdomains clear" v-if="viewer == owner.owner || token.extension.subdomains.length">
-            <div class="title subdomains-title" v-if="owner">
+            <div class="title subdomains-title row" v-if="owner">
               <span class="icon icon-subdomains"></span>
               <h5>Subdomains</h5>
-              <div class="float-right add subdomain" v-if="!isReadOnly || (owner.owner == viewer)" @click="creating.subdomain = !creating.subdomain;">
+              <div class="add subdomain" v-if="!isReadOnly || (owner.owner == viewer)" @click="creating.subdomain = !creating.subdomain;">
                 <span v-if="!creating.subdomain">+</span>
                 <span v-if="creating.subdomain">&times;</span>
               </div>
-              <div class="subdomains-list">
-                <!-- Current Subdomains -->
-                <div class="subdomain-item item" v-for="(subdomain, i) in token.extension.subdomains" :key="i+'-subdomains'">
-                  <div class="left">
-                    <router-link :to="'/domains/' + subdomain.name + '.' + domain">{{subdomain.name + '.' + domain}}</router-link>
+            </div>
+            <div class="subdomains-list">
+              <!-- Current Subdomains -->
+              <div class="subdomain-item item" v-for="(subdomain, i) in token.extension.subdomains" :key="i+'-subdomains'">
+                <div class="left">
+                  <router-link :to="'/domains/' + subdomain.name + '.' + domain">{{subdomain.name + '.' + domain}}</router-link>
+                </div>
+                <div class="right">
+                  <div :class="{'caret': true, 'active': ui.subdomains[i].open}" v-if="ui.subdomains[i]" @click="ui.subdomains[i].open = !ui.subdomains[i].open">&caron;</div>
+                </div>
+                <div class="subdomain-item item-details" v-if="ui.subdomains[i].open && owner">
+                  <hr class="title-hr" />
+                  <!-- Subdomain Record -->
+                  <label v-if="subdomain.resolver">Subdomain Record</label>
+                  <div class="subdomain-domain value" v-if="subdomain.resolver">{{subdomain.resolver}}</div>
+                  <!-- Subdomain Expiration -->
+                  <label class="subdomain-expiry" v-if="subdomain.expiry">Expiration date</label>
+                  <div class="value subdomain-expiry" v-if="subdomain.expiry">{{ niceDate(subdomain.expiry) }}</div>
+                  <hr class="footer-hr" v-if="!isReadOnly || (owner.owner == viewer && owner)" />
+                  <div class="subdomain-item remove" v-if="!isReadOnly || (owner.owner == viewer)">
+                    <p>
+                      <span class="pointer" @click="modals.removeSubdomain = !modals.removeSubdomain;">&times; Remove</span>
+                    </p>
                   </div>
-                  <div class="right">
-                    <div :class="{'caret': true, 'active': ui.subdomains[i].open}" v-if="ui.subdomains[i]" @click="ui.subdomains[i].open = !ui.subdomains[i].open">&caron;</div>
-                  </div>
-                  <div class="subdomain-item item-details" v-if="ui.subdomains[i].open && owner">
-                    <hr class="title-hr" />
-                    <!-- Subdomain Record -->
-                    <label v-if="subdomain.resolver">Subdomain Record</label>
-                    <div class="subdomain-domain value" v-if="subdomain.resolver">{{subdomain.resolver}}</div>
-                    <!-- Subdomain Expiration -->
-                    <label class="subdomain-expiry" v-if="subdomain.expiry">Expiration date</label>
-                    <div class="value subdomain-expiry" v-if="subdomain.expiry">{{ niceDate(subdomain.expiry) }}</div>
-                    <hr class="footer-hr" v-if="!isReadOnly || (owner.owner == viewer && owner)" />
-                    <div class="subdomain-item remove" v-if="!isReadOnly || (owner.owner == viewer)">
-                      <p>
-                        <span class="pointer" @click="modals.removeSubdomain = !modals.removeSubdomain;">&times; Remove</span>
-                      </p>
-                    </div>
-                  </div>
-                  <!-- Remove Subdomain Modal -->
-                  <transition name="modal">
-                    <div v-if="modals.removeSubdomain" class="modal-wrapper">
-                      <div class="modalt">
-                        <div class="modal-header subdomain-remove">
-                          <div class="left">
-                            <p class="modal-subdomain-remove-title">Are you sure you want to remove <span class="modal-title modal-domain-title" v-if="subdomain">{{subdomain.name + '.' + domain}}</span>?</p>
-                          </div>
-                          <div class="right">
-                            <span class="close-x subdomain-remove" @click="modals.removeSubdomain = !modals.removeSubdomain;">&times;</span>
-                          </div>
+                </div>
+                <!-- Remove Subdomain Modal -->
+                <transition name="modal">
+                  <div v-if="modals.removeSubdomain" class="modal-wrapper">
+                    <div class="modalt">
+                      <div class="modal-header subdomain-remove">
+                        <div class="left">
+                          <p class="modal-subdomain-remove-title">Are you sure you want to remove <span class="modal-title modal-domain-title" v-if="subdomain">{{subdomain.name + '.' + domain}}</span>?</p>
                         </div>
-                        <div class="modal-body remove-subdomain">
-                          <p class="descr warn">This action cannot be undone.</p>
-                          <p class="descr warn">Confirm the cancelation by entering the subdomain below.</p>
-                          <div class="remove-subdomain-input">
-                            <label class="remove-subdomain label" for="remove_subdomain">Subdomain to remove</label>
-                            <input 
-                              type="text" 
-                              class="remove-subdomain form-control"
-                              name="remove_subdomain"
-                              v-model="burnConfirmation"
-                              :placeholder="subdomain.name + '.' + domain"
-                            />
-                          </div>
-                        </div>
-                        <div class="modal-footer subdomain">
-                          <button class="btn btn-inverse" @click="modals.removeSubdomain = !modals.removeSubdomain;">Cancel</button>
-                          <button class="btn btn-primary" @click="removeSubdomainHandler(subdomain);" :disabled="burnConfirmation !== (subdomain.name + '.' + domain)">Continue</button>
+                        <div class="right">
+                          <span class="close-x subdomain-remove" @click="modals.removeSubdomain = !modals.removeSubdomain;">&times;</span>
                         </div>
                       </div>
+                      <div class="modal-body remove-subdomain">
+                        <p class="descr warn">This action cannot be undone.</p>
+                        <p class="descr warn">Confirm the cancelation by entering the subdomain below.</p>
+                        <div class="remove-subdomain-input">
+                          <label class="remove-subdomain label" for="remove_subdomain">Subdomain to remove</label>
+                          <input 
+                            type="text" 
+                            class="remove-subdomain form-control"
+                            name="remove_subdomain"
+                            v-model="burnConfirmation"
+                            :placeholder="subdomain.name + '.' + domain"
+                          />
+                        </div>
+                      </div>
+                      <div class="modal-footer subdomain">
+                        <button class="btn btn-inverse" @click="modals.removeSubdomain = !modals.removeSubdomain;">Cancel</button>
+                        <button class="btn btn-primary" @click="removeSubdomainHandler(subdomain);" :disabled="burnConfirmation !== (subdomain.name + '.' + domain)">Continue</button>
+                      </div>
                     </div>
-                  </transition>
-                </div>
-                <!-- Add a Subdomain form -->
-                <div class="new-subdomain-item creating" v-if="creating.subdomain">
-                  <!-- Add Subdomain Titlebar -->
-                  <div class="new-subdomain-title">
-                    <div class="left">
-                      <h5>New Subdomain</h5>
-                    </div>
-                    <div class="right">
-                      <span class="close-x" @click="creating.subdomain = !creating.subdomain;">&times;</span>
-                    </div>
-                    <hr class="title-hr" />
                   </div>
-                  <!-- Subdomain Name -->
-                  <label class="subdomain-label" for="subdomain_name">
-                    <span>Subdomain</span>
-                  </label>
+                </transition>
+              </div>
+              <!-- Add a Subdomain form -->
+              <div class="new-subdomain-item creating" v-if="creating.subdomain">
+                <!-- Add Subdomain Titlebar -->
+                <div class="new-subdomain-title">
+                  <div class="left">
+                    <h5>New Subdomain</h5>
+                  </div>
+                  <div class="right">
+                    <span class="close-x" @click="creating.subdomain = !creating.subdomain;">&times;</span>
+                  </div>
+                  <hr class="title-hr" />
+                </div>
+                <!-- Subdomain Name -->
+                <label class="subdomain-label" for="subdomain_name">
+                  <span>Subdomain</span>
+                </label>
+                <div class="input-group">
+                  <input 
+                    type="text" 
+                    class="metadata-subdomain-name form-control"
+                    name="subdomain_name"
+                    v-model="newSubdomainModel.subdomain"
+                    placeholder="Prefix"
+                  />
+                  <span class="input-group-text">.{{domain}}</span>
+                </div>
+                <label class="subdomain-label" for="subdomain_record">
+                  <span>Subdomain Record</span>
+                </label>
+                <div class="row">
                   <div class="input-group">
                     <input 
                       type="text" 
-                      class="metadata-subdomain-name form-control"
-                      name="subdomain_name"
-                      v-model="newSubdomainModel.subdomain"
-                      placeholder="Prefix"
+                      class="metadata-subdomain-record form-control"
+                      name="subdomain_record"
+                      v-model="newSubdomainModel.new_resolver"
+                      placeholder="Archway address"
                     />
-                    <span class="input-group-text">.{{domain}}</span>
+                    <span class="input-group-text pointer" @click="newSubdomainModel.new_resolver = owner.owner;">Resolve to me</span>
                   </div>
-                  <label class="subdomain-label" for="subdomain_record">
-                    <span>Subdomain Record</span>
-                  </label>
-                  <div class="row">
-                    <div class="input-group">
-                      <input 
-                        type="text" 
-                        class="metadata-subdomain-record form-control"
-                        name="subdomain_record"
-                        v-model="newSubdomainModel.new_resolver"
-                        placeholder="Archway address"
-                      />
-                      <span class="input-group-text pointer" @click="newSubdomainModel.new_resolver = owner.owner;">Resolve to me</span>
-                    </div>
-                  </div>
-                  <!-- Subdomain Owner -->
-                  <label class="subdomain-label" for="subdomain_owner">
-                    <span>Subdomain Owner</span>
-                  </label>
-                  <div class="row">
-                    <div class="input-group">
-                      <input 
-                        type="text" 
-                        class="metadata-subdomain-record form-control"
-                        name="subdomain_owner"
-                        v-model="newSubdomainModel.new_owner"
-                        placeholder="Archway address"
-                      />
-                      <span class="input-group-text pointer" @click="newSubdomainModel.new_owner = owner.owner;">Mint to me</span>
-                    </div>
-                  </div>
-                  <!-- Add Subdomain Button -->
-                  <button 
-                    class="btn btn-primary full-width" 
-                    @click="addSubdomain();"
-                    :disabled="!newSubdomainModel.subdomain || !newSubdomainModel.new_resolver || !newSubdomainModel.new_owner"
-                  >Register</button>
                 </div>
+                <!-- Subdomain Owner -->
+                <label class="subdomain-label" for="subdomain_owner">
+                  <span>Subdomain Owner</span>
+                </label>
+                <div class="row">
+                  <div class="input-group">
+                    <input 
+                      type="text" 
+                      class="metadata-subdomain-record form-control"
+                      name="subdomain_owner"
+                      v-model="newSubdomainModel.new_owner"
+                      placeholder="Archway address"
+                    />
+                    <span class="input-group-text pointer" @click="newSubdomainModel.new_owner = owner.owner;">Mint to me</span>
+                  </div>
+                </div>
+                <!-- Add Subdomain Button -->
+                <button 
+                  class="btn btn-primary full-width" 
+                  @click="addSubdomain();"
+                  :disabled="!newSubdomainModel.subdomain || !newSubdomainModel.new_resolver || !newSubdomainModel.new_owner"
+                >Register</button>
               </div>
             </div>
           </div>
@@ -1182,25 +1182,11 @@ div.right {
 div.expiry {
   display: inline-block;
 }
-div.value {
-  padding: 16px;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 150%;
-  background: #F2EFED;
-  border-radius: 8px;
-}
-.descr {
-  color: #666666;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 150%;
-}
 label {
   margin-bottom: 0.25em;
 }
 div.id-row {
-  margin-top: 2em;
+  margin-top: 1em;
 }
 .id-row .col {
   padding: 16px;
@@ -1223,6 +1209,8 @@ div.add {
   max-height: 48px;
   border-radius: 8px;
   cursor: pointer;
+  position: absolute;
+  right: 10px;
 }
 .add span {
   position: relative;
@@ -1412,5 +1400,15 @@ div.remove-subdomain-input {
   position: relative;
   top: -6px;
   margin-left: 1.25em;
+}
+div.accounts-title, div.websites-title, div.subdomains-title {
+  position: relative;
+  margin-left: 0;
+}
+.col.accounts, .col.websites {
+  min-width: 300px;
+}
+div.col.accounts, div.col.websites, div.col.subdomains {
+  margin-top: 1em;
 }
 </style>
