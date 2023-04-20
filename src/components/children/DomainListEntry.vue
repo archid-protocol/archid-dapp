@@ -10,7 +10,7 @@
       </div>
     </div>
     <div class="body" v-if="!closed || !collapsible">
-      <div class="container-c" v-if="token">
+      <div class="container-c" v-if="token && owner">
         <div class="domain-data top row">
           <!-- Col 1; Image -->
           <div class="col img-t">
@@ -85,9 +85,9 @@
               </div>
             </div>
             <!-- Expiration -->
-            <div class="expiry">
+            <div class="expiry" v-if="domainRecord">
               <p class="descr">Expiration date</p>
-              <p class="value">{{ niceDate(domainRecord.expiration) }}</p>
+              <p class="value" v-if="domainRecord.expiration">{{ niceDate(domainRecord.expiration) }}</p>
             </div>
             <!-- Btn. Extend -->
             <div class="ctrl" v-if="!isSubdomain && owner">
@@ -366,7 +366,7 @@
                   placeholder="https://archid.app"
                 />
                 <!-- Website Domain -->
-                <select class="metadata-website-type form-control" v-model="newWebsiteModel.domain" v-if="updates.metadata.subdomains.length">
+                <select class="metadata-website-type form-control" v-model="newWebsiteModel.domain">
                   <option :value="null" disabled>Select a domain</option>
                   <option :value="domain">{{domain}}</option>
                   <option :value="subdomain.name + '.' + domain" v-for="(subdomain, i) in updates.metadata.subdomains" :key="'subdomain_val-'+i">{{String(subdomain.name + '.' + domain)}}</option>
@@ -979,7 +979,7 @@ export default {
         this.notify = {
           type: "success",
           title: "Update complete",
-          msg: "The data for " + this.domain + " has been updated",
+          msg: "Data for " + this.domain + " has been updated",
           img: DEFAULT_TOKEN_IMG,
         };
         // Refresh domain
@@ -1211,6 +1211,7 @@ div.add {
   cursor: pointer;
   position: absolute;
   right: 10px;
+  top: -8px;
 }
 .add span {
   position: relative;

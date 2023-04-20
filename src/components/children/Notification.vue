@@ -109,6 +109,7 @@ p.body {
   font-size: 16px;
   line-height: 150%;
   letter-spacing: -0.01em;
+  word-wrap: break-word;
   color: #666666;
 }
 .loading.default {
