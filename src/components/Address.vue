@@ -29,19 +29,19 @@
       <div class="paging row">
         <div class="paging-items row">
           <div class="col left">
-            <span :class="{'chevron-left': true, 'pointer': page > 0, 'disabled': page <= 0}" @click="page = page - 1;" :disabled="page <= 0"></span>
+            <button :class="{'chevron-left': true, 'pointer': page > 0, 'disabled': page <= 0}" @click="page = page - 1;" :disabled="page <= 0"></button>
           </div>
           <div class="col mid">
             <div class="paging-display">
               <div class="page-select-wrapper">
-                <select class="page-select">
+                <select class="page-select"  @change="onChange($event)" v-model="page">
                   <option class="page-select-option form-control" v-for="(pageOption, i) in totalPages" :key="'page-option-'+i" :value="i">{{ String(i+1) }}</option>
                 </select>
               </div>
             </div>
           </div>
           <div class="col right">
-            <span :class="{'chevron-right': true, 'pointer': page < (totalPages - 1), 'disabled': page >= (totalPages - 1)}" @click="page = page + 1" :disabled="page >= (totalPages - 1)"></span>
+            <button :class="{'chevron-right': true, 'pointer': page < (totalPages - 1), 'disabled': page >= (totalPages - 1)}" @click="page = page + 1" :disabled="page >= (totalPages - 1)"></button>
           </div>
         </div>
       </div>
@@ -112,6 +112,9 @@ export default {
       let query = await TokensOf(this.cw721, this.account, this.cwClient);
       this.tokens = (query['tokens']) ? query.tokens : [];
       console.log('My tokens query', this.tokens);
+    },
+    onChange(event) {
+      this.page = parseInt(event.target.value);
     },
 
     // Util

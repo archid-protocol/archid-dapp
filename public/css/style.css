@@ -190,7 +190,8 @@ div.value {
     color: #666666;
 }
 .page-select, .page-select:focus, .page-select:active, .page-select:hover,
-.page-select option, .page-select:focus option, .page-select:active option, .page-select:hover option {
+.page-select option, .page-select:focus option, .page-select:active option, .page-select:hover option,
+.chevron-left, .chevron-right, .chevron-left:focus, .chevron-right:focus, .chevron-left:active, .chevron-right:active, .chevron-left:hover, .chevron-right:hover {
     border: none;
     outline: 0px;
 }
