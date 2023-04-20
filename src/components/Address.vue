@@ -1,5 +1,7 @@
 <template>
   <div class="page">
+
+    <!-- Address Banner -->
     <div class="address-banner">
       <div class="title" v-if="account">
         <h3>{{ accountDisplayFormat(account) }}</h3>
@@ -7,22 +9,45 @@
       </div>
     </div>
 
-    <ul v-if="tokens.length">
-      <li v-for="(domain, i) in tokens" :key="i">
-        <DomainListEntry
-          v-bind:domain="domain"
-          v-bind:cw721="cw721"
-          v-bind:cwClient="cwClient"
-          v-bind:isSubdomain="isSubdomain(domain)"
-          v-bind:isReadOnly="true"
-          v-bind:baseCost="parseInt(config.base_cost)"
-          v-bind:collapsible="true"
-          :key="'item-'+i"
-        >
-        </DomainListEntry>
-      </li>
-    </ul>
+    <!-- Domains -->
+    <div v-if="tokens.length">
+      <ul class="domains">
+        <li v-for="(domain, i) in domainsList" :key="i">
+          <DomainListEntry
+            v-bind:domain="domain"
+            v-bind:cw721="cw721"
+            v-bind:cwClient="cwClient"
+            v-bind:isSubdomain="isSubdomain(domain)"
+            v-bind:isReadOnly="true"
+            v-bind:baseCost="parseInt(config.base_cost)"
+            v-bind:collapsible="true"
+            :key="'item-'+i"
+          >
+          </DomainListEntry>
+        </li>
+      </ul>
+      <div class="paging row">
+        <div class="paging-items row">
+          <div class="col left">
+            <span :class="{'chevron-left': true, 'pointer': page > 0, 'disabled': page <= 0}" @click="page = page - 1;" :disabled="page <= 0"></span>
+          </div>
+          <div class="col mid">
+            <div class="paging-display">
+              <div class="page-select-wrapper">
+                <select class="page-select">
+                  <option class="page-select-option form-control" v-for="(pageOption, i) in totalPages" :key="'page-option-'+i" :value="i">{{ String(i+1) }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="col right">
+            <span :class="{'chevron-right': true, 'pointer': page < (totalPages - 1), 'disabled': page >= (totalPages - 1)}" @click="page = page + 1" :disabled="page >= (totalPages - 1)"></span>
+          </div>
+        </div>
+      </div>
+    </div>
 
+    <!-- No Domains were found -->
     <div v-else>
       <p v-if="loaded">No domains found for account {{ account }}</p>
     </div>
@@ -33,6 +58,7 @@
 import { Client, Accounts } from '../util/client';
 import { Config } from '../util/query';
 import { TokensOf } from '../util/token';
+import * as Paging from '../util/pagination';
 
 import DomainListEntry from './children/DomainListEntry.vue';
 
@@ -47,6 +73,10 @@ export default {
     accounts: [],
     tokens: [],
     loaded: false,
+    page: 0,
+    pageSize: Paging.DEFAULT_PAGE_SIZE,
+    pageSizes: Paging.ALL_PAGE_SIZES,
+    pageSelect: false,
   }),
   mounted: function () {
     if (window) this.resumeConnectedState();
@@ -94,6 +124,23 @@ export default {
       let ucfirst = account.substr(0,1).toUpperCase();
       return ucfirst + account.slice(1,13) + "..." + account.slice(-7);
     }
+  },
+  computed: {
+    domainsList: function () {
+      let domains = this.tokens, start, end;
+      if (this.page == 0) {
+        start = 0;
+        end = Paging.DEFAULT_PAGE_SIZE;
+      } else {
+        start = (this.page * Paging.DEFAULT_PAGE_SIZE);
+        end = (this.page * Paging.DEFAULT_PAGE_SIZE) + Paging.DEFAULT_PAGE_SIZE;
+      }
+      return domains.slice(start, end);
+    },
+    totalPages: function () {
+      if (!this.tokens.length) return 0;
+      return Math.ceil((this.tokens.length / this.pageSize));
+    },
   },
 }
 </script>

@@ -136,6 +136,64 @@ div.value {
     font-size: 16px;
     line-height: 150%;
 }
+.disabled {
+    opacity: 0.5;
+}
+.chevron-left, .chevron-right {
+    color: #FF4D00;
+    width: 8px;
+    height: 16px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    top: 19px;
+}
+
+/* Pagination */
+.chevron-left {
+    background-image: url('/img/chevron-left.svg');
+}
+.chevron-right {
+    background-image: url('/img/chevron-right.svg');
+}
+.paging-items.row {
+    justify-content: flex-end;
+    margin-top: 1em;
+}
+.paging-items .col.left, .paging-items .col.right {
+    max-width: 25px;
+}
+.paging-items  .col.mid {
+    max-width: 110px;
+}
+.paging-display .page-select-wrapper {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 12px 16px;
+    width: 96px;
+    height: 48px;
+    background: #FFFFFF;
+    border: 1px solid #F2EFED;
+    border-radius: 8px;
+}
+.page-select {
+    text-indent: -1px;
+    width: 64px;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 120%;
+    color: #666666;
+}
+.page-select, .page-select:focus, .page-select:active, .page-select:hover,
+.page-select option, .page-select:focus option, .page-select:active option, .page-select:hover option {
+    border: none;
+    outline: 0px;
+}
 
 /* Badges */
 .badge {
