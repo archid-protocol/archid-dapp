@@ -7,8 +7,8 @@
       <div class="type-filter left">
         <div class="button-group select-expiry">
           <a :class="{'active': search.type == 0, 'btn-all-domains': true}" @click="typeSearchHandler(0);">All</a>
-          <a :class="{'active': search.type == 1, 'btn-active-domains': true}" @click="typeSearchHandler(1)">Active</a>
-          <a :class="{'active': search.type == 2, 'btn-expired-domains': true}" @click="typeSearchHandler(2)">Expired</a>
+          <a :class="{'active': search.type == 1, 'btn-active-domains': true, 'disabled': true}" disabled>Active</a>
+          <a :class="{'active': search.type == 2, 'btn-expired-domains': true, 'disabled': true}" disabled>Expired</a>
         </div>
       </div>
       <div class="text-filter right">
@@ -125,5 +125,8 @@ div.search {
   border-radius: 8px;
   margin-top: 1.25em;
   clear: both;
+}
+.disabled {
+  cursor: not-allowed !important;
 }
 </style>
