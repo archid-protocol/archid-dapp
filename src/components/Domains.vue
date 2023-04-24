@@ -139,6 +139,7 @@ export default {
       } else {
         this.search = null;
       }
+      this.page = 0;
     },
     onChange(event) {
       this.page = parseInt(event.target.value);
