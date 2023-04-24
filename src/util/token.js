@@ -11,7 +11,9 @@ async function Tokens(contract = null, client = null) {
   if (!client) client = await Client();
   try {
     let entrypoint = {
-      all_tokens: {}
+      all_tokens: {
+        "limit": 100,
+      }
     };
 
     if (!contract || typeof contract !== "string") {

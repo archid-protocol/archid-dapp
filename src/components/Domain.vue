@@ -4,16 +4,6 @@
       <div class="title" v-if="domain">
         <h3>{{ domainDisplayFormat(domain) }}</h3>
       </div>
-      <!-- <div class="domain-record-data" v-if="token.extension">
-        <p v-if="owner">
-          <strong>Owned by </strong>
-          <router-link :to="'/address/' + owner.owner">{{ owner.owner }}</router-link>
-        </p>
-        <p v-if="domainRecord.address">
-          <strong>Resolves to </strong>
-          <router-link :to="'/address/' + domainRecord.address">{{ domainRecord.address }}</router-link>
-        </p>
-      </div> -->
     </div>
 
     <div class="token-metadata" v-if="domain && cw721 && config">
