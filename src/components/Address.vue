@@ -57,10 +57,12 @@
 <script>
 import { Client, Accounts } from '../util/client';
 import { Config } from '../util/query';
-import { TokensOf } from '../util/token';
+import { NumTokens, TokensOf } from '../util/token';
 import * as Paging from '../util/pagination';
 
 import DomainListEntry from './children/DomainListEntry.vue';
+
+const LIMIT = 100;
 
 export default {
   name: 'Profile',
@@ -109,9 +111,23 @@ export default {
     },
     tokenIds: async function () {
       if (!this.cw721) await this.setTokenContract();
-      let query = await TokensOf(this.cw721, this.account, this.cwClient);
-      this.tokens = (query['tokens']) ? query.tokens : [];
-      console.log('My tokens query', this.tokens);
+      // Total tokens
+      let total = await NumTokens(this.cw721, this.cwClient);
+      total = (total['count']) ? total.count : 0;
+      if (!total || typeof total !== 'number') return;
+      // Load tokens
+      if (total > LIMIT) {
+        let pages = Math.ceil(total / LIMIT);
+        for (let i = 0; i < pages; i++) {
+          let start = (i > 0) ? this.tokens[this.tokens.length - 1] : null;
+          let query = await TokensOf(this.cw721, this.account, this.cwClient, LIMIT, start);
+          if (query['tokens']) this.tokens = [...this.tokens, ...query.tokens];
+        }
+      } else {
+        let query = await TokensOf(this.cw721, this.account, this.cwClient);
+        this.tokens = (query['tokens']) ? query.tokens : [];
+      }
+      console.log('TokensOf query', this.tokens);
     },
     onChange(event) {
       this.page = parseInt(event.target.value);

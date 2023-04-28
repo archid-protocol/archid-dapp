@@ -2,19 +2,53 @@ import { Client, Accounts } from './client';
 import { Config } from './query';
 
 /**
- * Loads token ids from token contract
+ * Returns the total number of active tokens in the contract; allows for pagination loops
  * @param {String} contract? : (Optional) contract address string for token contract
  * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
  * @returns {QueryResult}
  */
-async function Tokens(contract = null, client = null) {
+async function NumTokens (contract = null, client = null) {
+  if (!client) client = await Client();
+  try {
+    let entrypoint = {
+      num_tokens: {}
+    };
+
+    if (!contract || typeof contract !== "string") {
+      let cw721Query = await Config(client);
+      contract = cw721Query.cw721;
+    }
+
+    let tokenQuery = await client.wasmClient.queryClient.wasm.queryContractSmart(
+      contract,
+      entrypoint
+    );
+    
+    return tokenQuery;
+  } catch(e) {
+    console.error(e);
+    return {};
+  }
+}
+
+/**
+ * Loads token ids from token contract
+ * @param {String} contract? : (Optional) contract address string for token contract
+ * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
+ * @param {Number} limit? : (Optional) max amount of tokens to be loaded; defaults to 100
+ * @param {String} start_after? : (Optional) `tokenId` for pagination, begin loading tokens beginning after a specific `tokenId`
+ * @returns {QueryResult}
+ */
+async function Tokens(contract = null, client = null, limit = 100, start_after = null) {
   if (!client) client = await Client();
   try {
     let entrypoint = {
       all_tokens: {
-        "limit": 100,
+        limit: limit,
       }
     };
+
+    if (start_after) entrypoint.all_tokens["start_after"] = start_after;
 
     if (!contract || typeof contract !== "string") {
       let cw721Query = await Config(client);
@@ -38,9 +72,11 @@ async function Tokens(contract = null, client = null) {
  * @param {String} contract? : (Optional) contract address string for token contract
  * @param {String} account? : (Optional) owner account address to be queried
  * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
+ * @param {Number} limit? : (Optional) max amount of tokens to be loaded; defaults to 100
+ * @param {String} start_after? : (Optional) `tokenId` for pagination, begin loading tokens beginning after a specific `tokenId`
  * @returns {QueryResult}
  */
- async function TokensOf(contract = null, account = null, client = null) {
+ async function TokensOf(contract = null, account = null, client = null,  limit = 100, start_after = null) {
   if (!client) client = await Client();
   try {
     if (!account) {
@@ -54,9 +90,12 @@ async function Tokens(contract = null, client = null) {
 
     let entrypoint = {
       tokens: {
-        owner: account
+        owner: account,
+        limit: limit,
       }
     };
+
+    if (start_after) entrypoint.tokens["start_after"] = start_after;
 
     let tokenQuery = await client.wasmClient.queryClient.wasm.queryContractSmart(
       contract,
@@ -149,6 +188,7 @@ async function OwnerOf (tokenId = null, contract = null, client = null) {
 
 
 export {
+  NumTokens,
   Tokens,
   TokensOf,
   Token,
