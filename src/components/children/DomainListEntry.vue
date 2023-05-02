@@ -394,7 +394,7 @@
               <!-- Current Subdomains -->
               <div class="subdomain-item item" v-for="(subdomain, i) in token.extension.subdomains" :key="i+'-subdomains'">
                 <div class="left">
-                  <router-link :to="'/domains/' + subdomain.name + '.' + domain">{{subdomain.name + '.' + domain}}</router-link>
+                  <a :href="'/domains/' + subdomain.name + '.' + domain" target="_blank">{{subdomain.name + '.' + domain}}</a>
                 </div>
                 <div class="right">
                   <div :class="{'caret': true, 'active': ui.subdomains[i].open}" v-if="ui.subdomains[i]" @click="ui.subdomains[i].open = !ui.subdomains[i].open">&caron;</div>
