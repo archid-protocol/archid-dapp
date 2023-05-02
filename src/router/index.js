@@ -7,6 +7,8 @@ import Domain from '../components/Domain';
 import MyDomains from '../components/MyDomains';
 import Address from '../components/Address';
 
+import TestBench from '../components/TestBench';
+
 const PageNotFound = Home;
 
 // Routes
@@ -17,7 +19,10 @@ const routes = [
   { path: '/domains/:id', name: 'Domain', component: Domain, meta: { requiresAuth: true } },
   { path: '/address/:id', name: 'Address', component: Address, meta: { requiresAuth: true } },
   { path: '/my-domains', name: 'My Domains', component: MyDomains, meta: { requiresAuth: true } },
-  { path: '/:pathMatch(.*)*', name: 'not-found', component: PageNotFound }
+  { path: '/:pathMatch(.*)*', name: 'not-found', component: PageNotFound },
+
+
+  { path: '/test', name: 'TestBench', component: TestBench }
 ];
 
 const router = createRouter({

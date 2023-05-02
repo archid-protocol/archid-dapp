@@ -13,7 +13,7 @@
     <div class="recent-domains-component" v-if="cwClient">
       <RecentDomains
         v-bind:cwClient="cwClient"
-        v-bind:size="16"
+        v-bind:size="32"
       >
       </RecentDomains>
     </div>
