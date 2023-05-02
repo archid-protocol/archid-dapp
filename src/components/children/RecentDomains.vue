@@ -112,7 +112,7 @@ export default {
       if (!this.domains || !this.size) return [];
       if (!Array.isArray(this.domains)) return [];
       let sortedDomains = this.domains.slice(0).sort((a,b) => (b.extension.created - a.extension.created));
-      return sortedDomains.slice(0 - this.size);
+      return sortedDomains.slice(0, this.size);
     },
   }
 }
