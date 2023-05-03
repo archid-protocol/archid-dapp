@@ -10,7 +10,7 @@
         <div :class="type">
             <h3 class="title">{{title}}</h3>
             <p class="body" v-html="msg" v-if="type !== types[0]"></p>
-            <p class="body" v-if="type == types[0]" :title="msg" :alt="msg">{{errorFormat(msg)}}</p>
+            <p class="body" v-if="type == types[0]" :title="msg" :alt="msg" v-html="errorFormat(msg)"></p>
             <div v-if="type == types[2]" class="loading default"></div>
         </div>
         <div class="dismiss cancel">

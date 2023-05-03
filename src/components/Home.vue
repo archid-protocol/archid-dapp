@@ -103,7 +103,7 @@ import { Register } from '../util/execute';
 
 import HomeBanner from './children/HomeBanner.vue';
 import RecentDomains from './children/RecentDomains.vue';
-import Notification from './children/Notification.vue'
+import Notification from './children/Notification.vue';
 
 const DEFAULT_TOKEN_IMG = 'token.svg';
 

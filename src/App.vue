@@ -109,17 +109,33 @@
     </div>
   </transition>
 
+  <Notification
+    v-bind:type="notify.type"
+    v-bind:title="notify.title"
+    v-bind:msg="notify.msg"
+    v-bind:img="notify.img"
+    v-if="notify.type"
+    @closeNotification="closeNotification"
+  >
+  </Notification>
+
 </template>
 
 <script>
 import { Client, Accounts } from './util/client';
 import { FromMicro } from './util/denom';
 
+import Notification from './components/children/Notification.vue';
 import Footer from './components/children/Footer.vue';
+
+const WALLET_DOWNLOADS = {
+  keplr: 'https://www.keplr.app/download',
+  cosmostation: 'https://cosmostation.io/wallet',
+};
 
 export default {
   name: 'ArchID',
-  components: { Footer },
+  components: { Notification, Footer },
   data: () => ({
     cwClient: null,
     accounts: [],
@@ -131,6 +147,12 @@ export default {
     route: null,
     showNav: false,
     render: 0,
+    notify: {
+      type: null,
+      title: null,
+      msg: null,
+      img: null,
+    },
     formatFromMicro: FromMicro,
   }),
   mounted: function () {
@@ -160,6 +182,14 @@ export default {
       } catch(e) {
         this.connected = false;
         this.connecting = false;
+        this.modal = false;
+        // Error notification
+        this.notify = {
+          type: "error",
+          title: "Something went wrong",
+          msg: 'Error connecting to ' + this.ucFirst(this.walletType) + ' wallet.<br/><p class="descr offset"><a href="'+ WALLET_DOWNLOADS[this.walletType] +'" target="_blank">Download '+ this.ucFirst(this.walletType) +'</a></p>',
+          img: null,
+        };
         console.error(e);
       }
       this.render += 1;
@@ -186,9 +216,20 @@ export default {
       sessionStorage.removeItem("connected");
       window.location.reload();
     },
+    closeNotification: function () {
+      this.notify = {
+        type: null,
+        title: null,
+        msg: null,
+        img: null,
+      };
+    },
     accountDisplayFormat: function (account = null) {
       if (!account) return "";
       return account.slice(0,12) + "..." + account.slice(-5);
+    },
+    ucFirst(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
     }
   }
 }
