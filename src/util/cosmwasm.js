@@ -24,7 +24,7 @@ async function cosmoStation() {
   await window.cosmostation.providers.keplr.enable(Blockchain.chainId);
 
   // Bootstrap client
-  client.offlineSigner = await window.cosmostation.providers.keplr.getOfflineSigner(Blockchain.chainId);
+  client.offlineSigner = await window.cosmostation.providers.keplr.getOfflineSignerAuto(Blockchain.chainId);
 
   client.wasmClient = await SigningCosmWasmClient.connectWithSigner(
     Blockchain.rpc, 
@@ -53,7 +53,7 @@ async function keplrClient() {
   await window.keplr.enable(Blockchain.chainId);
   
   // Bootstrap client
-  client.offlineSigner = await window.getOfflineSigner(Blockchain.chainId);
+  client.offlineSigner = await window.getOfflineSignerAuto(Blockchain.chainId);
   client.wasmClient = await SigningCosmWasmClient.connectWithSigner(
     Blockchain.rpc, 
     client.offlineSigner, 
