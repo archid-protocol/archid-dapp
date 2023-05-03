@@ -199,6 +199,7 @@ export default {
       searchEl.focus();
     },
     connectHandler: function () {
+      window.scrollTo(0, 0);
       const connectEl = document.getElementById('connect_modal');
       connectEl.click();
     },
