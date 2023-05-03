@@ -711,7 +711,7 @@ export default {
       this.closed = !this.closed;
     },
     dataResolutionHandler: async function (force = false) {
-      let viewer;
+      let viewer = [];
       if (this.token && this.owner && this.domainRecord && this.viewer && !force) return;
       // Reset editing states
       this.editingDescr = false;

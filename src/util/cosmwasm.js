@@ -65,8 +65,10 @@ async function keplrClient() {
 
 async function offlineClient() {
   const Blockchain = (IsTestnet) ? Testnet : Mainnet;
+  let cwClient = await SigningCosmWasmClient.connectWithSigner(Blockchain.rpc, null);
   let client = {
-    wasmClient: await SigningCosmWasmClient.connectWithSigner(Blockchain.rpc, null),
+    offlineSigner: null,
+    wasmClient: cwClient,
     chainInfo: Blockchain
   };
   return client;

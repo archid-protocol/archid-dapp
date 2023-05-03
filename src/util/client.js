@@ -25,7 +25,7 @@ import { keplrClient, cosmostationClient, offlineClient } from './cosmwasm';
 
 async function Accounts(client = null) {
   if (!client) client = await Client();
-  let accounts = await client.offlineSigner.getAccounts();
+  let accounts = (client['offlineSigner']) ? await client.offlineSigner.getAccounts() : [];
   if (!accounts.length) return accounts;
 
   for (let i = 0; i < accounts.length; i++) {
