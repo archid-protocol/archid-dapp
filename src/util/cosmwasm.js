@@ -69,7 +69,8 @@ async function offlineClient() {
   let client = {
     offlineSigner: null,
     wasmClient: cwClient,
-    chainInfo: Blockchain
+    chainInfo: Blockchain,
+    readOnly: true
   };
   return client;
 }

@@ -10,7 +10,7 @@
         <p>A social social security number is how official sources identify you, but not how you introduce yourself. You do it with your name. Start using your ArchID instead of an unmemorable string to identify yourself in Archway.</p>
       </div>
     </div>
-    <div class="search" v-if="cwClient">
+    <div class="search" v-if="!isReadOnlyClient(cwClient)">
       <input 
         id="domain"
         type="text" 
@@ -22,7 +22,7 @@
       />
       <span class="domain-suffix">.arch</span>
     </div>
-    <div class="connect" v-if="!cwClient">
+    <div class="connect" v-if="isReadOnlyClient(cwClient)">
       <button class="btn btn-inverse btn-connect" @click="connectHandler();">Connect & Register domain</button>
     </div>
   </div>
@@ -179,6 +179,11 @@ export default {
         base_cost: this.config.base_cost,
       };
       this.$emit('registration', registration);
+    },
+    isReadOnlyClient(client) {
+      if (!client) return true;
+      if (client['readOnly']) return true;
+      else return false;
     },
   },
   computed: {
