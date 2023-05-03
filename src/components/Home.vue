@@ -130,12 +130,16 @@ export default {
         this.resumeConnectedState();
       } else {
         this.accountDisplay = "archway12891";
+        this.cwClient = await Client('offline');
       }
     }
   },
   methods: {
     resumeConnectedState: async function (attempts = 0) {
-      if (attempts >= 5) return;
+      if (attempts >= 5) {
+        this.cwClient = await Client('offline');
+        return;
+      }
       try {
         setTimeout(async () => { 
           let walletType = sessionStorage.getItem("connected");

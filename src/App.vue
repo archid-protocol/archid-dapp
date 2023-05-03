@@ -9,7 +9,19 @@
     </div>
     <div class="connect user">
       <a id="connect_modal" class="btn btn-primary btn-show-modal pointer" @click="modal = !modal;">Connect Wallet</a>
+      <div class="col disconnected">
+        <span :class="{'caret-inv': true, 'active': true}" v-if="!showNav" @click="showNav = !showNav;">&caron;</span>
+        <span class="close-x menu" v-if="showNav" @click="showNav = !showNav;">&times;</span>
+      </div>
     </div>
+    <ul class="navigation" v-if="showNav">
+      <li>
+        <router-link to="/" @click="route = '/';showNav = false;">Home</router-link>
+      </li>
+      <li>
+        <router-link to="/domains" @click="route = '/domains';showNav = false;">Domains</router-link>
+      </li>
+    </ul>
   </div>
   <div class="loggedin" v-else>
     <div class="logo">
@@ -57,7 +69,7 @@
     <router-view :key="render" />
   </div>
   <div class="no-auth row" v-if="!connected">
-    <h3>Connect your wallet to view data on this page.</h3>
+    <h3 class="handle-ct pointer" @click="connectHandler();">Connect your wallet to interact with this site</h3>
   </div>
   <div class="footer-content">
     <Footer />
@@ -155,7 +167,7 @@ export default {
     },
     formatFromMicro: FromMicro,
   }),
-  mounted: function () {
+  mounted: async function () {
     if (window) {
       this.route = location.pathname;
       let connected = window.sessionStorage.getItem('connected');
@@ -196,7 +208,10 @@ export default {
       console.log('App', {cwClient: this.cwClient, accounts: this.accounts, walletType: this.walletType});
     },
     resumeConnectedState: async function (attempts = 0) {
-      if (attempts >= 5) return;
+      if (attempts >= 5) {
+        this.cwClient = await Client('offline');
+        return;
+      }
       try {
         setTimeout(async () => { 
           let walletType = sessionStorage.getItem("connected");
@@ -207,6 +222,11 @@ export default {
       } catch (e) {
         await this.resumeConnectedState((attempts + 1));
       }
+    },
+    connectHandler: function () {
+      window.scrollTo(0, 0);
+      const connectEl = document.getElementById('connect_modal');
+      connectEl.click();
     },
     connectCancel: function () {
       this.connected = false;
@@ -315,6 +335,10 @@ span.address {
 .caret-inv, .close-x.menu  {
   top: -25px;
   position: relative;
+}
+.col.disconnected span {
+  color: white;
+  top: 7px;
 }
 .icon-denom {
   margin-left: 3px;

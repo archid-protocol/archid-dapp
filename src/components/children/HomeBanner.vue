@@ -106,7 +106,7 @@ export default {
     welcomeBannerBg: '/img/homebanner.svg',
   }),
   mounted: async function () {
-    if (this.$root.connected) await this.tokenIds();
+    if (this.cwClient) await this.tokenIds();
   },
   methods: {
     connectHandler: function () {

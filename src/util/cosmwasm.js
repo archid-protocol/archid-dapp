@@ -6,7 +6,7 @@ const Testnet = ConstantineInfo;
 const Mainnet = null;
 const IsTestnet = true;
 
-async function cosmoStation() {
+async function cosmostationClient() {
   if (!window) return {};
   if (!window['cosmostation']) return {};
 
@@ -63,7 +63,17 @@ async function keplrClient() {
   return client;
 }
 
+async function offlineClient() {
+  const Blockchain = (IsTestnet) ? Testnet : Mainnet;
+  let client = {
+    wasmClient: await SigningCosmWasmClient.connectWithSigner(Blockchain.rpc, null),
+    chainInfo: Blockchain
+  };
+  return client;
+}
+
 export {
-  cosmoStation,
-  keplrClient
+  cosmostationClient,
+  keplrClient,
+  offlineClient
 };
