@@ -178,7 +178,8 @@
               <!-- Accounts to be added -->
               <div class="account-item item" v-for="(account, i) in newDomainItems.accounts" :key="i+'-new-accounts'">
                 <div class="left">
-                  <a :href="account.profile" target="_blank" v-if="account.account_type !== accountLabels.email">{{account.account_type}}</a>
+                  <a :href="account.profile" target="_blank" v-if="account.account_type == accountLabels.github"><span class="icon icon-github"></span>GitHub</a>
+                  <a :href="account.profile" target="_blank" v-if="account.account_type == accountLabels.twitter"><span class="icon icon-twitter"></span>Twitter</a>
                   <a :href="'mailto:'+account.username" v-if="account.account_type == accountLabels.email">{{account.account_type}}</a>
                 </div>
                 <div class="right">
@@ -274,7 +275,7 @@
                 <button 
                   class="btn btn-primary full-width" 
                   @click="addAccount();" 
-                  :disabled="!newAccountModel.account_type || !newAccountModel.username || (!newAccountModel.profile && newAccountModel.account_type !== accountLabels.email)"
+                  :disabled="!newAccountModel.account_type || !newAccountModel.username || (!newAccountModel.profile && newAccountModel.account_type !== accountLabels.email) || (newAccountModel.profile.indexOf('github.com/') < 0 && newAccountModel.account_type == accountLabels.github) || (newAccountModel.profile.indexOf('twitter.com/') < 0 && newAccountModel.account_type == accountLabels.twitter) || (newAccountModel.account_type == accountLabels.twitter && newAccountModel.username.charAt(0) !== '@')"
                 >Create</button>
               </div>
             </div>
@@ -710,13 +711,22 @@ export default {
       this.closed = !this.closed;
     },
     dataResolutionHandler: async function (force = false) {
+      let viewer;
       if (this.token && this.owner && this.domainRecord && this.viewer && !force) return;
+      // Reset editing states
       this.editingDescr = false;
       this.editing = false;
       this.editingText = false;
       this.editingResolver = false;
       this.updatingImg = false;
-      let viewer;
+      // Reset creation forms
+      this.creating = { account: false, subdomain: false, website: false };
+      this.newAccountModel = { account_type: null, profile: null, username: null, verfication_hash: null };
+      this.newWebsiteModel = { url: null, domain: null, verfication_hash: null };
+      this.newSubdomainModel = { domain: null, subdomain: null, new_resolver: null, new_owner: null, mint: null, expiration: null };
+      this.newImgModel = { type: null, url: null, value: null };
+      this.newDomainItems = { accounts: [], subdomains: [], websites: [] };
+      // Resolve data
       await this.tokenData();
       await this.ownerData();
       await this.resolveDomainRecord();
