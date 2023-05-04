@@ -68,9 +68,6 @@
   <div class="page-content">
     <router-view :key="render" />
   </div>
-  <div class="no-auth row" v-if="!connected">
-    <h3 class="handle-ct pointer" @click="connectHandler();">Connect your wallet to interact with this site</h3>
-  </div>
   <div class="footer-content">
     <Footer />
   </div>
