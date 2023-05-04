@@ -12,6 +12,7 @@ div.logo {
     position: absolute;
     top: 58px;
     left: 8%;
+    z-index: 100;
 }
 div.user.connect {
     position: absolute;
@@ -19,6 +20,7 @@ div.user.connect {
     right: 8%;
     min-width: 500px;
     text-align: right;
+    z-index: 110;
 }
 ul.navigation {
     position: absolute;

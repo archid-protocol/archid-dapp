@@ -1,9 +1,13 @@
 <template>
   <div class="page">
-    <div class="domain-banner">
-      <div class="title" v-if="domain">
-        <h3>{{ domainDisplayFormat(domain) }}</h3>
-      </div>
+    <div class="domain-banner" v-if="domain && cw721">
+      <DomainBanner
+        v-bind:domain="domain"
+        v-bind:cw721="cw721"
+        v-bind:cwClient="cwClient"
+        :key="renderBanner"
+      >
+      </DomainBanner>
     </div>
 
     <div class="token-metadata" v-if="domain && cw721 && config">
@@ -17,6 +21,7 @@
             v-bind:isReadOnly="true"
             v-bind:baseCost="parseInt(config.base_cost)"
             v-bind:collapsible="false"
+            @dataResolution="dataResolution"
             :key="domain"
           >
           </DomainListEntry>
@@ -31,11 +36,12 @@ import { Client, Accounts } from '../util/client';
 import { Config, ResolveRecord } from '../util/query';
 import { Token, OwnerOf } from '../util/token';
 
+import DomainBanner from './children/DomainBanner.vue';
 import DomainListEntry from './children/DomainListEntry.vue';
 
 export default {
   name: 'Domain',
-  components: { DomainListEntry },
+  components: { DomainBanner, DomainListEntry },
   data: () => ({
     cwClient: null,
     accounts: null,
@@ -45,6 +51,7 @@ export default {
     owner: null,
     domain: null,
     domainRecord: {},
+    renderBanner: 0,
   }),
   mounted: function () {
     if (window) this.resumeConnectedState();
@@ -71,6 +78,9 @@ export default {
       } catch (e) {
         await this.resumeConnectedState((attempts + 1));
       }
+    },
+    dataResolution: function () {
+      this.renderBanner += 1;
     },
 
     // Query
@@ -106,11 +116,6 @@ export default {
       if (!domain || typeof domain !== 'string') return null;
       return (domain.slice(0,-5).indexOf(".") >= 0) ? true : false
     },
-    domainDisplayFormat: function (domain = null) {
-      if (!domain) return "";
-      let ucfirst = domain.substr(0,1).toUpperCase();
-      return ucfirst + domain.slice(1);
-    }
   },
   computed: {
     metadataQueryResult: function () {
@@ -126,13 +131,10 @@ export default {
 </script>
 
 <style scoped>
-.domain-banner {
-  padding: 1.25em;
-  background: #FF4D00;
-  color: #fff;
+div.domain-banner {
+  border: 1px solid #F2EFED;
   border-radius: 8px;
   margin-bottom: 1em;
-  height: 325px;
 }
 ul {
   padding-left: 0;
@@ -145,16 +147,5 @@ ul li {
   margin-bottom: 1em;
   background: rgba(255, 255, 255, 0.6);
   border-radius: 16px;
-}
-div.title {
-  padding-top: 210px;
-}
-div.title h3 {
-  font-style: normal;
-  font-weight: 600;
-  font-size: 64px;
-  line-height: 120%;
-  letter-spacing: -0.05em;
-  color: #FFFFFF;
 }
 </style>

@@ -16,55 +16,70 @@
           <div class="col img-t">
             <div class="token-img wrapper">
               <div class="img token-img" :style="'background-image: url(' + tokenImg + ');'">
-                <div class="upload btn-upload pointer" v-if="!isReadOnly || (owner.owner == viewer)" @click="editingImg = !editingImg">
+                <div class="upload btn-upload pointer" v-if="!isReadOnly || (owner.owner == viewer)" @click="modals.editingImg = !editingImg;">
                   <span class="icon icon-upload"></span>
                 </div>
               </div>
             </div>
-            <div class="update-img" v-if="editingImg">
-              <p class="descr ipfs-or-web">Add a custom image using <a href="https://docs.ipfs.tech/concepts/content-addressing/" target="_blank">IPFS Content IDs</a>, or regular web URLs.</p>
-              <label for="token_img_type">Image Type</label>
-              <select class="metadata-token-img form-control" name="token_img_type" v-model="newImgModel.type">
-                <option value="null" disabled>Select image type</option>
-                <option value="ipfs">IPFS</option>
-                <option value="url">Web URL</option>
-              </select>
-              <div class="ipfs-images" v-if="newImgModel.type == 'ipfs'">
-                <label for="token_img">IPFS Content Identifier (CID)</label>
-                <input 
-                  type="text" 
-                  class="metadata-token-img form-control" 
-                  name="token_img"
-                  v-model="newImgModel.value"
-                  placeholder="QmYnh4B8Fp93Ax2taHJDx6XJuxJsvB4nFEDR8XxkDJekHq"
-                  @keyup="editImgHandler();"
-                />
-              </div>
-              <div class="web2-images" v-if="newImgModel.type == 'url'">
-                <label for="token_img">Image URL</label>
-                <input 
-                  type="text" 
-                  class="metadata-token-img form-control" 
-                  name="token_img"
-                  v-model="newImgModel.value"
-                  placeholder="https://archid.app/img/brand/token.png"
-                  @keyup="editImgHandler();"
-                />
-              </div>
-              <div class="img ctrl">
-                <div class="img-update btn-wrapper" v-if="newImgModel.value">
-                  <button 
-                    class="btn btn-primary btn-update-img"
-                    @click="createImgUpdate();"
-                    :disabled="newImgModel.value.length < 7"
-                  >Add Image</button>
+
+            <!-- Update Image Modal -->
+            <transition name="modal">
+              <div v-if="modals.editingImg" class="modal-wrapper">
+                <div class="modalt">
+                  <div class="modal-header img-edit">
+                    <div class="left">
+                      <p class="modal-img-edit-title">Edit Image</p>
+                    </div>
+                    <div class="right">
+                      <span class="close-x img-edit" @click="modals.editingImg = !modals.editingImg;">&times;</span>
+                    </div>
+                  </div>
+                  <div class="modal-body img-edit">
+                    <div class="img-type">
+                      <div class="button-group select-img-type">
+                        <a :class="{'active': newImgModel.type == 'ipfs', 'btn-img-ipfs': true}" @click="newImgModel.type = 'ipfs'">IPFS</a>
+                        <a :class="{'active': newImgModel.type == 'url', 'btn-img-url': true}" @click="newImgModel.type = 'url'">Web URL</a>
+                      </div>
+                    </div>
+                    <div class="ipfs-images" v-if="newImgModel.type == 'ipfs'">
+                      <label class="img-edit" for="token_img">IPFS Content Identifier (CID)</label>
+                      <input 
+                        type="text" 
+                        class="metadata-token-img form-control" 
+                        name="token_img"
+                        v-model="newImgModel.value"
+                        placeholder="QmYnh4B8Fp93Ax2taHJDx6XJuxJsvB4nFEDR8XxkDJekHq"
+                        @keyup="editImgHandler();"
+                      />
+                    </div>
+                    <div class="web2-images" v-if="newImgModel.type == 'url'">
+                      <label class="img-edit" for="token_img">Image URL</label>
+                      <input 
+                        type="text" 
+                        class="metadata-token-img form-control" 
+                        name="token_img"
+                        v-model="newImgModel.value"
+                        placeholder="https://archid.app/img/brand/token.png"
+                        @keyup="editImgHandler();"
+                      />
+                    </div>
+                  </div>
+                  <div class="modal-footer subdomain">
+                    <div class="img-update btn-wrapper full-width" v-if="newImgModel.value">
+                      <button 
+                        class="btn btn-inverse btn-update-img float-left"
+                        @click="cancelEditImgHandler();"
+                      >Cancel</button>
+                      <button 
+                        class="btn btn-primary btn-update-img float-right"
+                        @click="createImgUpdate();"
+                        :disabled="newImgModel.value.length < 7"
+                      >Update</button>
+                    </div>
+                  </div>
                 </div>
-                <button 
-                  class="btn btn-inverse btn-update-img"
-                  @click="cancelEditImgHandler();"
-                >Cancel</button>
               </div>
-            </div>
+            </transition>
           </div>
           <!-- Col 2; Description, Expiry, Extend -->
           <div class="col">
@@ -618,6 +633,7 @@ export default {
     baseCost: Number,
     collapsible: Boolean,
   },
+  emits: ['dataResolution'],
   components: { Notification },
   data: () => ({
     token: null,
@@ -689,6 +705,8 @@ export default {
     modals: {
       renew: false,
       removeSubdomain: false,
+      enlargeTokenImg: false,
+      editingImg: false,
     },
     notify: {
       type: null,
@@ -732,6 +750,7 @@ export default {
       await this.resolveDomainRecord();
       if (this.cwClient) viewer = await Accounts(this.cwClient);
       if (viewer.length) this.viewer = viewer[0].address;
+      if (force) this.$emit('dataResolution', true);
     },
     tokenData: async function () {
       if (!this.domain || typeof this.domain !== 'string') return;
@@ -791,6 +810,7 @@ export default {
         value: null,
       };
       this.editingImg = false;
+      this.modals.editingImg = false;
     },
     createImgUpdate: function () {
       if (!this.newImgModel.value || typeof this.newImgModel.value !== 'string') return;
@@ -803,6 +823,7 @@ export default {
       this.updates.metadata.image = imgUpdate;
       this.editingImg = false;
       this.updatingImg = true;
+      this.modals.editingImg = false;
     },
     addAccount: function () {
       if (
@@ -1403,6 +1424,9 @@ div.remove-subdomain-input {
 }
 .metadata-token-img.form-control {
   margin-bottom: 1em;
+  height: 56px;
+  background: #F2EFED;
+  border-radius: 8px;
 }
 .img-update.btn-wrapper {
   margin-right: 1em;
@@ -1421,5 +1445,27 @@ div.accounts-title, div.websites-title, div.subdomains-title {
 }
 div.col.accounts, div.col.websites, div.col.subdomains {
   margin-top: 1em;
+}
+.button-group.select-img-type {
+  width: 100%;
+  height: 50px;
+  margin-bottom: 2em;
+  padding: 0;
+}
+.button-group.select-img-type a {
+  width: 45%;
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
+}
+label.img-edit {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 150%;
+  align-items: center;
+  letter-spacing: -0.01em;
+  color: #666666;
+  margin-bottom: 12px;
 }
 </style>
