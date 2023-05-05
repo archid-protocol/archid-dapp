@@ -15,11 +15,10 @@
           <!-- Col 1; Image -->
           <div class="col img-t">
             <div class="token-img wrapper">
-              <div :class="{'img': true, 'token-img': true, 'pointer': tokenImg !== defaultTokenImg}" :style="'background-image: url(' + tokenImg + ');'" @click="viewImgHandler();">
-                <div class="upload btn-upload pointer" v-if="!isReadOnly || (owner.owner == viewer)" @click="modals.editingImg = !editingImg;">
-                  <span class="icon icon-upload"></span>
-                </div>
+              <div class="upload btn-upload pointer" v-if="!isReadOnly || (owner.owner == viewer)" @click="modals.editingImg = !editingImg;">
+                <span class="icon icon-upload"></span>
               </div>
+              <div :class="{'img': true, 'token-img': true, 'pointer': tokenImg !== defaultTokenImg}" :style="'background-image: url(' + tokenImg + ');'" @click="viewImgHandler();"></div>
             </div>
 
             <!-- Enlarge Token Image Modal -->
@@ -1410,7 +1409,8 @@ div.upload.btn-upload {
   display: inline-block;
   float: right;
   position: relative;
-  top: -14px;
+  top: -5px;
+  z-index: 250;
 }
 .icon.icon-upload {
   margin: 3px;
@@ -1505,7 +1505,7 @@ label.img-edit {
   position: relative;
 }
 .domain-img-lg {
-  margin-top: 5em;
+  margin-top: 4em;
   padding: 0px;
   gap: 16px;
   border-radius: 8px;
