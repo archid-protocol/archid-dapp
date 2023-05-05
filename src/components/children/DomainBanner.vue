@@ -1,7 +1,7 @@
 <template>
   <div class="wrapper">
     <!-- <div :class="{'domain-banner': true, 'bg-img': (tokenImg) ? true : false}" v-if="domain" :style="'background-image: url(' + tokenImg + ');'"></div> -->
-    <div class="domain-banner"></div>
+    <div class="domain-banner-i"></div>
     <h3>{{ domainDisplayFormat(domain) }}</h3>
   </div>
 </template>
@@ -51,7 +51,15 @@ export default {
 </script>
 
 <style scoped>
-.wrapper {
+.domain-banner-i {
+  padding: 1.25em;
+  background: #FF4D00;
+  color: #fff;
+  border-radius: 8px;
+  margin-bottom: 1em;
+  height: 325px;
+}
+/*.wrapper {
   max-height: 325px;
   border-radius: 8px;
   overflow: hidden;
@@ -63,7 +71,7 @@ div.domain-banner {
   border-radius: 8px;
   height: 325px;
 }
-/* div.domain-banner div.bg-img {
+div.domain-banner div.bg-img {
   background-repeat: no-repeat;
   background-position: right;
   background-size: contain;
@@ -73,7 +81,7 @@ div.domain-banner {
   filter: blur(24px);
   -webkit-filter: blur(24px);
 } */
-div.domain-banner h3 {
+h3 {
   font-style: normal;
   font-weight: 600;
   font-size: 64px;
@@ -81,7 +89,7 @@ div.domain-banner h3 {
   letter-spacing: -0.05em;
   color: #FFFFFF;
   position: relative;
-  top: -110px;
+  margin-top: -110px;
   left: 25px;
 }
 </style>

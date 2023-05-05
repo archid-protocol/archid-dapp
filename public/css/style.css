@@ -72,6 +72,14 @@ div.loading.default {
 .btn-wrapper {
     display: inline-block;
 }
+.btn-close-alt {
+    padding: 0px;
+    width: 56px;
+    height: 56px;
+    border: none;
+    border-radius: 8px;
+    filter: drop-shadow(0px 15px 54px rgba(0, 0, 0, 0.06));
+}
 .button-group {
     border-radius: 4px;
     padding: 1em;
@@ -248,6 +256,10 @@ div.value {
     background-image: url('/img/icon-twitter.svg');
     top: 4px;
 }
+.icon-mail {
+    background-image: url('/img/icon-mail.svg');
+    top: 3px;
+}
 .icon-discord {
     background-image: url('/img/icon-discord.svg');
     top: 4px;
@@ -368,6 +380,9 @@ div.value {
     top: -40px;
     font-size: 32px;
     font-weight: 300;
+}
+.modali .modal-header {
+    border: none;
 }
 
 /* Animations */

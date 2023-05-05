@@ -15,12 +15,32 @@
           <!-- Col 1; Image -->
           <div class="col img-t">
             <div class="token-img wrapper">
-              <div class="img token-img" :style="'background-image: url(' + tokenImg + ');'">
+              <div :class="{'img': true, 'token-img': true, 'pointer': tokenImg !== defaultTokenImg}" :style="'background-image: url(' + tokenImg + ');'" @click="viewImgHandler();">
                 <div class="upload btn-upload pointer" v-if="!isReadOnly || (owner.owner == viewer)" @click="modals.editingImg = !editingImg;">
                   <span class="icon icon-upload"></span>
                 </div>
               </div>
             </div>
+
+            <!-- Enlarge Token Image Modal -->
+            <transition name="modal">
+              <div v-if="modals.enlargeTokenImg && tokenImg !== defaultTokenImg" class="modal-wrapper">
+                <div class="modali">
+                  <div class="modal-header img-edit">
+                    <div class="close-btn-right">
+                      <button class="btn-inverse btn-close-alt" @click="modals.enlargeTokenImg = !modals.enlargeTokenImg;">
+                        <span class="close-x img-edit">&times;</span>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="modal-body img-edit">
+                    <div class="text-center">
+                      <img class="domain-img-lg img-fluid pointer" :src="tokenImg" @click="modals.enlargeTokenImg = !modals.enlargeTokenImg;" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </transition>
 
             <!-- Update Image Modal -->
             <transition name="modal">
@@ -166,7 +186,7 @@
                 <div class="left">
                   <a :href="account.profile" target="_blank" v-if="account.account_type == accountLabels.github"><span class="icon icon-github"></span>GitHub</a>
                   <a :href="account.profile" target="_blank" v-if="account.account_type == accountLabels.twitter"><span class="icon icon-twitter"></span>{{account.account_type}}</a>
-                  <a :href="'mailto:'+account.username" v-if="account.account_type == accountLabels.email">{{account.account_type}}</a>
+                  <a :href="'mailto:'+account.username" v-if="account.account_type == accountLabels.email"><span class="icon icon-mail"></span>{{account.account_type}}</a>
                 </div>
                 <div class="right" v-if="ui.accounts[i]">
                   <div :class="{'caret': true, 'active': ui.accounts[i].open}" @click="ui.accounts[i].open = !ui.accounts[i].open">&caron;</div>
@@ -195,7 +215,7 @@
                 <div class="left">
                   <a :href="account.profile" target="_blank" v-if="account.account_type == accountLabels.github"><span class="icon icon-github"></span>GitHub</a>
                   <a :href="account.profile" target="_blank" v-if="account.account_type == accountLabels.twitter"><span class="icon icon-twitter"></span>Twitter</a>
-                  <a :href="'mailto:'+account.username" v-if="account.account_type == accountLabels.email">{{account.account_type}}</a>
+                  <a :href="'mailto:'+account.username" v-if="account.account_type == accountLabels.email"><span class="icon icon-mail"></span>{{account.account_type}}</a>
                 </div>
                 <div class="right">
                   <div :class="{'caret': true, 'active': ui.newAccounts[i].open}" v-if="ui.newAccounts[i]" @click="ui.newAccounts[i].open = !ui.newAccounts[i].open">&caron;</div>
@@ -715,6 +735,7 @@ export default {
       img: null,
     },
     closed: true,
+    defaultTokenImg: '/img/' + DEFAULT_TOKEN_IMG,
     niceDate: DateFormat,
     formatFromMicro: FromMicro,
   }),
@@ -811,6 +832,11 @@ export default {
       };
       this.editingImg = false;
       this.modals.editingImg = false;
+    },
+    viewImgHandler: function () {
+      if (!this.updates.metadata) return;
+      else if (!this.updates.metadata['image']) return;
+      this.modals.enlargeTokenImg = !this.modals.enlargeTokenImg;
     },
     createImgUpdate: function () {
       if (!this.newImgModel.value || typeof this.newImgModel.value !== 'string') return;
@@ -1179,8 +1205,8 @@ export default {
   },
   computed: {
     tokenImg: function () {
-      if (!this.updates.metadata) return '/img/' + DEFAULT_TOKEN_IMG;
-      else if (!this.updates.metadata['image']) return '/img/' + DEFAULT_TOKEN_IMG;
+      if (!this.updates.metadata) return this.defaultTokenImg;
+      else if (!this.updates.metadata['image']) return this.defaultTokenImg;
       let img = (this.updates.metadata.image.substr(0,7) == IPFS_CID_PREFIX) ? this.updates.metadata.image.replace(IPFS_CID_PREFIX, IPFS_GATEWAY_PREFIX) : this.updates.metadata.image;
       return img;
     },
@@ -1246,7 +1272,8 @@ div.add {
 }
 .add span {
   position: relative;
-  top: -4px;
+  bottom: 4px;
+  left: 3px;
 }
 div.item {
   background-color: #fff;
@@ -1467,5 +1494,20 @@ label.img-edit {
   letter-spacing: -0.01em;
   color: #666666;
   margin-bottom: 12px;
+}
+.close-btn-right {
+  width: 100%;
+}
+.btn-close-alt {
+  font-size: 21px;
+  font-weight: 300;
+  left: 95%;
+  position: relative;
+}
+.domain-img-lg {
+  margin-top: 5em;
+  padding: 0px;
+  gap: 16px;
+  border-radius: 8px;
 }
 </style>
