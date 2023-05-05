@@ -340,6 +340,27 @@ div.value {
     width: 24px;
     height: 24px;
 }
+.icon-info {
+    background-image: url('/img/icon-info.svg');
+    width: 24px;
+    height: 24px;
+}
+.icon-domain-history-plus, 
+.icon-domain-history-metadata, 
+.icon-domain-history-transfer {
+    width: 16px;
+    height: 16px;
+    top: 1px;
+}
+.icon-domain-history-plus {
+    background-image: url('/img/icon-domain-history-plus.svg');
+}
+.icon-domain-history-metadata {
+    background-image: url('/img/icon-domain-history-metadata.svg');
+}
+.icon-domain-history-transfer {
+    background-image: url('/img/icon-domain-history-transfer.svg');
+}
 
 /* Modals */
 .modal-wrapper {

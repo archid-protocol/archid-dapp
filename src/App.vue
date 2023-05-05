@@ -329,7 +329,7 @@ span.address {
 .caret-inv {
   float: right;
 }
-.caret-inv, .close-x.menu  {
+.caret-inv, .close-x.menu {
   top: -25px;
   position: relative;
 }

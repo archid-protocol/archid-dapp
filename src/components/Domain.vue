@@ -28,20 +28,36 @@
         </li>
       </ul>
     </div>
+
+    <div class="domain-history" v-if="domain && history.length">
+      <div class="history title">
+        <span class="icon icon-info"></span>&nbsp;<h3>Domain History</h3>
+      </div>
+      <ul class="history-ul">
+        <li v-for="(tx, i) in history" :key="i">
+          <HistoryListEntry
+            v-bind:domain="domain"
+            v-bind:historyItem="tx"
+          >
+          </HistoryListEntry>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
 <script>
 import { Client, Accounts } from '../util/client';
 import { Config, ResolveRecord } from '../util/query';
-import { Token, OwnerOf } from '../util/token';
+import { Token, OwnerOf, HistoryOf } from '../util/token';
 
 import DomainBanner from './children/DomainBanner.vue';
 import DomainListEntry from './children/DomainListEntry.vue';
+import HistoryListEntry from './children/HistoryListEntry.vue';
 
 export default {
   name: 'Domain',
-  components: { DomainBanner, DomainListEntry },
+  components: { DomainBanner, DomainListEntry, HistoryListEntry },
   data: () => ({
     cwClient: null,
     accounts: null,
@@ -50,6 +66,7 @@ export default {
     token: {},
     owner: null,
     domain: null,
+    history: [],
     domainRecord: {},
     renderBanner: 0,
   }),
@@ -74,6 +91,7 @@ export default {
           this.tokenData();
           this.ownerData();
           this.resolveDomainRecord();
+          this.historyData();
         }, 100);
       } catch (e) {
         await this.resumeConnectedState((attempts + 1));
@@ -100,6 +118,12 @@ export default {
       if (!this.cw721) await this.setTokenContract();
       this.owner = await OwnerOf(this.$route.params.id, this.cw721, this.cwClient);
       console.log('Token owner query', this.owner);
+    },
+    historyData: async function () {
+      if (!this.$route.params.id || typeof this.$route.params.id !== 'string') return;
+      if (!this.cw721) await this.setTokenContract();
+      this.history = await HistoryOf(this.$route.params.id);
+      console.log('History query', this.history);
     },
     resolveDomainRecord: async function () {
       if (!this.$route.params.id || typeof this.$route.params.id !== 'string') return;
@@ -134,7 +158,7 @@ export default {
 div.domain-banner {
   border: 1px solid #F2EFED;
   border-radius: 8px;
-  margin-bottom: 1em;
+  margin-bottom: 1.75em;
 }
 ul {
   padding-left: 0;
@@ -147,5 +171,39 @@ ul li {
   margin-bottom: 1em;
   background: rgba(255, 255, 255, 0.6);
   border-radius: 16px;
+}
+ul.history-ul {
+  margin-top: 1.75em;
+  border-radius: unset;
+}
+ul.history-ul li {
+  margin-bottom: 0;
+  border-radius: unset;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+ul.history-ul li:last-of-type {
+  border: none;
+}
+div.domain-history {
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 1em;
+}
+.history.title {
+  margin-top: 2em;
+  margin-left: 27px;
+}
+.history.title span {
+  position: relative;
+  top: 3px;
+}
+.history.title h3 {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 130%;
+  letter-spacing: -0.02em;
+  color: #000000;
+  display: inline-block;
 }
 </style>
