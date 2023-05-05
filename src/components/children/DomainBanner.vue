@@ -1,6 +1,7 @@
 <template>
   <div class="wrapper">
-    <div :class="{'domain-banner': true, 'bg-img': (tokenImg) ? true : false}" v-if="domain" :style="'background-image: url(' + tokenImg + ');'"></div>
+    <!-- <div :class="{'domain-banner': true, 'bg-img': (tokenImg) ? true : false}" v-if="domain" :style="'background-image: url(' + tokenImg + ');'"></div> -->
+    <div class="domain-banner"></div>
     <h3>{{ domainDisplayFormat(domain) }}</h3>
   </div>
 </template>
@@ -21,7 +22,7 @@ export default {
     token: null,
   }),
   mounted: async function () {
-    if (this.cwClient && this.cw721) await this.tokenData();
+    // if (this.cwClient && this.cw721) await this.tokenData();
   },
   methods: {
     tokenData: async function () {
@@ -62,13 +63,16 @@ div.domain-banner {
   border-radius: 8px;
   height: 325px;
 }
-div.domain-banner div.bg-img {
+/* div.domain-banner div.bg-img {
   background-repeat: no-repeat;
+  background-position: right;
+  background-size: contain;
+  
   background-position: center;
   background-size: cover;
   filter: blur(24px);
   -webkit-filter: blur(24px);
-}
+} */
 div.domain-banner h3 {
   font-style: normal;
   font-weight: 600;
