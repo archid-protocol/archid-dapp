@@ -641,6 +641,7 @@ const URL_PREFIXES = ['http://', 'https://'];
 const EXTEND_IMG = 'extend.svg';
 const REMOVED_IMG = 'token-burned.svg';
 const DEFAULT_TOKEN_IMG = 'token.svg';
+const METADATA_UPDATE_IMAGE = 'token-update.svg';
 
 export default {
   props: {
@@ -1034,9 +1035,9 @@ export default {
         // Success notification
         this.notify = {
           type: "success",
-          title: "Update complete",
-          msg: "Data for " + this.domain + " has been updated",
-          img: DEFAULT_TOKEN_IMG,
+          title: "Metadata updated!",
+          msg: this.domain + " has been updated. Your updates should be visible to everyone, everywhere soon.",
+          img: METADATA_UPDATE_IMAGE,
         };
         // Refresh domain
         await this.dataResolutionHandler(true);
