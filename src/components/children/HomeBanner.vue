@@ -91,7 +91,7 @@ export default {
   data: () => ({
     config: null,
     cw721: null,
-    tokens: null,
+    tokens: [],
     search: {
       input: null,
       result: null
