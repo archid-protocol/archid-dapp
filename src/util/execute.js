@@ -27,7 +27,7 @@ async function Register(name, years = 1, base_cost = BASE_DOMAIN_COST, client = 
     // Sender
     let accounts = await client.offlineSigner.getAccounts();
     // Purchase cost
-    let funds = [coin((base_cost * years), client.chainInfo.currencies[0].coinMinimalDenom)];
+    let funds = [coin(String(base_cost * years), client.chainInfo.currencies[0].coinMinimalDenom)];
     // Broadcast tx
     let tx = await client.wasmClient.execute(
       accounts[0].address,
@@ -69,7 +69,7 @@ async function RenewRegistration(name, years = 1, base_cost = BASE_DOMAIN_COST, 
     // Sender
     let accounts = await client.offlineSigner.getAccounts();
     // Purchase cost
-    let funds = [coin((base_cost * years), client.chainInfo.currencies[0].coinMinimalDenom)];
+    let funds = [coin(String(base_cost * years), client.chainInfo.currencies[0].coinMinimalDenom)];
     // Broadcast tx
     let tx = await client.wasmClient.execute(
       accounts[0].address,
@@ -192,7 +192,7 @@ async function RegisterSubDomain(domain, subdomain, new_resolver, new_owner, min
  * @returns {ExecuteResult}
  * @see MetaDataUpdateMsg (archid-registr/msg.rs)
  */
-async function UpdataUserDomainData(name, metadata_update, client = null) {
+async function UpdateUserDomainData(name, metadata_update, client = null) {
   if (typeof name !== 'string' || typeof metadata_update !== 'object') return;
   if (!name.length) return;
   if (!client) client = await Client();
@@ -200,7 +200,7 @@ async function UpdataUserDomainData(name, metadata_update, client = null) {
   try {
     // Msg.
     let entrypoint = {
-      updata_user_domain_data: { // XXX: @jjj sp. mistake in this entry point name ("updata") :)
+      update_user_domain_data: {
         name: name,
         metadata_update: metadata_update
       }
@@ -348,7 +348,7 @@ export {
   RenewRegistration,
   UpdateResolver,
   RegisterSubDomain,
-  UpdataUserDomainData,
+  UpdateUserDomainData,
   UpdateConfig,
   Withdraw,
   RemoveSubDomain

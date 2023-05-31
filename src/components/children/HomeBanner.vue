@@ -30,7 +30,7 @@
     <div class="search-result inner">
       <div class="result left" v-html="search.result"></div>
       <div class="result right" v-if="config.base_cost">
-        <div class="cost" v-if="!registration.taken">{{ formatFromMicro(config.base_cost) }}<span class="icon icon-denom-alt"></span> / year</div>
+        <div class="cost" v-if="!registration.taken">{{ formatFromAtto(config.base_cost) }}<span class="icon icon-denom-alt"></span> / year</div>
         <!-- 
         XXX TODO: Implement USD price when price feeds become available
         <div class="cost-usd"></div> 
@@ -66,7 +66,7 @@
           <a :class="{'active': registration.expiry == 3, 'btn-3year': true}" @click="registration.expiry = 3;">3 years</a>
         </div>
         <div class="submit register">
-          <div class="cost">{{ formatFromMicro((config.base_cost * registration.expiry)) }}<span class="icon icon-denom-alt"></span></div>
+          <div class="cost">{{ formatFromAtto((config.base_cost * registration.expiry)) }}<span class="icon icon-denom-alt"></span></div>
           <button class="btn btn-primary btn-register" @click="registrationHandler();">Register</button>
         </div>
       </div>
@@ -78,7 +78,7 @@
 import { Config } from '../../util/query';
 import { Token, Tokens, NumTokens } from '../../util/token';
 import { DateFormat } from '../../util/datetime';
-import { FromMicro } from '../../util/denom';
+import { FromAtto } from '../../util/denom';
 
 const LIMIT = 100;
 
@@ -102,7 +102,7 @@ export default {
       taken: false,
     },
     niceDate: DateFormat,
-    formatFromMicro: FromMicro,
+    formatFromAtto: FromAtto,
     welcomeBannerBg: '/img/homebanner.svg',
   }),
   mounted: async function () {

@@ -1,5 +1,4 @@
-import { GasPrice } from '@cosmjs/stargate'
-import { SigningCosmWasmClient } from '@cosmjs/cosmwasm-stargate';
+import { SigningArchwayClient } from '@archwayhq/arch3.js';
 import { ConstantineInfo } from '../chains/testnet.constantine';
 
 const Testnet = ConstantineInfo;
@@ -23,13 +22,19 @@ async function cosmostationClient() {
   await window.cosmostation.providers.keplr.experimentalSuggestChain(Blockchain);
   await window.cosmostation.providers.keplr.enable(Blockchain.chainId);
 
+  // Default options
+  window.providers.keplr.defaultOptions = {
+    sign: {
+      preferNoSetFee: true,
+    }
+  };
+
   // Bootstrap client
   client.offlineSigner = await window.cosmostation.providers.keplr.getOfflineSignerAuto(Blockchain.chainId);
 
-  client.wasmClient = await SigningCosmWasmClient.connectWithSigner(
+  client.wasmClient = await SigningArchwayClient.connectWithSigner(
     Blockchain.rpc, 
-    client.offlineSigner, 
-    { gasPrice: GasPrice.fromString('0.005'+Blockchain.currencies[0].coinMinimalDenom) }
+    client.offlineSigner
   );
 
   return client;
@@ -52,12 +57,18 @@ async function keplrClient() {
   await window.keplr.experimentalSuggestChain(Blockchain);
   await window.keplr.enable(Blockchain.chainId);
   
+  // Default options
+  window.keplr.defaultOptions = {
+    sign: {
+      preferNoSetFee: true,
+    }
+  };
+  
   // Bootstrap client
   client.offlineSigner = await window.getOfflineSignerAuto(Blockchain.chainId);
-  client.wasmClient = await SigningCosmWasmClient.connectWithSigner(
+  client.wasmClient = await SigningArchwayClient.connectWithSigner(
     Blockchain.rpc, 
-    client.offlineSigner, 
-    { gasPrice: GasPrice.fromString('0.002'+Blockchain.currencies[0].coinMinimalDenom) }
+    client.offlineSigner
   );
 
   return client;
@@ -65,7 +76,7 @@ async function keplrClient() {
 
 async function offlineClient() {
   const Blockchain = (IsTestnet) ? Testnet : Mainnet;
-  let cwClient = await SigningCosmWasmClient.connectWithSigner(Blockchain.rpc, null);
+  let cwClient = await SigningArchwayClient.connectWithSigner(Blockchain.rpc, null);
   let client = {
     offlineSigner: null,
     wasmClient: cwClient,

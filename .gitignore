@@ -22,3 +22,6 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+# Misc
+src/chains/testnet.constantine-2.js

@@ -599,7 +599,7 @@
             </div>
           </div>
           <div class="right">
-            <span class="cost" v-if="baseCost && updates.expiry">{{ formatFromMicro((baseCost * updates.expiry)) }}</span>
+            <span class="cost" v-if="baseCost && updates.expiry">{{ formatFromAtto((baseCost * updates.expiry)) }}</span>
             <span class="icon icon-denom"></span>
           </div>
         </div>
@@ -620,12 +620,12 @@ import {
   RenewRegistration,
   UpdateResolver,
   RegisterSubDomain,
-  UpdataUserDomainData,
+  UpdateUserDomainData,
   RemoveSubDomain,
 } from '../../util/execute';
 
 import { DateFormat } from '../../util/datetime';
-import { FromMicro } from '../../util/denom';
+import { FromAtto } from '../../util/denom';
 
 import Notification from './Notification.vue'
 
@@ -737,7 +737,7 @@ export default {
     closed: true,
     defaultTokenImg: '/img/' + DEFAULT_TOKEN_IMG,
     niceDate: DateFormat,
-    formatFromMicro: FromMicro,
+    formatFromAtto: FromAtto,
   }),
   mounted: async function () {
     if (!this.collapsible) await this.domainDetails();
@@ -1024,12 +1024,12 @@ export default {
 
       // Do update metadata
       let domain = this.domain.slice(0,-5);
-      this.executeResult = await UpdataUserDomainData(
+      this.executeResult = await UpdateUserDomainData(
         domain,
         this.updates.metadata,
         this.cwClient
       );
-      console.log('UpdataUserDomainData tx', this.executeResult);
+      console.log('UpdateUserDomainData tx', this.executeResult);
 
       if (!this.executeResult['error']) {
         // Success notification

@@ -35,7 +35,7 @@
       <a id="user_account">
         <div class="menu-target main row">
           <div class="col">
-            <span class="balance">{{ formatFromMicro(accounts[0].balance.amount) }}</span>
+            <span class="balance">{{ formatFromAtto(accounts[0].balance.amount) }}</span>
             <span class="icon icon-denom"></span>
           </div>
           <div class="col">
@@ -132,7 +132,7 @@
 
 <script>
 import { Client, Accounts } from './util/client';
-import { FromMicro } from './util/denom';
+import { FromAtto } from './util/denom';
 
 import Notification from './components/children/Notification.vue';
 import Footer from './components/children/Footer.vue';
@@ -162,7 +162,7 @@ export default {
       msg: null,
       img: null,
     },
-    formatFromMicro: FromMicro,
+    formatFromAtto: FromAtto,
   }),
   mounted: async function () {
     if (window) {
