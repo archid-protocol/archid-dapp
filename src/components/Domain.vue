@@ -122,7 +122,7 @@ export default {
     historyData: async function () {
       if (!this.$route.params.id || typeof this.$route.params.id !== 'string') return;
       if (!this.cw721) await this.setTokenContract();
-      this.history = await HistoryOf(this.$route.params.id);
+      this.history = await HistoryOf(this.$route.params.id, this.cw721, this.cwClient);
       console.log('History query', this.history);
     },
     resolveDomainRecord: async function () {
