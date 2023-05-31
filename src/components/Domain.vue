@@ -97,8 +97,9 @@ export default {
         await this.resumeConnectedState((attempts + 1));
       }
     },
-    dataResolution: function () {
+    dataResolution: async function () {
       this.renderBanner += 1;
+      await this.historyData();
     },
 
     // Query

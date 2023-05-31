@@ -619,7 +619,7 @@ import { Token, OwnerOf } from '../../util/token';
 import {
   RenewRegistration,
   UpdateResolver,
-  RegisterSubDomain,
+  RegisterSubdomain,
   UpdateUserDomainData,
   RemoveSubDomain,
 } from '../../util/execute';
@@ -1104,7 +1104,7 @@ export default {
         img: null,
       };
 
-      this.executeResult = await RegisterSubDomain(
+      this.executeResult = await RegisterSubdomain(
         subdomain.domain,
         subdomain.subdomain,
         subdomain.new_resolver,
@@ -1113,7 +1113,7 @@ export default {
         subdomain.expiration,
         this.cwClient
       );
-      console.log('RegisterSubDomain tx', this.executeResult);
+      console.log('RegisterSubdomain tx', this.executeResult);
 
       if (!this.executeResult['error']) {
         // Success notification

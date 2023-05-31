@@ -139,7 +139,7 @@ async function UpdateResolver(name, new_resolver, client = null) {
  * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
  * @returns {ExecuteResult}
  */
-async function RegisterSubDomain(domain, subdomain, new_resolver, new_owner, mint, expiration, client = null) {
+async function RegisterSubdomain(domain, subdomain, new_resolver, new_owner, mint, expiration, client = null) {
   if (typeof domain !== 'string' 
     || typeof subdomain !== 'string' 
     || typeof new_resolver !== 'string' 
@@ -154,7 +154,7 @@ async function RegisterSubDomain(domain, subdomain, new_resolver, new_owner, min
   try {
     // Msg.
     let entrypoint = {
-      register_sub_domain: {
+      register_subdomain: {
         domain: domain,
         subdomain: subdomain,
         new_resolver: new_resolver,
@@ -347,7 +347,7 @@ export {
   Register,
   RenewRegistration,
   UpdateResolver,
-  RegisterSubDomain,
+  RegisterSubdomain,
   UpdateUserDomainData,
   UpdateConfig,
   Withdraw,
