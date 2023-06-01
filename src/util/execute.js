@@ -310,7 +310,7 @@ async function Withdraw(amount, client = null) {
  * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
  * @returns {ExecuteResult}
  */
-async function RemoveSubDomain(domain, subdomain, client = null) {
+async function RemoveSubdomain(domain, subdomain, client = null) {
   if (typeof domain !== 'string' || typeof subdomain !== 'string') return;
   if (!domain.length || !subdomain.length) return;
   if (!client) client = await Client();
@@ -318,7 +318,7 @@ async function RemoveSubDomain(domain, subdomain, client = null) {
   try {
     // Msg.
     let entrypoint = {
-      remove_sub_domain: {
+      remove_subdomain: {
         domain: domain,
         subdomain: subdomain
       }
@@ -351,5 +351,5 @@ export {
   UpdateUserDomainData,
   UpdateConfig,
   Withdraw,
-  RemoveSubDomain
+  RemoveSubdomain
 }

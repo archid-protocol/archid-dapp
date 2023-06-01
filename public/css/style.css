@@ -346,6 +346,7 @@ div.value {
     height: 24px;
 }
 .icon-domain-history-plus, 
+.icon-domain-history-minus, 
 .icon-domain-history-metadata, 
 .icon-domain-history-transfer {
     width: 16px;
@@ -354,6 +355,9 @@ div.value {
 }
 .icon-domain-history-plus {
     background-image: url('/img/icon-domain-history-plus.svg');
+}
+.icon-domain-history-minus {
+    background-image: url('/img/icon-domain-history-minus.svg');
 }
 .icon-domain-history-metadata {
     background-image: url('/img/icon-domain-history-metadata.svg');

@@ -1,7 +1,7 @@
 <template>
   <div class="history history-item row" v-if="events.length">
     <div class="col type">
-      <p v-if="history.type"><span :class="{'icon': true, 'icon-domain-history-plus': (history.type == 'mint' || history.type == 'mint_subdomain'), 'icon-domain-history-metadata': history.type == 'update_metadata', 'icon-not-available': history.type == 'remove_subdomain'}"></span>{{ formatTypeLabel(history.type) }}</p>
+      <p v-if="history.type"><span :class="{'icon': true, 'icon-domain-history-plus': (history.type == 'mint' || history.type == 'mint_subdomain'), 'icon-domain-history-metadata': history.type == 'update_metadata', 'icon-domain-history-minus': history.type == 'remove_subdomain'}"></span>{{ formatTypeLabel(history.type) }}</p>
     </div>
     <div class="col height">
       <p v-if="history.block">
@@ -118,10 +118,5 @@ a.explorer-link {
   font-size: 16px;
   line-height: 150%;
   letter-spacing: -0.01em;
-}
-.icon.icon-not-available {
-  width: 30px;
-  top: 13px;
-  margin-left: -6px;
 }
 </style>

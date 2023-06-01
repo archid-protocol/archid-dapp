@@ -621,7 +621,7 @@ import {
   UpdateResolver,
   RegisterSubdomain,
   UpdateUserDomainData,
-  RemoveSubDomain,
+  RemoveSubdomain,
 } from '../../util/execute';
 
 import { DateFormat } from '../../util/datetime';
@@ -1149,12 +1149,12 @@ export default {
       };
 
       let domain = this.domain.slice(0,-5);
-      this.executeResult = await RemoveSubDomain(
+      this.executeResult = await RemoveSubdomain(
         domain,
         subdomain.name,
         this.cwClient
       );
-      console.log('RemoveSubDomain tx', this.executeResult);
+      console.log('RemoveSubdomain tx', this.executeResult);
 
       if (!this.executeResult['error']) {
         // Success notification
