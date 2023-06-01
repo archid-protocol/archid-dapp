@@ -148,7 +148,6 @@ export default {
     searchWorker: function (text = null) {
       this.registration.taken = false;
       if (!this.tokens) return '';
-      if (!this.tokens.length) return '';
       if (!text) return '';
       if (typeof text !== 'string') return '';
       let rawText = text.toLowerCase().replace(/[^a-z0-9-]/g,'');

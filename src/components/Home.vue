@@ -6,6 +6,7 @@
         v-bind:cwClient="cwClient"
         v-bind:account="accountDisplay"
         @registration="registration"
+        :key="'banner_'+updates"
       >
       </HomeBanner>
     </div>
@@ -14,6 +15,7 @@
       <RecentDomains
         v-bind:cwClient="cwClient"
         v-bind:size="32"
+        :key="'recent_'+updates"
       >
       </RecentDomains>
     </div>
@@ -116,6 +118,7 @@ export default {
     accounts: null,
     accountDisplay: null,
     executeResult: null,
+    updates: 0,
     notify: {
       type: null,
       title: null,
@@ -188,6 +191,7 @@ export default {
           msg: "You registered " + params.name + ".arch",
           img: DEFAULT_TOKEN_IMG,
         };
+        ++this.updates;
       } else {
         // Error notification
         this.notify = {
