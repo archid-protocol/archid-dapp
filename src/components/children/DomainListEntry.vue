@@ -1433,7 +1433,7 @@ div.upload.btn-upload {
   padding: 12px;
   background: #FFFFFF;
   border-radius: 8px;
-  display: inline-block;
+  display: block;
   float: right;
   position: relative;
   top: -5px;

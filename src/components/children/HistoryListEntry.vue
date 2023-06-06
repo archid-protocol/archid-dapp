@@ -1,7 +1,7 @@
 <template>
   <div class="history history-item row" v-if="events.length">
     <div class="col type">
-      <p v-if="history.type"><span :class="{'icon': true, 'icon-domain-history-plus': (history.type == 'mint' || history.type == 'mint_subdomain'), 'icon-domain-history-metadata': history.type == 'update_metadata', 'icon-domain-history-minus': history.type == 'remove_subdomain'}"></span>{{ formatTypeLabel(history.type) }}</p>
+      <p v-if="history.type"><span :class="{'icon': true, 'icon-domain-history-plus': (history.type == 'mint' || history.type == 'mint_subdomain' || history.type == 'renew_domain'), 'icon-domain-history-metadata': history.type == 'update_metadata', 'icon-domain-history-minus': history.type == 'remove_subdomain'}"></span>{{ formatTypeLabel(history.type) }}</p>
     </div>
     <div class="col height">
       <p v-if="history.block">
@@ -23,6 +23,7 @@ const TYPE_LABELS = {
   burn: "Subdomain removed.",
   remove_subdomain: "Subdomain removed.",
   update_metadata: "Metadata updated.",
+  renew_domain: "Registration renewed"
 };
 
 const TX_EXPLORER_PREFIX = "https://testnet.mintscan.io/archway-testnet/txs/";
@@ -90,7 +91,13 @@ export default {
                 }
 
                 // Remove subdomain
-                if (types.indexOf('burn') !== -1 && ids.length > 1) historyEntry.type = "remove_subdomain";
+                if (types.indexOf('burn') !== -1 && ids.length > 1) {
+                  let isSubdomain = false;
+                  for (let k = 0; k < ids.length; k++) {
+                    if ((ids[k].split(".").length-1) > 1) isSubdomain = true;
+                    if (k == ids.length - 1) historyEntry.type = (isSubdomain) ? "remove_subdomain" : "renew_domain";
+                  }
+                }
 
                 // XXX: Extensions are logged as metadata update events
                 // Extend domain registration
