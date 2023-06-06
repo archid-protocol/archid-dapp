@@ -125,7 +125,8 @@
             </div>
             <!-- Btn. Extend -->
             <div class="ctrl" v-if="!isSubdomain && owner">
-              <button class="btn btn-inverse" @click="modals.renew = !modals.renew" v-if="owner.owner == viewer">Extend</button>
+              <button class="btn btn-inverse" @click="modals.renew = !modals.renew" v-if="owner.owner == viewer && !isExpired">Extend</button>
+              <button class="btn btn-inverse" @click="modals.renew = !modals.renew" v-if="owner.owner == viewer && isExpired">Renew</button>
             </div>
           </div>
           <!-- Col 3; Owner, Domain Record -->
@@ -577,14 +578,18 @@
   >
   </Notification>
 
-  <!-- Extend Domain Modal -->
+  <!-- Extend / Renew Domain Modal -->
   <transition name="modal">
     <div v-if="modals.renew" class="modal-wrapper">
       <div class="modalt">
         <div class="modal-header">
-          <div class="left">
+          <div class="left" v-if="!isExpired">
             <p class="modal-extend-title">Extend <span class="modal-title modal-domain-title" v-if="domain">{{domain}}</span></p>
             <p class="modal-descr">How long would you like to extend the domain life time?</p>
+          </div>
+          <div class="left" v-if="isExpired">
+            <p class="modal-extend-title">Renewing <span class="modal-title modal-domain-title" v-if="domain">{{domain}}</span></p>
+            <p class="modal-descr" v-if="domain">Renew {{domain}} for how many years?</p>
           </div>
           <div class="right">
             <span class="close-x extend" @click="modals.renew = !modals.renew;">&times;</span>
@@ -617,6 +622,7 @@ import { Accounts } from '../../util/client';
 import { ResolveRecord } from '../../util/query';
 import { Token, OwnerOf } from '../../util/token';
 import {
+  Register,
   RenewRegistration,
   UpdateResolver,
   RegisterSubdomain,
@@ -984,19 +990,33 @@ export default {
       this.resetFormIters();
       let cost = this.baseCost * this.updates.expiry;
       let domain = this.domain.slice(0,-5);
-      this.executeResult = await RenewRegistration(
-        domain,
-        this.updates.expiry,
-        cost,
-        this.cwClient
-      );
+
+      let title;
+      if (!this.isExpired) {
+        this.executeResult = await RenewRegistration(
+          domain,
+          this.updates.expiry,
+          cost,
+          this.cwClient
+        );
+        title = "Your domain was extended";
+      } else {
+        this.executeResult = await Register(
+          domain,
+          this.updates.expiry,
+          cost,
+          this.cwClient
+        );
+        title = "Your domain was renewed";
+      }
+
       this.modals.renew = false;
       console.log('RenewRegistration tx', this.executeResult);
 
       if (!this.executeResult['error']) {
         this.notify = {
           type: "success",
-          title: "Your domain was extended",
+          title: title,
           msg: "Everyone will continue to reach your selected address through your Archway domain.",
           img: EXTEND_IMG,
         };
