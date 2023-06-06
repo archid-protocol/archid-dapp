@@ -192,6 +192,7 @@ export default {
           img: DEFAULT_TOKEN_IMG,
         };
         ++this.updates;
+        this.$root.resolveUpdates();
       } else {
         // Error notification
         this.notify = {

@@ -15,7 +15,7 @@
           <!-- Col 1; Image -->
           <div class="col img-t">
             <div class="token-img wrapper">
-              <div class="upload btn-upload pointer" v-if="!isReadOnly || (owner.owner == viewer)" @click="modals.editingImg = !editingImg;">
+              <div class="upload btn-upload pointer" v-if="!isReadOnly && !isExpired || (owner.owner == viewer && !isExpired)" @click="modals.editingImg = !editingImg;">
                 <span class="icon icon-upload"></span>
               </div>
               <div :class="{'img': true, 'token-img': true, 'pointer': tokenImg !== defaultTokenImg}" :style="'background-image: url(' + tokenImg + ');'" @click="viewImgHandler();"></div>
@@ -145,7 +145,7 @@
                   :class="{'domain-resolver': true, 'value': true, 'configurable': owner.owner == viewer}"
                   @click="editDomainRecordHandler();"
                   v-if="!editingResolver || (owner.owner !== viewer)"
-                >{{domainRecord.address}}</div>
+                >{{(domainRecord.address) ? domainRecord.address : 'Expired'}}</div>
                 <div class="input-group domain-record" v-if="editingResolver && owner.owner == viewer">
                   <input 
                     type="text" 
@@ -168,7 +168,7 @@
         </div>
 
         <!-- Identities -->
-        <div class="row id-row" v-if="!isSubdomain && owner">
+        <div class="row id-row" v-if="!isSubdomain && owner && !isExpired">
           <!-- Accounts -->
           <div class="col accounts clear" v-if="viewer == owner.owner || token.extension.accounts.length">
             <div class="title accounts-title row">
@@ -660,6 +660,7 @@ export default {
     owner: null,
     viewer: null,
     editing: false,
+    isExpired: false,
     editingText: false,
     editingDescr: false,
     editingResolver: false,
@@ -771,7 +772,10 @@ export default {
       await this.resolveDomainRecord();
       if (this.cwClient) viewer = await Accounts(this.cwClient);
       if (viewer.length) this.viewer = viewer[0].address;
-      if (force) this.$emit('dataResolution', true);
+      if (force) {
+        this.$emit('dataResolution', true);
+        this.$root.resolveUpdates();
+      }
     },
     tokenData: async function () {
       if (!this.domain || typeof this.domain !== 'string') return;
@@ -809,19 +813,21 @@ export default {
         this.domain,
         this.cwClient
       );
+      if (!this.domainRecord.address) this.isExpired = true;
       console.log('ResolveRecord query', this.domainRecord);
     },
     editDescriptionHandler: function () {
-      if (!this.owner || !this.viewer) return;
+      if (!this.owner || !this.viewer || this.isExpired) return;
       if (this.owner.owner !== this.viewer) return;
       this.editingText = !this.editingText;
     },
     editDomainRecordHandler: function () {
-      if (!this.owner || !this.viewer) return;
+      if (!this.owner || !this.viewer || this.isExpired) return;
       if (this.owner.owner !== this.viewer) return;
       this.editingResolver = !this.editingResolver;
     },
     editImgHandler: function () {
+      if (this.isExpired) return;
       if (this.newImgModel.value !== this.updates.metadata.image) this.editingImg = true;
     },
     cancelEditImgHandler: function () {

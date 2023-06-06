@@ -241,6 +241,15 @@ export default {
         img: null,
       };
     },
+    resolveUpdates: async function () {
+      try {
+        let accounts = await Accounts(this.cwClient);
+        if (!accounts[0].address) return;
+        this.accounts = accounts;
+      } catch(e) {
+        console.log('Error resolving wallet balance', e);
+      }
+    },
     accountDisplayFormat: function (account = null) {
       if (!account) return "";
       return account.slice(0,12) + "..." + account.slice(-5);
