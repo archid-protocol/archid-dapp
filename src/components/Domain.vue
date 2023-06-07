@@ -1,9 +1,13 @@
 <template>
   <div class="page">
-    <div class="domain-banner">
-      <div class="title" v-if="domain">
-        <h3>{{ domainDisplayFormat(domain) }}</h3>
-      </div>
+    <div class="domain-banner" v-if="domain && cw721">
+      <DomainBanner
+        v-bind:domain="domain"
+        v-bind:cw721="cw721"
+        v-bind:cwClient="cwClient"
+        :key="renderBanner"
+      >
+      </DomainBanner>
     </div>
 
     <div class="token-metadata" v-if="domain && cw721 && config">
@@ -17,9 +21,25 @@
             v-bind:isReadOnly="true"
             v-bind:baseCost="parseInt(config.base_cost)"
             v-bind:collapsible="false"
+            @dataResolution="dataResolution"
             :key="domain"
           >
           </DomainListEntry>
+        </li>
+      </ul>
+    </div>
+
+    <div class="domain-history" v-if="domain && history.length">
+      <div class="history title">
+        <span class="icon icon-info"></span>&nbsp;<h3>Domain History</h3>
+      </div>
+      <ul class="history-ul">
+        <li v-for="(tx, i) in history" :key="i">
+          <HistoryListEntry
+            v-bind:domain="domain"
+            v-bind:historyItem="tx"
+          >
+          </HistoryListEntry>
         </li>
       </ul>
     </div>
@@ -29,13 +49,15 @@
 <script>
 import { Client, Accounts } from '../util/client';
 import { Config, ResolveRecord } from '../util/query';
-import { Token, OwnerOf } from '../util/token';
+import { Token, OwnerOf, HistoryOf } from '../util/token';
 
+import DomainBanner from './children/DomainBanner.vue';
 import DomainListEntry from './children/DomainListEntry.vue';
+import HistoryListEntry from './children/HistoryListEntry.vue';
 
 export default {
   name: 'Domain',
-  components: { DomainListEntry },
+  components: { DomainBanner, DomainListEntry, HistoryListEntry },
   data: () => ({
     cwClient: null,
     accounts: null,
@@ -44,7 +66,9 @@ export default {
     token: {},
     owner: null,
     domain: null,
+    history: [],
     domainRecord: {},
+    renderBanner: 0,
   }),
   mounted: function () {
     if (window) this.resumeConnectedState();
@@ -56,18 +80,26 @@ export default {
       try {
         setTimeout(async () => { 
           let walletType = sessionStorage.getItem("connected");
-          this.cwClient = await Client(walletType);
-          this.accounts = await Accounts(this.cwClient);
+          if (!walletType) this.cwClient = await Client("offline");
+          else {
+            this.cwClient = await Client(walletType);
+            this.accounts = await Accounts(this.cwClient);
+          }
           console.log('Token client', {cwClient: this.cwClient, accounts: this.accounts, walletType: walletType});
 
           // Load token data
           this.tokenData();
           this.ownerData();
           this.resolveDomainRecord();
+          this.historyData();
         }, 100);
       } catch (e) {
         await this.resumeConnectedState((attempts + 1));
       }
+    },
+    dataResolution: async function () {
+      this.renderBanner += 1;
+      await this.historyData();
     },
 
     // Query
@@ -88,6 +120,12 @@ export default {
       this.owner = await OwnerOf(this.$route.params.id, this.cw721, this.cwClient);
       console.log('Token owner query', this.owner);
     },
+    historyData: async function () {
+      if (!this.$route.params.id || typeof this.$route.params.id !== 'string') return;
+      if (!this.cw721) await this.setTokenContract();
+      this.history = await HistoryOf(this.$route.params.id, this.cw721, this.cwClient);
+      console.log('History query', this.history);
+    },
     resolveDomainRecord: async function () {
       if (!this.$route.params.id || typeof this.$route.params.id !== 'string') return;
       this.domainRecord = await ResolveRecord(
@@ -103,11 +141,6 @@ export default {
       if (!domain || typeof domain !== 'string') return null;
       return (domain.slice(0,-5).indexOf(".") >= 0) ? true : false
     },
-    domainDisplayFormat: function (domain = null) {
-      if (!domain) return "";
-      let ucfirst = domain.substr(0,1).toUpperCase();
-      return ucfirst + domain.slice(1);
-    }
   },
   computed: {
     metadataQueryResult: function () {
@@ -123,13 +156,10 @@ export default {
 </script>
 
 <style scoped>
-.domain-banner {
-  padding: 1.25em;
-  background: #FF4D00;
-  color: #fff;
+div.domain-banner {
+  border: 1px solid #F2EFED;
   border-radius: 8px;
-  margin-bottom: 1em;
-  height: 325px;
+  margin-bottom: 1.75em;
 }
 ul {
   padding-left: 0;
@@ -143,15 +173,38 @@ ul li {
   background: rgba(255, 255, 255, 0.6);
   border-radius: 16px;
 }
-div.title {
-  padding-top: 210px;
+ul.history-ul {
+  margin-top: 1.75em;
+  border-radius: unset;
 }
-div.title h3 {
+ul.history-ul li {
+  margin-bottom: 0;
+  border-radius: unset;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+ul.history-ul li:last-of-type {
+  border: none;
+}
+div.domain-history {
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 1em;
+}
+.history.title {
+  margin-top: 2em;
+  margin-left: 27px;
+}
+.history.title span {
+  position: relative;
+  top: 3px;
+}
+.history.title h3 {
   font-style: normal;
-  font-weight: 600;
-  font-size: 64px;
-  line-height: 120%;
-  letter-spacing: -0.05em;
-  color: #FFFFFF;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 130%;
+  letter-spacing: -0.02em;
+  color: #000000;
+  display: inline-block;
 }
 </style>

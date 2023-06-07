@@ -1,4 +1,4 @@
-import { keplrClient, cosmoStation } from './cosmwasm';
+import { keplrClient, cosmostationClient, offlineClient } from './cosmwasm';
 
 /**
  * Gets signing client instance
@@ -9,12 +9,15 @@ import { keplrClient, cosmoStation } from './cosmwasm';
   let client;
   switch (wallet) {
     case 'cosmostation': {
-      client = await cosmoStation();
+      client = await cosmostationClient();
       return client;
     }
-    case 'falcon': { return; } // TODO: Falcon wallet
     case 'keplr': {
       client = await keplrClient();
+      return client;
+    }
+    case 'offline': {
+      client = await offlineClient();
       return client;
     }
   }
@@ -22,8 +25,7 @@ import { keplrClient, cosmoStation } from './cosmwasm';
 
 async function Accounts(client = null) {
   if (!client) client = await Client();
-  // console.log('Accounts?', client);
-  let accounts = await client.offlineSigner.getAccounts();
+  let accounts = (client['offlineSigner']) ? await client.offlineSigner.getAccounts() : [];
   if (!accounts.length) return accounts;
 
   for (let i = 0; i < accounts.length; i++) {

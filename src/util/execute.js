@@ -27,7 +27,9 @@ async function Register(name, years = 1, base_cost = BASE_DOMAIN_COST, client = 
     // Sender
     let accounts = await client.offlineSigner.getAccounts();
     // Purchase cost
-    let funds = [coin((base_cost * years), client.chainInfo.currencies[0].coinMinimalDenom)];
+    let cost = parseInt(base_cost * years);
+    let funds = [coin(String(cost), client.chainInfo.currencies[0].coinMinimalDenom)];
+    console.log('Register?', {args: [name, years, base_cost]}, {calcs: {cost: cost, funds: funds}});
     // Broadcast tx
     let tx = await client.wasmClient.execute(
       accounts[0].address,
@@ -69,7 +71,7 @@ async function RenewRegistration(name, years = 1, base_cost = BASE_DOMAIN_COST, 
     // Sender
     let accounts = await client.offlineSigner.getAccounts();
     // Purchase cost
-    let funds = [coin((base_cost * years), client.chainInfo.currencies[0].coinMinimalDenom)];
+    let funds = [coin(String(base_cost * years), client.chainInfo.currencies[0].coinMinimalDenom)];
     // Broadcast tx
     let tx = await client.wasmClient.execute(
       accounts[0].address,
@@ -139,7 +141,7 @@ async function UpdateResolver(name, new_resolver, client = null) {
  * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
  * @returns {ExecuteResult}
  */
-async function RegisterSubDomain(domain, subdomain, new_resolver, new_owner, mint, expiration, client = null) {
+async function RegisterSubdomain(domain, subdomain, new_resolver, new_owner, mint, expiration, client = null) {
   if (typeof domain !== 'string' 
     || typeof subdomain !== 'string' 
     || typeof new_resolver !== 'string' 
@@ -154,7 +156,7 @@ async function RegisterSubDomain(domain, subdomain, new_resolver, new_owner, min
   try {
     // Msg.
     let entrypoint = {
-      register_sub_domain: {
+      register_subdomain: {
         domain: domain,
         subdomain: subdomain,
         new_resolver: new_resolver,
@@ -192,7 +194,7 @@ async function RegisterSubDomain(domain, subdomain, new_resolver, new_owner, min
  * @returns {ExecuteResult}
  * @see MetaDataUpdateMsg (archid-registr/msg.rs)
  */
-async function UpdataUserDomainData(name, metadata_update, client = null) {
+async function UpdateUserDomainData(name, metadata_update, client = null) {
   if (typeof name !== 'string' || typeof metadata_update !== 'object') return;
   if (!name.length) return;
   if (!client) client = await Client();
@@ -200,7 +202,7 @@ async function UpdataUserDomainData(name, metadata_update, client = null) {
   try {
     // Msg.
     let entrypoint = {
-      updata_user_domain_data: { // XXX: @jjj sp. mistake in this entry point name ("updata") :)
+      update_user_domain_data: {
         name: name,
         metadata_update: metadata_update
       }
@@ -310,7 +312,7 @@ async function Withdraw(amount, client = null) {
  * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
  * @returns {ExecuteResult}
  */
-async function RemoveSubDomain(domain, subdomain, client = null) {
+async function RemoveSubdomain(domain, subdomain, client = null) {
   if (typeof domain !== 'string' || typeof subdomain !== 'string') return;
   if (!domain.length || !subdomain.length) return;
   if (!client) client = await Client();
@@ -318,7 +320,7 @@ async function RemoveSubDomain(domain, subdomain, client = null) {
   try {
     // Msg.
     let entrypoint = {
-      remove_sub_domain: {
+      remove_subdomain: {
         domain: domain,
         subdomain: subdomain
       }
@@ -347,9 +349,9 @@ export {
   Register,
   RenewRegistration,
   UpdateResolver,
-  RegisterSubDomain,
-  UpdataUserDomainData,
+  RegisterSubdomain,
+  UpdateUserDomainData,
   UpdateConfig,
   Withdraw,
-  RemoveSubDomain
+  RemoveSubdomain
 }

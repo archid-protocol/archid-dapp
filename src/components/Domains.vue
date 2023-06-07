@@ -93,8 +93,11 @@ export default {
       try {
         setTimeout(async () => { 
           let walletType = sessionStorage.getItem("connected");
-          this.cwClient = await Client(walletType);
-          this.accounts = await Accounts(this.cwClient);
+          if (!walletType) this.cwClient = await Client("offline");
+          else {
+            this.cwClient = await Client(walletType);
+            this.accounts = await Accounts(this.cwClient);
+          }
           console.log('Tokens client', {cwClient: this.cwClient, accounts: this.accounts, walletType: walletType});
 
           // Load tokens

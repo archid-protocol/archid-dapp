@@ -9,7 +9,19 @@
     </div>
     <div class="connect user">
       <a id="connect_modal" class="btn btn-primary btn-show-modal pointer" @click="modal = !modal;">Connect Wallet</a>
+      <div class="col disconnected">
+        <span :class="{'caret-inv': true, 'active': true}" v-if="!showNav" @click="showNav = !showNav;">&caron;</span>
+        <span class="close-x menu" v-if="showNav" @click="showNav = !showNav;">&times;</span>
+      </div>
     </div>
+    <ul class="navigation" v-if="showNav">
+      <li>
+        <router-link to="/" @click="route = '/';showNav = false;">Home</router-link>
+      </li>
+      <li>
+        <router-link to="/domains" @click="route = '/domains';showNav = false;">Domains</router-link>
+      </li>
+    </ul>
   </div>
   <div class="loggedin" v-else>
     <div class="logo">
@@ -23,7 +35,7 @@
       <a id="user_account">
         <div class="menu-target main row">
           <div class="col">
-            <span class="balance">{{ formatFromMicro(accounts[0].balance.amount) }}</span>
+            <span class="balance">{{ formatFromAtto(accounts[0].balance.amount) }}</span>
             <span class="icon icon-denom"></span>
           </div>
           <div class="col">
@@ -55,9 +67,6 @@
   <!-- Page Content -->
   <div class="page-content">
     <router-view :key="render" />
-  </div>
-  <div class="no-auth row" v-if="!connected">
-    <h3>Connect your wallet to view data on this page.</h3>
   </div>
   <div class="footer-content">
     <Footer />
@@ -109,17 +118,33 @@
     </div>
   </transition>
 
+  <Notification
+    v-bind:type="notify.type"
+    v-bind:title="notify.title"
+    v-bind:msg="notify.msg"
+    v-bind:img="notify.img"
+    v-if="notify.type"
+    @closeNotification="closeNotification"
+  >
+  </Notification>
+
 </template>
 
 <script>
 import { Client, Accounts } from './util/client';
-import { FromMicro } from './util/denom';
+import { FromAtto } from './util/denom';
 
+import Notification from './components/children/Notification.vue';
 import Footer from './components/children/Footer.vue';
+
+const WALLET_DOWNLOADS = {
+  keplr: 'https://www.keplr.app/download',
+  cosmostation: 'https://cosmostation.io/wallet',
+};
 
 export default {
   name: 'ArchID',
-  components: { Footer },
+  components: { Notification, Footer },
   data: () => ({
     cwClient: null,
     accounts: [],
@@ -131,9 +156,15 @@ export default {
     route: null,
     showNav: false,
     render: 0,
-    formatFromMicro: FromMicro,
+    notify: {
+      type: null,
+      title: null,
+      msg: null,
+      img: null,
+    },
+    formatFromAtto: FromAtto,
   }),
-  mounted: function () {
+  mounted: async function () {
     if (window) {
       this.route = location.pathname;
       let connected = window.sessionStorage.getItem('connected');
@@ -160,13 +191,24 @@ export default {
       } catch(e) {
         this.connected = false;
         this.connecting = false;
+        this.modal = false;
+        // Error notification
+        this.notify = {
+          type: "error",
+          title: "Something went wrong",
+          msg: 'Error connecting to ' + this.ucFirst(this.walletType) + ' wallet.<br/><p class="descr offset"><a href="'+ WALLET_DOWNLOADS[this.walletType] +'" target="_blank">Download '+ this.ucFirst(this.walletType) +'</a></p>',
+          img: null,
+        };
         console.error(e);
       }
       this.render += 1;
       console.log('App', {cwClient: this.cwClient, accounts: this.accounts, walletType: this.walletType});
     },
     resumeConnectedState: async function (attempts = 0) {
-      if (attempts >= 5) return;
+      if (attempts >= 5) {
+        this.cwClient = await Client('offline');
+        return;
+      }
       try {
         setTimeout(async () => { 
           let walletType = sessionStorage.getItem("connected");
@@ -178,6 +220,11 @@ export default {
         await this.resumeConnectedState((attempts + 1));
       }
     },
+    connectHandler: function () {
+      window.scrollTo(0, 0);
+      const connectEl = document.getElementById('connect_modal');
+      connectEl.click();
+    },
     connectCancel: function () {
       this.connected = false;
       this.connecting = false;
@@ -186,9 +233,29 @@ export default {
       sessionStorage.removeItem("connected");
       window.location.reload();
     },
+    closeNotification: function () {
+      this.notify = {
+        type: null,
+        title: null,
+        msg: null,
+        img: null,
+      };
+    },
+    resolveUpdates: async function () {
+      try {
+        let accounts = await Accounts(this.cwClient);
+        if (!accounts[0].address) return;
+        this.accounts = accounts;
+      } catch(e) {
+        console.log('Error resolving wallet balance', e);
+      }
+    },
     accountDisplayFormat: function (account = null) {
       if (!account) return "";
       return account.slice(0,12) + "..." + account.slice(-5);
+    },
+    ucFirst(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
     }
   }
 }
@@ -271,9 +338,13 @@ span.address {
 .caret-inv {
   float: right;
 }
-.caret-inv, .close-x.menu  {
+.caret-inv, .close-x.menu {
   top: -25px;
   position: relative;
+}
+.col.disconnected span {
+  color: white;
+  top: 7px;
 }
 .icon-denom {
   margin-left: 3px;

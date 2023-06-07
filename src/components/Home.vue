@@ -6,6 +6,7 @@
         v-bind:cwClient="cwClient"
         v-bind:account="accountDisplay"
         @registration="registration"
+        :key="'banner_'+updates"
       >
       </HomeBanner>
     </div>
@@ -14,6 +15,7 @@
       <RecentDomains
         v-bind:cwClient="cwClient"
         v-bind:size="32"
+        :key="'recent_'+updates"
       >
       </RecentDomains>
     </div>
@@ -103,7 +105,7 @@ import { Register } from '../util/execute';
 
 import HomeBanner from './children/HomeBanner.vue';
 import RecentDomains from './children/RecentDomains.vue';
-import Notification from './children/Notification.vue'
+import Notification from './children/Notification.vue';
 
 const DEFAULT_TOKEN_IMG = 'token.svg';
 
@@ -116,6 +118,7 @@ export default {
     accounts: null,
     accountDisplay: null,
     executeResult: null,
+    updates: 0,
     notify: {
       type: null,
       title: null,
@@ -130,6 +133,7 @@ export default {
         this.resumeConnectedState();
       } else {
         this.accountDisplay = "archway12891";
+        this.cwClient = await Client('offline');
       }
     }
   },
@@ -139,9 +143,12 @@ export default {
       try {
         setTimeout(async () => { 
           let walletType = sessionStorage.getItem("connected");
-          this.cwClient = await Client(walletType);
-          this.accounts = await Accounts(this.cwClient);
-          this.accountDisplay = this.accounts[0].address;
+          if (!walletType) this.cwClient = await Client("offline");
+          else {
+            this.cwClient = await Client(walletType);
+            this.accounts = await Accounts(this.cwClient);
+            this.accountDisplay = this.accounts[0].address;
+          }
           console.log('Home client', {cwClient: this.cwClient, accounts: this.accounts, walletType: walletType});
         }, 100);
       } catch (e) {
@@ -158,6 +165,10 @@ export default {
     },
     registration: async function (params) {
       if (!params.name || !params.expiry || !params.base_cost) return;
+      if (typeof params.name !== 'string' 
+        || typeof params.expiry !== 'number' 
+        || typeof params.base_cost !== 'number'
+      ) return;
 
       // Waiting notification
       this.notify = {
@@ -169,8 +180,8 @@ export default {
 
       this.executeResult = await Register(
         params.name,
-        params.years,
-        Number(params.base_cost),
+        params.expiry,
+        params.base_cost,
         this.cwClient
       );
       
@@ -184,6 +195,8 @@ export default {
           msg: "You registered " + params.name + ".arch",
           img: DEFAULT_TOKEN_IMG,
         };
+        ++this.updates;
+        this.$root.resolveUpdates();
       } else {
         // Error notification
         this.notify = {
@@ -199,6 +212,7 @@ export default {
       searchEl.focus();
     },
     connectHandler: function () {
+      window.scrollTo(0, 0);
       const connectEl = document.getElementById('connect_modal');
       connectEl.click();
     },

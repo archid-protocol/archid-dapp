@@ -10,7 +10,7 @@
         <p>A social social security number is how official sources identify you, but not how you introduce yourself. You do it with your name. Start using your ArchID instead of an unmemorable string to identify yourself in Archway.</p>
       </div>
     </div>
-    <div class="search" v-if="cwClient">
+    <div class="search" v-if="!isReadOnlyClient(cwClient)">
       <input 
         id="domain"
         type="text" 
@@ -22,7 +22,7 @@
       />
       <span class="domain-suffix">.arch</span>
     </div>
-    <div class="connect" v-if="!cwClient">
+    <div class="connect" v-if="isReadOnlyClient(cwClient)">
       <button class="btn btn-inverse btn-connect" @click="connectHandler();">Connect & Register domain</button>
     </div>
   </div>
@@ -30,7 +30,7 @@
     <div class="search-result inner">
       <div class="result left" v-html="search.result"></div>
       <div class="result right" v-if="config.base_cost">
-        <div class="cost" v-if="!registration.taken">{{ formatFromMicro(config.base_cost) }}<span class="icon icon-denom-alt"></span> / year</div>
+        <div class="cost" v-if="!registration.taken">{{ formatFromAtto(config.base_cost) }}<span class="icon icon-denom-alt"></span> / year</div>
         <!-- 
         XXX TODO: Implement USD price when price feeds become available
         <div class="cost-usd"></div> 
@@ -38,7 +38,7 @@
       </div>
     </div>
     <hr />
-    <div class="explainer" v-if="!registration.taken">
+    <div class="explainer" v-if="!registration.taken && !registration.expired">
       <p class="focus">This domain is who you are in Archway.</p>
       <p class="descr">.arch domains can be registered for 1, 2 or 3 years.</p>
       <p class="descr">Unlimited subdomains can be created for your applications and addresses.</p>
@@ -57,6 +57,20 @@
         <router-link class="domain-link" :to="'/domains/' + registration.taken.extension.domain">More info</router-link>
       </div>
     </div>
+    <div class="taken-domain-data" v-if="!registration.taken && registration.expired">
+      <p class="focus">The domain record for {{registration.expired.extension.domain}} is expired.</p>
+      <div class="left">
+        <p>Registration Date</p>
+        <p v-if="registration.expired.extension.created">{{ niceDate(registration.expired.extension.created) }}</p>
+      </div>
+      <div class="right">
+        <p>Expired On</p>
+        <p v-if="registration.expired.extension.expiry">{{ niceDate(registration.expired.extension.expiry) }}</p>
+      </div>
+      <div class="read-more">
+        <router-link class="domain-link" :to="'/domains/' + registration.expired.extension.domain">More info</router-link>
+      </div>
+    </div>
     <div class="mintable" v-if="!registration.taken">
       <hr />
       <div class="register-ctrl">
@@ -66,7 +80,7 @@
           <a :class="{'active': registration.expiry == 3, 'btn-3year': true}" @click="registration.expiry = 3;">3 years</a>
         </div>
         <div class="submit register">
-          <div class="cost">{{ formatFromMicro((config.base_cost * registration.expiry)) }}<span class="icon icon-denom-alt"></span></div>
+          <div class="cost">{{ formatFromAtto((config.base_cost * registration.expiry)) }}<span class="icon icon-denom-alt"></span></div>
           <button class="btn btn-primary btn-register" @click="registrationHandler();">Register</button>
         </div>
       </div>
@@ -77,8 +91,8 @@
 <script>
 import { Config } from '../../util/query';
 import { Token, Tokens, NumTokens } from '../../util/token';
-import { DateFormat } from '../../util/datetime';
-import { FromMicro } from '../../util/denom';
+import { DateFormat, IsExpired } from '../../util/datetime';
+import { FromAtto } from '../../util/denom';
 
 const LIMIT = 100;
 
@@ -91,7 +105,7 @@ export default {
   data: () => ({
     config: null,
     cw721: null,
-    tokens: null,
+    tokens: [],
     search: {
       input: null,
       result: null
@@ -100,13 +114,14 @@ export default {
       domain: null,
       expiry: 1,
       taken: false,
+      expired: false
     },
     niceDate: DateFormat,
-    formatFromMicro: FromMicro,
+    formatFromAtto: FromAtto,
     welcomeBannerBg: '/img/homebanner.svg',
   }),
   mounted: async function () {
-    if (this.$root.connected) await this.tokenIds();
+    if (this.cwClient) await this.tokenIds();
   },
   methods: {
     connectHandler: function () {
@@ -145,40 +160,55 @@ export default {
       return token;
       // console.log('Token query', this.token);
     },
-    searchWorker: function (text = null) {
+    searchWorker: async function (text = null) {
       this.registration.taken = false;
       if (!this.tokens) return '';
-      if (!this.tokens.length) return '';
       if (!text) return '';
       if (typeof text !== 'string') return '';
       let rawText = text.toLowerCase().replace(/[^a-z0-9-]/g,'');
       let searchText = rawText + '.arch';
       if (this.tokens.indexOf(searchText) >= 0) {
-        this.updateSelectedDomain(this.tokens[this.tokens.indexOf(searchText)]);
+        // Check validity of expiration
+        let token = await this.updateSelectedDomain(this.tokens[this.tokens.indexOf(searchText)]);
+        // Expired domain available
+        if (IsExpired(token.extension.expiry)) {
+          this.registration.domain = rawText;
+          this.registration.expired = token;
+          return '<span class="icon icon-available"></span><span class="search-target">' + searchText + '</span> is available';
+        }
+        // Domain unavailable
+        this.registration.taken = token;
         return '<span class="icon icon-not-available"></span><span class="search-target">' + searchText + '</span> is not available';
       } else {
+        // Domain available
         this.registration.domain = rawText;
         return '<span class="icon icon-available"></span><span class="search-target">' + searchText + '</span> is available';
       }
     },
-    searchHandler: function () {
+    searchHandler: async function () {
       this.search.result = null;
       if (!this.search.input || typeof this.search.input !== 'string') return;
       if (this.search.input.length < 3) return;
-      this.search.result = this.searchWorker(this.search.input);
+      this.search.result = await this.searchWorker(this.search.input);
     },
     updateSelectedDomain: async function (id = null) {
       if (typeof id !== 'string') return;
-      this.registration.taken = await this.tokenData(id);
-      console.log('taken', this.registration.taken);
+      let token = await this.tokenData(id);
+      console.log('updateSelectedDomain', token);
+      return token;
     },
     registrationHandler: function () {
       let registration = {
         name: this.registration.domain,
         expiry: this.registration.expiry,
-        base_cost: this.config.base_cost,
+        base_cost: Number(this.config.base_cost),
       };
       this.$emit('registration', registration);
+    },
+    isReadOnlyClient(client) {
+      if (!client) return true;
+      if (client['readOnly']) return true;
+      else return false;
     },
   },
   computed: {

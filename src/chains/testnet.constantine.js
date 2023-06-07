@@ -1,18 +1,18 @@
 export const ConstantineInfo = {
   // Chain-id of the Cosmos SDK chain.
-  chainId: "constantine-2",
+  chainId: "constantine-3",
   // The name of the chain to be displayed to the user.
   chainName: "Constantine Testnet",
   // RPC endpoint of the chain.
-  rpc: "https://rpc.constantine-2.archway.tech" ,
+  rpc: "https://rpc.constantine.archway.tech" ,
   // REST endpoint of the chain.
-  rest: "https://api.constantine-2.archway.tech",
+  rest: "https://api.constantine.archway.tech",
   // Staking coin information
   stakeCurrency: {
     // Coin denomination to be displayed to the user.
     coinDenom: "CONST",
     // Actual denom (i.e. uatom, uscrt) used by the blockchain.
-    coinMinimalDenom: "uconst",
+    coinMinimalDenom: "aconst",
     // # of decimal points to convert minimal denomination to user-facing denomination.
     coinDecimals: 6,
     // (Optional) Keplr can show the fiat value of the coin if a coingecko id is provided.
@@ -51,9 +51,9 @@ export const ConstantineInfo = {
     // Coin denomination to be displayed to the user.
     coinDenom: "CONST",
     // Actual denom (i.e. uatom, uscrt) used by the blockchain.
-    coinMinimalDenom: "uconst",
+    coinMinimalDenom: "aconst",
     // # of decimal points to convert minimal denomination to user-facing denomination.
-    coinDecimals: 6,
+    coinDecimals: 18,
     // (Optional) Keplr can show the fiat value of the coin if a coingecko id is provided.
     // You can get id from https://api.coingecko.com/api/v3/coins/list if it is listed.
     // coinGeckoId: ""
@@ -63,9 +63,9 @@ export const ConstantineInfo = {
     // Coin denomination to be displayed to the user.
     coinDenom: "CONST",
     // Actual denom (i.e. uatom, uscrt) used by the blockchain.
-    coinMinimalDenom: "uconst",
+    coinMinimalDenom: "aconst",
     // # of decimal points to convert minimal denomination to user-facing denomination.
-    coinDecimals: 6,
+    coinDecimals: 18,
     // (Optional) Keplr can show the fiat value of the coin if a coingecko id is provided.
     // You can get id from https://api.coingecko.com/api/v3/coins/list if it is listed.
     // coinGeckoId: ""

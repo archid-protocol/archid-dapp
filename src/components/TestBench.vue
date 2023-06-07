@@ -180,17 +180,17 @@
             </ol>
           </li>
 
-          <!-- UpdataUserDomainData (name, metadata_update, client = null) -->
+          <!-- UpdateUserDomainData (name, metadata_update, client = null) -->
           <li>
             <button 
-              class="btn-tx btn-updata_user_domain_data-tx" 
-              @click="executeUpdataUserDomainData();"
-              :disabled="(!params.execute.UpdataUserDomainData.name)"
-            >ExecuteMsg::UpdataUserDomainData</button>
+              class="btn-tx btn-update_user_domain_data-tx" 
+              @click="executeUpdateUserDomainData();"
+              :disabled="(!params.execute.UpdateUserDomainData.name)"
+            >ExecuteMsg::UpdateUserDomainData</button>
             <input 
               type="text" 
               class="domain-name" 
-              v-model="params.execute.UpdataUserDomainData.name" 
+              v-model="params.execute.UpdateUserDomainData.name" 
               placeholder="Domain name to be updated" 
             />
             <br />
@@ -199,18 +199,18 @@
             <ol>
               <li>
                 <button 
-                  @click="params.execute.UpdataUserDomainData.metadata_update.accounts.push({username: null, profile: null, account_type: null, verification_hash: null})"
+                  @click="params.execute.UpdateUserDomainData.metadata_update.accounts.push({username: null, profile: null, account_type: null, verification_hash: null})"
                 >Add Account</button>
                 <button 
-                  @click="params.execute.UpdataUserDomainData.metadata_update.accounts = [];"
+                  @click="params.execute.UpdateUserDomainData.metadata_update.accounts = [];"
                 >Remove Accounts</button>
               </li>
               <li>
                 <button 
-                  @click="params.execute.UpdataUserDomainData.metadata_update.websites.push({url: null, domain: null, verification_hash: null})"
+                  @click="params.execute.UpdateUserDomainData.metadata_update.websites.push({url: null, domain: null, verification_hash: null})"
                 >Add Website</button>
                 <button 
-                  @click="params.execute.UpdataUserDomainData.metadata_update.websites = [];"
+                  @click="params.execute.UpdateUserDomainData.metadata_update.websites = [];"
                 >Remove Websites</button>
               </li>
             </ol>
@@ -219,7 +219,7 @@
                 <input 
                   type="text" 
                   class="metadata-description" 
-                  v-model="params.execute.UpdataUserDomainData.metadata_update.description" 
+                  v-model="params.execute.UpdateUserDomainData.metadata_update.description" 
                   placeholder="NFT metadata description" 
                 />  
               </li>
@@ -227,19 +227,19 @@
                 <input 
                   type="text" 
                   class="metadata-image" 
-                  v-model="params.execute.UpdataUserDomainData.metadata_update.image" 
+                  v-model="params.execute.UpdateUserDomainData.metadata_update.image" 
                   placeholder="NFT metadata image URL" 
                 />
               </li>
-              <li v-for="(account, i) in params.execute.UpdataUserDomainData.metadata_update.accounts" :key="i">
-                <ol v-if="params.execute.UpdataUserDomainData.metadata_update.accounts[i]">
+              <li v-for="(account, i) in params.execute.UpdateUserDomainData.metadata_update.accounts" :key="i">
+                <ol v-if="params.execute.UpdateUserDomainData.metadata_update.accounts[i]">
                   <li>
                     <label :for="'username_'+i">Account username:</label>
                     <input 
                       type="text" 
                       class="metadata-account-username" 
                       :name="'username_'+i"
-                      v-model="params.execute.UpdataUserDomainData.metadata_update.accounts[i].username" 
+                      v-model="params.execute.UpdateUserDomainData.metadata_update.accounts[i].username" 
                       placeholder="@chainofinsight" 
                     />
                   </li>
@@ -249,7 +249,7 @@
                       type="text" 
                       class="metadata-account-profile" 
                       :name="'profile_'+i"
-                      v-model="params.execute.UpdataUserDomainData.metadata_update.accounts[i].profile" 
+                      v-model="params.execute.UpdateUserDomainData.metadata_update.accounts[i].profile" 
                       placeholder="twitter.com/chainofinsight" 
                     />
                   </li>
@@ -259,7 +259,7 @@
                       type="text" 
                       class="metadata-account-account_type" 
                       :name="'account_type_'+i"
-                      v-model="params.execute.UpdataUserDomainData.metadata_update.accounts[i].account_type" 
+                      v-model="params.execute.UpdateUserDomainData.metadata_update.accounts[i].account_type" 
                       placeholder="e.g. 'twitter', 'github', 'email', etc." 
                     />
                   </li>
@@ -269,22 +269,22 @@
                       type="text" 
                       class="metadata-account-verification_hash" 
                       :name="'verification_hash_'+i"
-                      v-model="params.execute.UpdataUserDomainData.metadata_update.accounts[i].verification_hash" 
+                      v-model="params.execute.UpdateUserDomainData.metadata_update.accounts[i].verification_hash" 
                       disabled
                     />
                   </li>
                 </ol>
               </li>
 
-              <li v-for="(site, i) in params.execute.UpdataUserDomainData.metadata_update.websites" :key="i">
-                <ol v-if="params.execute.UpdataUserDomainData.metadata_update.websites[i]">
+              <li v-for="(site, i) in params.execute.UpdateUserDomainData.metadata_update.websites" :key="i">
+                <ol v-if="params.execute.UpdateUserDomainData.metadata_update.websites[i]">
                   <li>
                     <label :for="'url_'+i">Website URL:</label>
                     <input 
                       type="text" 
                       class="metadata-website-url" 
                       :name="'url_'+i"
-                      v-model="params.execute.UpdataUserDomainData.metadata_update.websites[i].url" 
+                      v-model="params.execute.UpdateUserDomainData.metadata_update.websites[i].url" 
                       placeholder="chainofinsight.com" 
                     />
                   </li>
@@ -294,7 +294,7 @@
                       type="text" 
                       class="metadata-website-domain" 
                       :name="'domain_'+i"
-                      v-model="params.execute.UpdataUserDomainData.metadata_update.websites[i].domain" 
+                      v-model="params.execute.UpdateUserDomainData.metadata_update.websites[i].domain" 
                       placeholder="chainofinsight.arch" 
                     />
                   </li>
@@ -304,7 +304,7 @@
                       type="text" 
                       class="metadata-website-verification_hash" 
                       :name="'site_verification_hash_'+i"
-                      v-model="params.execute.UpdataUserDomainData.metadata_update.websites[i].verification_hash" 
+                      v-model="params.execute.UpdateUserDomainData.metadata_update.websites[i].verification_hash" 
                       disabled
                     />
                   </li>
@@ -433,7 +433,7 @@ import {
   RenewRegistration,
   UpdateResolver,
   RegisterSubDomain,
-  UpdataUserDomainData,
+  UpdateUserDomainData,
   UpdateConfig,
   Withdraw,
   RemoveSubDomain
@@ -476,7 +476,7 @@ export default {
           mint: "true",
           expiration: null,
         },
-        UpdataUserDomainData: {
+        UpdateUserDomainData: {
           name: null,
           metadata_update: {
             description: null,
@@ -612,23 +612,23 @@ export default {
       );
       console.log('RegisterSubDomain tx', this.result.execute);
     },
-    executeUpdataUserDomainData: async function () {
-      if (!this.params.execute.UpdataUserDomainData.name) return;
+    executeUpdateUserDomainData: async function () {
+      if (!this.params.execute.UpdateUserDomainData.name) return;
 
       let metadata_update = {
-        description: this.params.execute.UpdataUserDomainData.metadata_update.description,
-        image: this.params.execute.UpdataUserDomainData.metadata_update.image,
+        description: this.params.execute.UpdateUserDomainData.metadata_update.description,
+        image: this.params.execute.UpdateUserDomainData.metadata_update.image,
       };
 
-      if (this.params.execute.UpdataUserDomainData.metadata_update.accounts.length) metadata_update.accounts = this.params.execute.UpdataUserDomainData.metadata_update.accounts;
-      if (this.params.execute.UpdataUserDomainData.metadata_update.websites.length) metadata_update.websites = this.params.execute.UpdataUserDomainData.metadata_update.websites;
+      if (this.params.execute.UpdateUserDomainData.metadata_update.accounts.length) metadata_update.accounts = this.params.execute.UpdateUserDomainData.metadata_update.accounts;
+      if (this.params.execute.UpdateUserDomainData.metadata_update.websites.length) metadata_update.websites = this.params.execute.UpdateUserDomainData.metadata_update.websites;
 
-      this.result.execute = await UpdataUserDomainData(
-        this.params.execute.UpdataUserDomainData.name,
+      this.result.execute = await UpdateUserDomainData(
+        this.params.execute.UpdateUserDomainData.name,
         metadata_update,
         this.cwClient
       );
-      console.log('UpdataUserDomainData tx', this.result.execute);
+      console.log('UpdateUserDomainData tx', this.result.execute);
     },
     executeUpdateConfig: async function () {
       let update_config = {

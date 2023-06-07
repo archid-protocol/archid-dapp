@@ -12,6 +12,7 @@ div.logo {
     position: absolute;
     top: 58px;
     left: 8%;
+    z-index: 100;
 }
 div.user.connect {
     position: absolute;
@@ -19,6 +20,7 @@ div.user.connect {
     right: 8%;
     min-width: 500px;
     text-align: right;
+    z-index: 110;
 }
 ul.navigation {
     position: absolute;
@@ -69,6 +71,14 @@ div.loading.default {
 }
 .btn-wrapper {
     display: inline-block;
+}
+.btn-close-alt {
+    padding: 0px;
+    width: 56px;
+    height: 56px;
+    border: none;
+    border-radius: 8px;
+    filter: drop-shadow(0px 15px 54px rgba(0, 0, 0, 0.06));
 }
 .button-group {
     border-radius: 4px;
@@ -135,6 +145,10 @@ div.value {
     font-weight: 400;
     font-size: 16px;
     line-height: 150%;
+}
+.descr.offset {
+    margin-top: 1em;
+    margin-bottom: 1em;
 }
 .disabled {
     opacity: 0.5;
@@ -242,6 +256,10 @@ div.value {
     background-image: url('/img/icon-twitter.svg');
     top: 4px;
 }
+.icon-mail {
+    background-image: url('/img/icon-mail.svg');
+    top: 3px;
+}
 .icon-discord {
     background-image: url('/img/icon-discord.svg');
     top: 4px;
@@ -322,6 +340,31 @@ div.value {
     width: 24px;
     height: 24px;
 }
+.icon-info {
+    background-image: url('/img/icon-info.svg');
+    width: 24px;
+    height: 24px;
+}
+.icon-domain-history-plus, 
+.icon-domain-history-minus, 
+.icon-domain-history-metadata, 
+.icon-domain-history-transfer {
+    width: 16px;
+    height: 16px;
+    top: 1px;
+}
+.icon-domain-history-plus {
+    background-image: url('/img/icon-domain-history-plus.svg');
+}
+.icon-domain-history-minus {
+    background-image: url('/img/icon-domain-history-minus.svg');
+}
+.icon-domain-history-metadata {
+    background-image: url('/img/icon-domain-history-metadata.svg');
+}
+.icon-domain-history-transfer {
+    background-image: url('/img/icon-domain-history-transfer.svg');
+}
 
 /* Modals */
 .modal-wrapper {
@@ -362,6 +405,9 @@ div.value {
     top: -40px;
     font-size: 32px;
     font-weight: 300;
+}
+.modali .modal-header {
+    border: none;
 }
 
 /* Animations */

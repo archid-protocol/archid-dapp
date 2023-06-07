@@ -27,7 +27,7 @@ export default {
   },
   data: () => ({
     cw721: null,
-    tokens: null,
+    tokens: [],
     domains: [],
     loaded: false,
   }),

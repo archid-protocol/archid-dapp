@@ -3,14 +3,14 @@
         <div class="info-alert" v-if="type == types[0]">
           <span class="icon icon-warning"></span>
         </div>
-        <div class="rm-img" v-if="img == images.mint || img == images.burn">
+        <div :class="{'rm-img': true, 'update': img == images.update}" v-if="img == images.mint || img == images.burn || img == images.update">
           <div class="img" :style="'background-image: url(/img/' + img + ');'"></div>
         </div>
-        <div class="img" v-if="img && img !== images.mint && img !== images.burn" :style="'background-image: url(/img/' + img + ');'"></div>
+        <div class="img" v-if="img && img !== images.mint && img !== images.burn && img !== images.update" :style="'background-image: url(/img/' + img + ');'"></div>
         <div :class="type">
             <h3 class="title">{{title}}</h3>
             <p class="body" v-html="msg" v-if="type !== types[0]"></p>
-            <p class="body" v-if="type == types[0]" :title="msg" :alt="msg">{{errorFormat(msg)}}</p>
+            <p class="body" v-if="type == types[0]" :title="msg" :alt="msg" v-html="errorFormat(msg)"></p>
             <div v-if="type == types[2]" class="loading default"></div>
         </div>
         <div class="dismiss cancel">
@@ -27,6 +27,7 @@ const LOADING = TYPES[2];
 
 const MINT_IMG = 'token.svg';
 const BURN_IMG = 'token-burned.svg';
+const METADATA_IMG = 'token-update.svg';
 
 export default {
   props: {
@@ -41,6 +42,7 @@ export default {
     images: { 
       mint: MINT_IMG,
       burn: BURN_IMG,
+      update: METADATA_IMG,
     }
   }),
   mounted: async function () {
@@ -89,6 +91,11 @@ div.rm-img .img {
   margin: auto;
   position: relative;
   top: -33px;
+}
+div.rm-img.update .img {
+  width: 212px;
+  height: 175px;
+  top: -42px;
 }
 div.img {
   height: 141px;

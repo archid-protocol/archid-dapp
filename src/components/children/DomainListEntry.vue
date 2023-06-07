@@ -15,56 +15,90 @@
           <!-- Col 1; Image -->
           <div class="col img-t">
             <div class="token-img wrapper">
-              <div class="img token-img" :style="'background-image: url(' + tokenImg + ');'">
-                <div class="upload btn-upload pointer" v-if="!isReadOnly || (owner.owner == viewer)" @click="editingImg = !editingImg">
-                  <span class="icon icon-upload"></span>
+              <div class="upload btn-upload pointer" v-if="!isReadOnly && !isExpired || (owner.owner == viewer && !isExpired)" @click="modals.editingImg = !editingImg;">
+                <span class="icon icon-upload"></span>
+              </div>
+              <div :class="{'img': true, 'token-img': true, 'pointer': tokenImg !== defaultTokenImg}" :style="'background-image: url(' + tokenImg + ');'" @click="viewImgHandler();"></div>
+            </div>
+
+            <!-- Enlarge Token Image Modal -->
+            <transition name="modal">
+              <div v-if="modals.enlargeTokenImg && tokenImg !== defaultTokenImg" class="modal-wrapper">
+                <div class="modali">
+                  <div class="modal-header img-edit">
+                    <div class="close-btn-right">
+                      <button class="btn-inverse btn-close-alt" @click="modals.enlargeTokenImg = !modals.enlargeTokenImg;">
+                        <span class="close-x img-edit">&times;</span>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="modal-body img-edit">
+                    <div class="text-center">
+                      <img class="domain-img-lg img-fluid pointer" :src="tokenImg" @click="modals.enlargeTokenImg = !modals.enlargeTokenImg;" />
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="update-img" v-if="editingImg">
-              <p class="descr ipfs-or-web">Add a custom image using <a href="https://docs.ipfs.tech/concepts/content-addressing/" target="_blank">IPFS Content IDs</a>, or regular web URLs.</p>
-              <label for="token_img_type">Image Type</label>
-              <select class="metadata-token-img form-control" name="token_img_type" v-model="newImgModel.type">
-                <option value="null" disabled>Select image type</option>
-                <option value="ipfs">IPFS</option>
-                <option value="url">Web URL</option>
-              </select>
-              <div class="ipfs-images" v-if="newImgModel.type == 'ipfs'">
-                <label for="token_img">IPFS Content Identifier (CID)</label>
-                <input 
-                  type="text" 
-                  class="metadata-token-img form-control" 
-                  name="token_img"
-                  v-model="newImgModel.value"
-                  placeholder="QmYnh4B8Fp93Ax2taHJDx6XJuxJsvB4nFEDR8XxkDJekHq"
-                  @keyup="editImgHandler();"
-                />
-              </div>
-              <div class="web2-images" v-if="newImgModel.type == 'url'">
-                <label for="token_img">Image URL</label>
-                <input 
-                  type="text" 
-                  class="metadata-token-img form-control" 
-                  name="token_img"
-                  v-model="newImgModel.value"
-                  placeholder="https://archid.app/img/brand/token.png"
-                  @keyup="editImgHandler();"
-                />
-              </div>
-              <div class="img ctrl">
-                <div class="img-update btn-wrapper" v-if="newImgModel.value">
-                  <button 
-                    class="btn btn-primary btn-update-img"
-                    @click="createImgUpdate();"
-                    :disabled="newImgModel.value.length < 7"
-                  >Add Image</button>
+            </transition>
+
+            <!-- Update Image Modal -->
+            <transition name="modal">
+              <div v-if="modals.editingImg" class="modal-wrapper">
+                <div class="modalt">
+                  <div class="modal-header img-edit">
+                    <div class="left">
+                      <p class="modal-img-edit-title">Edit Image</p>
+                    </div>
+                    <div class="right">
+                      <span class="close-x img-edit" @click="modals.editingImg = !modals.editingImg;">&times;</span>
+                    </div>
+                  </div>
+                  <div class="modal-body img-edit">
+                    <div class="img-type">
+                      <div class="button-group select-img-type">
+                        <a :class="{'active': newImgModel.type == 'ipfs', 'btn-img-ipfs': true}" @click="newImgModel.type = 'ipfs'">IPFS</a>
+                        <a :class="{'active': newImgModel.type == 'url', 'btn-img-url': true}" @click="newImgModel.type = 'url'">Web URL</a>
+                      </div>
+                    </div>
+                    <div class="ipfs-images" v-if="newImgModel.type == 'ipfs'">
+                      <label class="img-edit" for="token_img">IPFS Content Identifier (CID)</label>
+                      <input 
+                        type="text" 
+                        class="metadata-token-img form-control" 
+                        name="token_img"
+                        v-model="newImgModel.value"
+                        placeholder="QmYnh4B8Fp93Ax2taHJDx6XJuxJsvB4nFEDR8XxkDJekHq"
+                        @keyup="editImgHandler();"
+                      />
+                    </div>
+                    <div class="web2-images" v-if="newImgModel.type == 'url'">
+                      <label class="img-edit" for="token_img">Image URL</label>
+                      <input 
+                        type="text" 
+                        class="metadata-token-img form-control" 
+                        name="token_img"
+                        v-model="newImgModel.value"
+                        placeholder="https://archid.app/img/brand/token.png"
+                        @keyup="editImgHandler();"
+                      />
+                    </div>
+                  </div>
+                  <div class="modal-footer subdomain">
+                    <div class="img-update btn-wrapper full-width" v-if="newImgModel.value">
+                      <button 
+                        class="btn btn-inverse btn-update-img float-left"
+                        @click="cancelEditImgHandler();"
+                      >Cancel</button>
+                      <button 
+                        class="btn btn-primary btn-update-img float-right"
+                        @click="createImgUpdate();"
+                        :disabled="newImgModel.value.length < 7"
+                      >Update</button>
+                    </div>
+                  </div>
                 </div>
-                <button 
-                  class="btn btn-inverse btn-update-img"
-                  @click="cancelEditImgHandler();"
-                >Cancel</button>
               </div>
-            </div>
+            </transition>
           </div>
           <!-- Col 2; Description, Expiry, Extend -->
           <div class="col">
@@ -91,7 +125,8 @@
             </div>
             <!-- Btn. Extend -->
             <div class="ctrl" v-if="!isSubdomain && owner">
-              <button class="btn btn-inverse" @click="modals.renew = !modals.renew" v-if="owner.owner == viewer">Extend</button>
+              <button class="btn btn-inverse" @click="modals.renew = !modals.renew" v-if="owner.owner == viewer && !isExpired">Extend</button>
+              <button class="btn btn-inverse" @click="modals.renew = !modals.renew" v-if="owner.owner == viewer && isExpired">Renew</button>
             </div>
           </div>
           <!-- Col 3; Owner, Domain Record -->
@@ -111,7 +146,7 @@
                   :class="{'domain-resolver': true, 'value': true, 'configurable': owner.owner == viewer}"
                   @click="editDomainRecordHandler();"
                   v-if="!editingResolver || (owner.owner !== viewer)"
-                >{{domainRecord.address}}</div>
+                >{{(domainRecord.address) ? domainRecord.address : 'Expired'}}</div>
                 <div class="input-group domain-record" v-if="editingResolver && owner.owner == viewer">
                   <input 
                     type="text" 
@@ -134,7 +169,7 @@
         </div>
 
         <!-- Identities -->
-        <div class="row id-row" v-if="!isSubdomain && owner">
+        <div class="row id-row" v-if="!isSubdomain && owner && !isExpired">
           <!-- Accounts -->
           <div class="col accounts clear" v-if="viewer == owner.owner || token.extension.accounts.length">
             <div class="title accounts-title row">
@@ -151,7 +186,7 @@
                 <div class="left">
                   <a :href="account.profile" target="_blank" v-if="account.account_type == accountLabels.github"><span class="icon icon-github"></span>GitHub</a>
                   <a :href="account.profile" target="_blank" v-if="account.account_type == accountLabels.twitter"><span class="icon icon-twitter"></span>{{account.account_type}}</a>
-                  <a :href="'mailto:'+account.username" v-if="account.account_type == accountLabels.email">{{account.account_type}}</a>
+                  <a :href="'mailto:'+account.username" v-if="account.account_type == accountLabels.email"><span class="icon icon-mail"></span>{{account.account_type}}</a>
                 </div>
                 <div class="right" v-if="ui.accounts[i]">
                   <div :class="{'caret': true, 'active': ui.accounts[i].open}" @click="ui.accounts[i].open = !ui.accounts[i].open">&caron;</div>
@@ -178,8 +213,9 @@
               <!-- Accounts to be added -->
               <div class="account-item item" v-for="(account, i) in newDomainItems.accounts" :key="i+'-new-accounts'">
                 <div class="left">
-                  <a :href="account.profile" target="_blank" v-if="account.account_type !== accountLabels.email">{{account.account_type}}</a>
-                  <a :href="'mailto:'+account.username" v-if="account.account_type == accountLabels.email">{{account.account_type}}</a>
+                  <a :href="account.profile" target="_blank" v-if="account.account_type == accountLabels.github"><span class="icon icon-github"></span>GitHub</a>
+                  <a :href="account.profile" target="_blank" v-if="account.account_type == accountLabels.twitter"><span class="icon icon-twitter"></span>Twitter</a>
+                  <a :href="'mailto:'+account.username" v-if="account.account_type == accountLabels.email"><span class="icon icon-mail"></span>{{account.account_type}}</a>
                 </div>
                 <div class="right">
                   <div :class="{'caret': true, 'active': ui.newAccounts[i].open}" v-if="ui.newAccounts[i]" @click="ui.newAccounts[i].open = !ui.newAccounts[i].open">&caron;</div>
@@ -274,7 +310,7 @@
                 <button 
                   class="btn btn-primary full-width" 
                   @click="addAccount();" 
-                  :disabled="!newAccountModel.account_type || !newAccountModel.username || (!newAccountModel.profile && newAccountModel.account_type !== accountLabels.email)"
+                  :disabled="newAccountIsNotWellFormed()"
                 >Create</button>
               </div>
             </div>
@@ -542,14 +578,18 @@
   >
   </Notification>
 
-  <!-- Extend Domain Modal -->
+  <!-- Extend / Renew Domain Modal -->
   <transition name="modal">
     <div v-if="modals.renew" class="modal-wrapper">
       <div class="modalt">
         <div class="modal-header">
-          <div class="left">
+          <div class="left" v-if="!isExpired">
             <p class="modal-extend-title">Extend <span class="modal-title modal-domain-title" v-if="domain">{{domain}}</span></p>
             <p class="modal-descr">How long would you like to extend the domain life time?</p>
+          </div>
+          <div class="left" v-if="isExpired">
+            <p class="modal-extend-title">Renewing <span class="modal-title modal-domain-title" v-if="domain">{{domain}}</span></p>
+            <p class="modal-descr" v-if="domain">Renew {{domain}} for how many years?</p>
           </div>
           <div class="right">
             <span class="close-x extend" @click="modals.renew = !modals.renew;">&times;</span>
@@ -564,7 +604,7 @@
             </div>
           </div>
           <div class="right">
-            <span class="cost" v-if="baseCost && updates.expiry">{{ formatFromMicro((baseCost * updates.expiry)) }}</span>
+            <span class="cost" v-if="baseCost && updates.expiry">{{ formatFromAtto((baseCost * updates.expiry)) }}</span>
             <span class="icon icon-denom"></span>
           </div>
         </div>
@@ -582,15 +622,16 @@ import { Accounts } from '../../util/client';
 import { ResolveRecord } from '../../util/query';
 import { Token, OwnerOf } from '../../util/token';
 import {
+  Register,
   RenewRegistration,
   UpdateResolver,
-  RegisterSubDomain,
-  UpdataUserDomainData,
-  RemoveSubDomain,
+  RegisterSubdomain,
+  UpdateUserDomainData,
+  RemoveSubdomain,
 } from '../../util/execute';
 
 import { DateFormat } from '../../util/datetime';
-import { FromMicro } from '../../util/denom';
+import { FromAtto } from '../../util/denom';
 
 import Notification from './Notification.vue'
 
@@ -606,6 +647,7 @@ const URL_PREFIXES = ['http://', 'https://'];
 const EXTEND_IMG = 'extend.svg';
 const REMOVED_IMG = 'token-burned.svg';
 const DEFAULT_TOKEN_IMG = 'token.svg';
+const METADATA_UPDATE_IMAGE = 'token-update.svg';
 
 export default {
   props: {
@@ -617,11 +659,13 @@ export default {
     baseCost: Number,
     collapsible: Boolean,
   },
+  emits: ['dataResolution'],
   components: { Notification },
   data: () => ({
     token: null,
     owner: null,
     viewer: null,
+    isExpired: null,
     editing: false,
     editingText: false,
     editingDescr: false,
@@ -688,6 +732,8 @@ export default {
     modals: {
       renew: false,
       removeSubdomain: false,
+      enlargeTokenImg: false,
+      editingImg: false,
     },
     notify: {
       type: null,
@@ -696,8 +742,9 @@ export default {
       img: null,
     },
     closed: true,
+    defaultTokenImg: '/img/' + DEFAULT_TOKEN_IMG,
     niceDate: DateFormat,
-    formatFromMicro: FromMicro,
+    formatFromAtto: FromAtto,
   }),
   mounted: async function () {
     if (!this.collapsible) await this.domainDetails();
@@ -710,18 +757,31 @@ export default {
       this.closed = !this.closed;
     },
     dataResolutionHandler: async function (force = false) {
+      let viewer = [];
       if (this.token && this.owner && this.domainRecord && this.viewer && !force) return;
+      // Reset editing states
       this.editingDescr = false;
       this.editing = false;
       this.editingText = false;
       this.editingResolver = false;
       this.updatingImg = false;
-      let viewer;
+      // Reset creation forms
+      this.creating = { account: false, subdomain: false, website: false };
+      this.newAccountModel = { account_type: null, profile: null, username: null, verfication_hash: null };
+      this.newWebsiteModel = { url: null, domain: null, verfication_hash: null };
+      this.newSubdomainModel = { domain: null, subdomain: null, new_resolver: null, new_owner: null, mint: null, expiration: null };
+      this.newImgModel = { type: null, url: null, value: null };
+      this.newDomainItems = { accounts: [], subdomains: [], websites: [] };
+      // Resolve data
       await this.tokenData();
       await this.ownerData();
       await this.resolveDomainRecord();
       if (this.cwClient) viewer = await Accounts(this.cwClient);
       if (viewer.length) this.viewer = viewer[0].address;
+      if (force) {
+        this.$emit('dataResolution', true);
+        this.$root.resolveUpdates();
+      }
     },
     tokenData: async function () {
       if (!this.domain || typeof this.domain !== 'string') return;
@@ -759,19 +819,22 @@ export default {
         this.domain,
         this.cwClient
       );
+      if (!this.domainRecord.address) this.isExpired = true;
+      else this.isExpired = false;
       console.log('ResolveRecord query', this.domainRecord);
     },
     editDescriptionHandler: function () {
-      if (!this.owner || !this.viewer) return;
+      if (!this.owner || !this.viewer || this.isExpired) return;
       if (this.owner.owner !== this.viewer) return;
       this.editingText = !this.editingText;
     },
     editDomainRecordHandler: function () {
-      if (!this.owner || !this.viewer) return;
+      if (!this.owner || !this.viewer || this.isExpired) return;
       if (this.owner.owner !== this.viewer) return;
       this.editingResolver = !this.editingResolver;
     },
     editImgHandler: function () {
+      if (this.isExpired) return;
       if (this.newImgModel.value !== this.updates.metadata.image) this.editingImg = true;
     },
     cancelEditImgHandler: function () {
@@ -781,6 +844,12 @@ export default {
         value: null,
       };
       this.editingImg = false;
+      this.modals.editingImg = false;
+    },
+    viewImgHandler: function () {
+      if (!this.updates.metadata) return;
+      else if (!this.updates.metadata['image']) return;
+      this.modals.enlargeTokenImg = !this.modals.enlargeTokenImg;
     },
     createImgUpdate: function () {
       if (!this.newImgModel.value || typeof this.newImgModel.value !== 'string') return;
@@ -793,6 +862,7 @@ export default {
       this.updates.metadata.image = imgUpdate;
       this.editingImg = false;
       this.updatingImg = true;
+      this.modals.editingImg = false;
     },
     addAccount: function () {
       if (
@@ -855,6 +925,29 @@ export default {
       subdomain.mint = true;
       subdomain.expiration = this.updates.metadata.expiry;
       await this.executeRegisterSubdomain(subdomain);
+    },
+    newAccountIsNotWellFormed: function () {
+      if (!this.newAccountModel.account_type) return true;
+      if (!this.newAccountModel.username) return true;
+      if (this.newAccountModel.account_type !== this.accountLabels.email) {
+        if (!this.newAccountModel.profile) return true;
+      }
+      switch(this.newAccountModel.account_type) {
+        case this.accountLabels.github: {
+          if (this.newAccountModel.profile.indexOf('github.com/') < 0) return true;
+          break;
+        }
+        case this.accountLabels.twitter: {
+          if (this.newAccountModel.profile.indexOf('twitter.com/') < 0) return true;
+          if (this.newAccountModel.username.charAt(0) !== '@') return true;
+          break;
+        }
+        case this.accountLabels.email: {
+          if (this.newAccountModel.username.indexOf('@') < 0) return true;
+          break;
+        }
+      }
+      return false;
     },
     removeAccount: function (index) {
       if (typeof index !== 'number') return;
@@ -921,19 +1014,33 @@ export default {
       this.resetFormIters();
       let cost = this.baseCost * this.updates.expiry;
       let domain = this.domain.slice(0,-5);
-      this.executeResult = await RenewRegistration(
-        domain,
-        this.updates.expiry,
-        cost,
-        this.cwClient
-      );
+
+      let title;
+      if (!this.isExpired) {
+        this.executeResult = await RenewRegistration(
+          domain,
+          this.updates.expiry,
+          cost,
+          this.cwClient
+        );
+        title = "Your domain was extended";
+      } else {
+        this.executeResult = await Register(
+          domain,
+          this.updates.expiry,
+          this.baseCost,
+          this.cwClient
+        );
+        title = "Your domain was renewed";
+      }
+
       this.modals.renew = false;
       console.log('RenewRegistration tx', this.executeResult);
 
       if (!this.executeResult['error']) {
         this.notify = {
           type: "success",
-          title: "Your domain was extended",
+          title: title,
           msg: "Everyone will continue to reach your selected address through your Archway domain.",
           img: EXTEND_IMG,
         };
@@ -967,20 +1074,20 @@ export default {
 
       // Do update metadata
       let domain = this.domain.slice(0,-5);
-      this.executeResult = await UpdataUserDomainData(
+      this.executeResult = await UpdateUserDomainData(
         domain,
         this.updates.metadata,
         this.cwClient
       );
-      console.log('UpdataUserDomainData tx', this.executeResult);
+      console.log('UpdateUserDomainData tx', this.executeResult);
 
       if (!this.executeResult['error']) {
         // Success notification
         this.notify = {
           type: "success",
-          title: "Update complete",
-          msg: "Data for " + this.domain + " has been updated",
-          img: DEFAULT_TOKEN_IMG,
+          title: "Metadata updated!",
+          msg: this.domain + " has been updated. Your updates should be visible to everyone, everywhere soon.",
+          img: METADATA_UPDATE_IMAGE,
         };
         // Refresh domain
         await this.dataResolutionHandler(true);
@@ -1047,7 +1154,7 @@ export default {
         img: null,
       };
 
-      this.executeResult = await RegisterSubDomain(
+      this.executeResult = await RegisterSubdomain(
         subdomain.domain,
         subdomain.subdomain,
         subdomain.new_resolver,
@@ -1056,7 +1163,7 @@ export default {
         subdomain.expiration,
         this.cwClient
       );
-      console.log('RegisterSubDomain tx', this.executeResult);
+      console.log('RegisterSubdomain tx', this.executeResult);
 
       if (!this.executeResult['error']) {
         // Success notification
@@ -1092,12 +1199,12 @@ export default {
       };
 
       let domain = this.domain.slice(0,-5);
-      this.executeResult = await RemoveSubDomain(
+      this.executeResult = await RemoveSubdomain(
         domain,
         subdomain.name,
         this.cwClient
       );
-      console.log('RemoveSubDomain tx', this.executeResult);
+      console.log('RemoveSubdomain tx', this.executeResult);
 
       if (!this.executeResult['error']) {
         // Success notification
@@ -1148,8 +1255,8 @@ export default {
   },
   computed: {
     tokenImg: function () {
-      if (!this.updates.metadata) return '/img/' + DEFAULT_TOKEN_IMG;
-      else if (!this.updates.metadata['image']) return '/img/' + DEFAULT_TOKEN_IMG;
+      if (!this.updates.metadata) return this.defaultTokenImg;
+      else if (!this.updates.metadata['image']) return this.defaultTokenImg;
       let img = (this.updates.metadata.image.substr(0,7) == IPFS_CID_PREFIX) ? this.updates.metadata.image.replace(IPFS_CID_PREFIX, IPFS_GATEWAY_PREFIX) : this.updates.metadata.image;
       return img;
     },
@@ -1215,7 +1322,8 @@ div.add {
 }
 .add span {
   position: relative;
-  top: -4px;
+  bottom: 4px;
+  left: 3px;
 }
 div.item {
   background-color: #fff;
@@ -1349,10 +1457,11 @@ div.upload.btn-upload {
   padding: 12px;
   background: #FFFFFF;
   border-radius: 8px;
-  display: inline-block;
+  display: block;
   float: right;
   position: relative;
-  top: -14px;
+  top: -5px;
+  z-index: 250;
 }
 .icon.icon-upload {
   margin: 3px;
@@ -1393,6 +1502,9 @@ div.remove-subdomain-input {
 }
 .metadata-token-img.form-control {
   margin-bottom: 1em;
+  height: 56px;
+  background: #F2EFED;
+  border-radius: 8px;
 }
 .img-update.btn-wrapper {
   margin-right: 1em;
@@ -1411,5 +1523,42 @@ div.accounts-title, div.websites-title, div.subdomains-title {
 }
 div.col.accounts, div.col.websites, div.col.subdomains {
   margin-top: 1em;
+}
+.button-group.select-img-type {
+  width: 100%;
+  height: 50px;
+  margin-bottom: 2em;
+  padding: 0;
+}
+.button-group.select-img-type a {
+  width: 45%;
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
+}
+label.img-edit {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 150%;
+  align-items: center;
+  letter-spacing: -0.01em;
+  color: #666666;
+  margin-bottom: 12px;
+}
+.close-btn-right {
+  width: 100%;
+}
+.btn-close-alt {
+  font-size: 21px;
+  font-weight: 300;
+  left: 95%;
+  position: relative;
+}
+.domain-img-lg {
+  margin-top: 4em;
+  padding: 0px;
+  gap: 16px;
+  border-radius: 8px;
 }
 </style>

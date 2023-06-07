@@ -186,11 +186,62 @@ async function OwnerOf (tokenId = null, contract = null, client = null) {
   }
 }
 
+/**
+ * Private parsing function for tx filter args.
+ * @param { String } oneLiner : Tx filter arguments; e.g. `wasm._contract_address=${contract}&wasm.token_id=${tokenId}`
+ * @returns { Object } : { key, value } kv pairs
+ */
+function _makeTags(oneLiner)  {
+  return oneLiner.split("&").map((pair) => {
+    if (pair.indexOf("=") === -1) throw new Error("Parsing error: Equal sign missing");
+    const parts = pair.split("=");
+    if (parts.length > 2) {
+      throw new Error(
+        "Parsing error: multiple equal signs found.",
+      );
+    }
+    const [key, value] = parts;
+    if (!key) throw new Error("Parsing error: key must not be empty");
+    return { key, value };
+  });
+}
+
+/**
+ * Load token transaction history from token contract for a valid token ID
+ * @param {String} tokenId : The domain name / token ID to be fetched
+ * @param {String} contract? : (Optional) contract address string for token contract
+ * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
+ * @returns {QueryResult}
+ */
+async function HistoryOf(tokenId = null, contract = null, client = null) {
+  if (!client) client = await Client();
+  if (!tokenId || typeof tokenId !== 'string') {
+    console.warn('Invalid token ID ' + typeof tokenId);
+    return {};
+  }
+
+  try {
+    if (!contract || typeof contract !== "string") {
+      let cw721Query = await Config(client);
+      contract = cw721Query.cw721;
+    }
+
+    let historyQuery = await client.wasmClient.searchTx({
+      tags: _makeTags(`wasm._contract_address=${contract}&wasm.token_id=${tokenId}`),
+    });
+
+    return historyQuery;
+  } catch(e) {
+    console.error(e);
+    return {};
+  }
+}
 
 export {
   NumTokens,
   Tokens,
   TokensOf,
   Token,
-  OwnerOf
+  OwnerOf,
+  HistoryOf,
 }
