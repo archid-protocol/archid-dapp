@@ -665,8 +665,8 @@ export default {
     token: null,
     owner: null,
     viewer: null,
+    isExpired: null,
     editing: false,
-    isExpired: false,
     editingText: false,
     editingDescr: false,
     editingResolver: false,
@@ -820,6 +820,7 @@ export default {
         this.cwClient
       );
       if (!this.domainRecord.address) this.isExpired = true;
+      else this.isExpired = false;
       console.log('ResolveRecord query', this.domainRecord);
     },
     editDescriptionHandler: function () {
@@ -1004,7 +1005,7 @@ export default {
         this.executeResult = await Register(
           domain,
           this.updates.expiry,
-          cost,
+          this.baseCost,
           this.cwClient
         );
         title = "Your domain was renewed";

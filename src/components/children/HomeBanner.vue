@@ -38,7 +38,7 @@
       </div>
     </div>
     <hr />
-    <div class="explainer" v-if="!registration.taken">
+    <div class="explainer" v-if="!registration.taken && !registration.expired">
       <p class="focus">This domain is who you are in Archway.</p>
       <p class="descr">.arch domains can be registered for 1, 2 or 3 years.</p>
       <p class="descr">Unlimited subdomains can be created for your applications and addresses.</p>
@@ -55,6 +55,20 @@
       </div>
       <div class="read-more">
         <router-link class="domain-link" :to="'/domains/' + registration.taken.extension.domain">More info</router-link>
+      </div>
+    </div>
+    <div class="taken-domain-data" v-if="!registration.taken && registration.expired">
+      <p class="focus">The domain record for {{registration.expired.extension.domain}} is expired.</p>
+      <div class="left">
+        <p>Registration Date</p>
+        <p v-if="registration.expired.extension.created">{{ niceDate(registration.expired.extension.created) }}</p>
+      </div>
+      <div class="right">
+        <p>Expired On</p>
+        <p v-if="registration.expired.extension.expiry">{{ niceDate(registration.expired.extension.expiry) }}</p>
+      </div>
+      <div class="read-more">
+        <router-link class="domain-link" :to="'/domains/' + registration.expired.extension.domain">More info</router-link>
       </div>
     </div>
     <div class="mintable" v-if="!registration.taken">
@@ -77,7 +91,7 @@
 <script>
 import { Config } from '../../util/query';
 import { Token, Tokens, NumTokens } from '../../util/token';
-import { DateFormat } from '../../util/datetime';
+import { DateFormat, IsExpired } from '../../util/datetime';
 import { FromAtto } from '../../util/denom';
 
 const LIMIT = 100;
@@ -100,6 +114,7 @@ export default {
       domain: null,
       expiry: 1,
       taken: false,
+      expired: false
     },
     niceDate: DateFormat,
     formatFromAtto: FromAtto,
@@ -145,7 +160,7 @@ export default {
       return token;
       // console.log('Token query', this.token);
     },
-    searchWorker: function (text = null) {
+    searchWorker: async function (text = null) {
       this.registration.taken = false;
       if (!this.tokens) return '';
       if (!text) return '';
@@ -153,29 +168,40 @@ export default {
       let rawText = text.toLowerCase().replace(/[^a-z0-9-]/g,'');
       let searchText = rawText + '.arch';
       if (this.tokens.indexOf(searchText) >= 0) {
-        this.updateSelectedDomain(this.tokens[this.tokens.indexOf(searchText)]);
+        // Check validity of expiration
+        let token = await this.updateSelectedDomain(this.tokens[this.tokens.indexOf(searchText)]);
+        // Expired domain available
+        if (IsExpired(token.extension.expiry)) {
+          this.registration.domain = rawText;
+          this.registration.expired = token;
+          return '<span class="icon icon-available"></span><span class="search-target">' + searchText + '</span> is available';
+        }
+        // Domain unavailable
+        this.registration.taken = token;
         return '<span class="icon icon-not-available"></span><span class="search-target">' + searchText + '</span> is not available';
       } else {
+        // Domain available
         this.registration.domain = rawText;
         return '<span class="icon icon-available"></span><span class="search-target">' + searchText + '</span> is available';
       }
     },
-    searchHandler: function () {
+    searchHandler: async function () {
       this.search.result = null;
       if (!this.search.input || typeof this.search.input !== 'string') return;
       if (this.search.input.length < 3) return;
-      this.search.result = this.searchWorker(this.search.input);
+      this.search.result = await this.searchWorker(this.search.input);
     },
     updateSelectedDomain: async function (id = null) {
       if (typeof id !== 'string') return;
-      this.registration.taken = await this.tokenData(id);
-      console.log('taken', this.registration.taken);
+      let token = await this.tokenData(id);
+      console.log('updateSelectedDomain', token);
+      return token;
     },
     registrationHandler: function () {
       let registration = {
         name: this.registration.domain,
         expiry: this.registration.expiry,
-        base_cost: this.config.base_cost,
+        base_cost: Number(this.config.base_cost),
       };
       this.$emit('registration', registration);
     },

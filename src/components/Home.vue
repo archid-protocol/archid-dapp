@@ -165,6 +165,10 @@ export default {
     },
     registration: async function (params) {
       if (!params.name || !params.expiry || !params.base_cost) return;
+      if (typeof params.name !== 'string' 
+        || typeof params.expiry !== 'number' 
+        || typeof params.base_cost !== 'number'
+      ) return;
 
       // Waiting notification
       this.notify = {
@@ -176,8 +180,8 @@ export default {
 
       this.executeResult = await Register(
         params.name,
-        params.years,
-        Number(params.base_cost),
+        params.expiry,
+        params.base_cost,
         this.cwClient
       );
       
