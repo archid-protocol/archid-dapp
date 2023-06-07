@@ -310,7 +310,7 @@
                 <button 
                   class="btn btn-primary full-width" 
                   @click="addAccount();" 
-                  :disabled="!newAccountModel.account_type || !newAccountModel.username || (!newAccountModel.profile && newAccountModel.account_type !== accountLabels.email) || (newAccountModel.profile.indexOf('github.com/') < 0 && newAccountModel.account_type == accountLabels.github) || (newAccountModel.profile.indexOf('twitter.com/') < 0 && newAccountModel.account_type == accountLabels.twitter) || (newAccountModel.account_type == accountLabels.twitter && newAccountModel.username.charAt(0) !== '@')"
+                  :disabled="newAccountIsNotWellFormed()"
                 >Create</button>
               </div>
             </div>
@@ -925,6 +925,29 @@ export default {
       subdomain.mint = true;
       subdomain.expiration = this.updates.metadata.expiry;
       await this.executeRegisterSubdomain(subdomain);
+    },
+    newAccountIsNotWellFormed: function () {
+      if (!this.newAccountModel.account_type) return true;
+      if (!this.newAccountModel.username) return true;
+      if (this.newAccountModel.account_type !== this.accountLabels.email) {
+        if (!this.newAccountModel.profile) return true;
+      }
+      switch(this.newAccountModel.account_type) {
+        case this.accountLabels.github: {
+          if (this.newAccountModel.profile.indexOf('github.com/') < 0) return true;
+          break;
+        }
+        case this.accountLabels.twitter: {
+          if (this.newAccountModel.profile.indexOf('twitter.com/') < 0) return true;
+          if (this.newAccountModel.username.charAt(0) !== '@') return true;
+          break;
+        }
+        case this.accountLabels.email: {
+          if (this.newAccountModel.username.indexOf('@') < 0) return true;
+          break;
+        }
+      }
+      return false;
     },
     removeAccount: function (index) {
       if (typeof index !== 'number') return;
