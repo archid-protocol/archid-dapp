@@ -134,6 +134,8 @@
     /* DOMAIN */
     .domain-banner .wrapper .domain-banner-i {
         border-radius: unset !important;
+        margin-left: -1px;
+        margin-right: -1px;
     }
     div.page .token-metadata, div.page .domain-history {
         margin-left: 0.5em;
