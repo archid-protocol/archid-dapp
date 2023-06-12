@@ -64,7 +64,7 @@ import * as Paging from '../util/pagination';
 import DomainsBanner from './children/DomainsBanner.vue';
 import DomainListEntry from './children/DomainListEntry.vue';
 
-const LIMIT = 100;
+const LIMIT = 500;
 
 export default {
   name: 'Domains',

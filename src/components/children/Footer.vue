@@ -56,11 +56,11 @@
         </div>
       </div>
     </div>
-    <div class="row">
-      <div class="col">
+    <div class="row attribute">
+      <div class="col archid">
         <div class="bottom">&#169; Archid {{ year }}</div>
       </div>
-      <div class="col">
+      <div class="col privacy">
         <div class="bottom"><a href="#">Privacy Policy</a></div>
       </div>
       <div class="col"></div>
