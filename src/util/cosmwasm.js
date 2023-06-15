@@ -23,7 +23,7 @@ async function cosmostationClient() {
   await window.cosmostation.providers.keplr.enable(Blockchain.chainId);
 
   // Default options
-  window.providers.keplr.defaultOptions = {
+  window.cosmostation.providers.keplr.defaultOptions = {
     sign: {
       preferNoSetFee: true,
     }
