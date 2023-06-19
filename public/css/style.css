@@ -330,6 +330,12 @@ div.value {
     height: 24px;
     top: 6px;
 }
+.icon-archx {
+    background-image: url('/img/icon-archx.svg');
+    width: 24px;
+    height: 24px;
+    top: 6px;
+}
 .icon-upload {
     background-image: url('/img/icon-upload.svg');
     width: 16px;
