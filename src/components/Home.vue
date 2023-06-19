@@ -11,14 +11,14 @@
       </HomeBanner>
     </div>
     <!-- Recent Domains -->
-    <div class="recent-domains-component" v-if="cwClient">
+    <!-- <div class="recent-domains-component" v-if="cwClient">
       <RecentDomains
         v-bind:cwClient="cwClient"
         v-bind:size="32"
         :key="'recent_'+updates"
       >
       </RecentDomains>
-    </div>
+    </div> -->
 
     <!-- Home Page Content -->
     <div class="home content content-1">
@@ -104,14 +104,15 @@ import { Client, Accounts } from '../util/client';
 import { Register } from '../util/execute';
 
 import HomeBanner from './children/HomeBanner.vue';
-import RecentDomains from './children/RecentDomains.vue';
+// import RecentDomains from './children/RecentDomains.vue';
 import Notification from './children/Notification.vue';
 
 const DEFAULT_TOKEN_IMG = 'token.svg';
 
 export default {
   name: 'Home',
-  components: { HomeBanner, RecentDomains, Notification },
+  // components: { HomeBanner, RecentDomains, Notification },
+  components: { HomeBanner, Notification },
   data: () => ({
     cwClient: null,
     cw721: null,
@@ -149,7 +150,7 @@ export default {
             this.accounts = await Accounts(this.cwClient);
             this.accountDisplay = this.accounts[0].address;
           }
-          console.log('Home client', {cwClient: this.cwClient, accounts: this.accounts, walletType: walletType});
+          // console.log('Home client', {cwClient: this.cwClient, accounts: this.accounts, walletType: walletType});
         }, 100);
       } catch (e) {
         await this.resumeConnectedState((attempts + 1));
@@ -185,7 +186,7 @@ export default {
         this.cwClient
       );
       
-      console.log('Register tx', this.executeResult);
+      // console.log('Register tx', this.executeResult);
 
       if (!this.executeResult['error']) {
         // Success notification

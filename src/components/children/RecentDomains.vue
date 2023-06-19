@@ -60,7 +60,7 @@ export default {
         let query = await Tokens(this.cw721, this.cwClient);
         this.tokens = (query['tokens']) ? query.tokens : [];
       }
-      console.log('Tokens query', this.tokens);
+      // console.log('Tokens query', this.tokens);
     },
     tokenData: async function (id = null) {
       if (!id || typeof id !== 'string') return;
@@ -111,7 +111,10 @@ export default {
     recentDomains: function () {
       if (!this.domains || !this.size) return [];
       if (!Array.isArray(this.domains)) return [];
-      let sortedDomains = this.domains.slice(0).sort((a,b) => (b.extension.created - a.extension.created));
+      let sortedDomains = this.domains.slice(0).sort((a,b) => {
+        if (!a['extension'] || !b['extension']) return false;
+        else return b.extension.created - a.extension.created;
+      });
       return sortedDomains.slice(0, this.size);
     },
   }

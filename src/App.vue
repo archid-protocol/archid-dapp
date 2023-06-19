@@ -216,7 +216,7 @@ export default {
         console.error(e);
       }
       this.render += 1;
-      console.log('App', {cwClient: this.cwClient, accounts: this.accounts, walletType: this.walletType});
+      // console.log('App', {cwClient: this.cwClient, accounts: this.accounts, walletType: this.walletType});
     },
     resumeConnectedState: async function (attempts = 0) {
       if (attempts >= 5) {
@@ -228,7 +228,7 @@ export default {
           let walletType = sessionStorage.getItem("connected");
           this.cwClient = await Client(walletType);
           this.accounts = await Accounts(this.cwClient);
-          console.log('App', {cwClient: this.cwClient, accounts: this.accounts, walletType: walletType});
+          // console.log('App', {cwClient: this.cwClient, accounts: this.accounts, walletType: walletType});
         }, 100);
       } catch (e) {
         await this.resumeConnectedState((attempts + 1));
@@ -261,7 +261,7 @@ export default {
         if (!accounts[0].address) return;
         this.accounts = accounts;
       } catch(e) {
-        console.log('Error resolving wallet balance', e);
+        console.error('Error resolving wallet balance', e);
       }
     },
     accountDisplayFormat: function (account = null) {

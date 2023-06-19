@@ -806,12 +806,12 @@ export default {
           this.ui.subdomains.push({open: false});
         }
       }
-      console.log('Token query', this.token);
+      // console.log('Token query', this.token);
     },
     ownerData: async function () {
       if (!this.domain || typeof this.domain !== 'string') return;
       this.owner = await OwnerOf(this.domain, this.cw721, this.cwClient);
-      console.log('Token owner query', this.owner);
+      // console.log('Token owner query', this.owner);
     },
     resolveDomainRecord: async function () {
       if (!this.domain || typeof this.domain !== 'string') return;
@@ -821,7 +821,7 @@ export default {
       );
       if (!this.domainRecord.address) this.isExpired = true;
       else this.isExpired = false;
-      console.log('ResolveRecord query', this.domainRecord);
+      // console.log('ResolveRecord query', this.domainRecord);
     },
     editDescriptionHandler: function () {
       if (!this.owner || !this.viewer || this.isExpired) return;
@@ -1035,7 +1035,7 @@ export default {
       }
 
       this.modals.renew = false;
-      console.log('RenewRegistration tx', this.executeResult);
+      // console.log('RenewRegistration tx', this.executeResult);
 
       if (!this.executeResult['error']) {
         this.notify = {
@@ -1079,7 +1079,7 @@ export default {
         this.updates.metadata,
         this.cwClient
       );
-      console.log('UpdateUserDomainData tx', this.executeResult);
+      // console.log('UpdateUserDomainData tx', this.executeResult);
 
       if (!this.executeResult['error']) {
         // Success notification
@@ -1119,7 +1119,7 @@ export default {
         this.updates.resolver,
         this.cwClient
       );
-      console.log('UpdateResolver tx', this.executeResult);
+      // console.log('UpdateResolver tx', this.executeResult);
 
       if (!this.executeResult['error']) {
         // Success notification
@@ -1163,7 +1163,7 @@ export default {
         subdomain.expiration,
         this.cwClient
       );
-      console.log('RegisterSubdomain tx', this.executeResult);
+      // console.log('RegisterSubdomain tx', this.executeResult);
 
       if (!this.executeResult['error']) {
         // Success notification
@@ -1204,7 +1204,7 @@ export default {
         subdomain.name,
         this.cwClient
       );
-      console.log('RemoveSubdomain tx', this.executeResult);
+      // console.log('RemoveSubdomain tx', this.executeResult);
 
       if (!this.executeResult['error']) {
         // Success notification

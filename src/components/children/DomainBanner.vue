@@ -28,7 +28,7 @@ export default {
     tokenData: async function () {
       if (!this.domain || typeof this.domain !== 'string') return;
       this.token = await Token(this.domain, this.cw721, this.cwClient);
-      console.log('Token query', this.token);
+      // console.log('Token query', this.token);
     },
 
     // Util
