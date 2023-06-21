@@ -1,9 +1,10 @@
 import { SigningArchwayClient } from '@archwayhq/arch3.js';
+import { MainnetInfo } from '../chains/mainnet.dryrun2';
 import { ConstantineInfo } from '../chains/testnet.constantine';
 
 const Testnet = ConstantineInfo;
-const Mainnet = null;
-const IsTestnet = true;
+const Mainnet = MainnetInfo;
+const IsTestnet = false;
 
 async function cosmostationClient() {
   if (!window) return {};

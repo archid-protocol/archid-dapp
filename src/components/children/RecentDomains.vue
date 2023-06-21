@@ -45,13 +45,12 @@ export default {
     mintHistory: async function () {
       if (!this.cw721) await this.setTokenContract();
       let historyItems = await RecentDomains(this.cw721, this.cwClient);
-      
       // Order by most recent minted
       historyItems.reverse();
 
       // Parse minting history
       let recentMints = [];
-      let size = (historyItems.length > this.size) ? this.size - 1 : historyItems.length - 1;
+      let size = (historyItems.length > this.size) ? this.size : historyItems.length;
       for (let i = 0; i < size; i++) {
         if (!historyItems[i]['events']) continue;
         let events = historyItems[i].events;
