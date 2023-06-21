@@ -11,7 +11,7 @@
 
 <script>
 import { Config } from '../../util/query';
-import { Token, Tokens, NumTokens } from '../../util/token';
+import { Token, Tokens, NumTokens, RecentDomains } from '../../util/token';
 
 const LIMIT = 100;
 const MS_DAY = 86_400_000;
@@ -32,7 +32,7 @@ export default {
     loaded: false,
   }),
   mounted: async function () {
-    await this.tokenIds();
+    await this.mintHistory();
     await this.domainData();
     // console.log('Domains list', this.domains);
   },
@@ -41,6 +41,35 @@ export default {
       let cw721Query = await Config(this.cwClient);
       this.cw721 = cw721Query.cw721;
       return;
+    },
+    mintHistory: async function () {
+      if (!this.cw721) await this.setTokenContract();
+      let historyItems = await RecentDomains(this.cw721, this.cwClient);
+      
+      // Order by most recent minted
+      historyItems.reverse();
+
+      // Parse minting history
+      let recentMints = [];
+      let size = (historyItems.length > this.size) ? this.size - 1 : historyItems.length - 1;
+      for (let i = 0; i < size; i++) {
+        if (!historyItems[i]['events']) continue;
+        let events = historyItems[i].events;
+        for (let j = 0; j < events.length; j++) {
+          let event = events[j];
+          if (!event['type']) continue;
+          else if (event.type !== 'wasm') continue;
+          else if (!Array.isArray(event['attributes'])) continue;
+          for (let k = 0; k < event.attributes.length; k++) {
+            let attribute = event.attributes[k];
+            if (!attribute['key'] || !attribute['value']) continue;
+            if (attribute.key == 'token_id') {
+              recentMints.push(attribute.value);
+            }
+          }
+        }
+        if (i == (size - 1)) this.tokens = recentMints;
+      }
     },
     tokenIds: async function () {
       if (!this.cw721) await this.setTokenContract();
