@@ -47,7 +47,7 @@
           <h4 class="category">Social</h4>
           <ul class="social">
             <li>
-              <a href="#"><span class="icon icon-discord"></span>Discord</a>
+              <a href="https://discord.gg/ghCCDu3dPB" target="_blank"><span class="icon icon-discord"></span>Discord</a>
             </li>
             <li>
               <a :href="links.twitter" target="_blank"><span class="icon icon-twitter"></span>Twitter <span class="icon icon-external-link">↗</span></a>
