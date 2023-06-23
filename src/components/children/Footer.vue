@@ -58,7 +58,7 @@
     </div>
     <div class="row attribute">
       <div class="col archid">
-        <div class="bottom">&#169; Archid {{ year }}</div>
+        <div class="bottom">&#169; ArchID {{ year }}</div>
       </div>
       <div class="col privacy">
         <div class="bottom"><a href="/policy.html" target="_blank">Privacy Policy</a></div>
