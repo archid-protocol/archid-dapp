@@ -63,7 +63,7 @@ export default {
             let attribute = event.attributes[k];
             if (!attribute['key'] || !attribute['value']) continue;
             if (attribute.key == 'token_id') {
-              recentMints.push(attribute.value);
+              if (recentMints.indexOf(attribute.value) == -1) recentMints.push(attribute.value);
             }
           }
         }
