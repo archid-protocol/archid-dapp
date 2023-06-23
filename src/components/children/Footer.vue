@@ -63,7 +63,9 @@
       <div class="col privacy">
         <div class="bottom"><a href="/policy.html" target="_blank">Privacy Policy</a></div>
       </div>
-      <div class="col"></div>
+      <div class="col tos">
+        <div class="bottom"><a href="/tos.html" target="_blank">Terms of Service</a></div>
+      </div>
       <div class="col"></div>
       <div class="col"></div>
     </div>
