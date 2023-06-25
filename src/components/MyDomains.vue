@@ -181,7 +181,6 @@ export default {
       }
     },
     _addressSearch: async function (filters) {
-      // console.log('Address search', filters);
       this.page = 0;
       if (typeof filters.text !== 'string') return this.search = null;
       if (filters.text.length !== 46 && filters.text.length !== 66) return this.search = null;
