@@ -14,7 +14,7 @@
       <div class="text-filter right">
         <input 
           type="text" 
-          placeholder="Search"
+          placeholder="Search domain name, Archway address"
           class="domain form-control"
           name="domain"
           @keyup="textSearchHandler"
