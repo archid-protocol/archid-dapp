@@ -1,11 +1,21 @@
+const ATTO_UNIT = 1_000_000_000_000_000_000;
+
 /**
- * Convert micro-arch to arch value
- * @param {Number} value : A denomination of arch in micro-arch
+ * Convert atomic-arch to arch value
+ * @param {Number} value : A denomination of arch in aarch
  */
 function FromAtto(value) {
-  return value / 1_000_000_000_000_000_000;
+  return value / ATTO_UNIT;
+}
+/**
+ * Convert arch to atomic-arch value
+ * @param {Number} value : A denomination of arch in arch
+ */
+function ToAtto(value) {
+  return value * ATTO_UNIT;
 }
 
 export {
-  FromAtto
+  FromAtto,
+  ToAtto
 }
