@@ -87,7 +87,14 @@
                 id="connect_keplr" 
                 class="btn-connect btn-keplr" 
                 @click="connectWallet('keplr');"
+                v-if="!archx"
               ><span class="icon icon-keplr"></span>Keplr</li>
+              <li 
+                id="connect_keplr" 
+                class="btn-connect btn-archx" 
+                @click="connectWallet('keplr');"
+                v-if="archx"
+              ><span class="icon icon-archx"></span>ArchX</li>
               <li 
                 id="connect_cosmostation" 
                 class="btn-connect btn-cosmostation" 
@@ -100,8 +107,13 @@
               <li 
                 id="connect_keplr" 
                 class="btn-connect btn-keplr" 
-                v-if="walletType == walletTypes[0]"
+                v-if="walletType == walletTypes[0] && !archx"
               ><span class="icon icon-keplr"></span>Keplr</li>
+              <li 
+                id="connect_archx" 
+                class="btn-connect btn-archx" 
+                v-if="walletType == walletTypes[0] && archx"
+              ><span class="icon icon-archx"></span>ArchX</li>
               <li 
                 id="connect_cosmostation" 
                 class="btn-connect btn-cosmostation" 
@@ -152,6 +164,7 @@ export default {
     connecting: false,
     walletTypes: ['keplr', 'cosmostation'],
     walletType: null,
+    archx: false,
     modal: false,
     route: null,
     showNav: false,
@@ -168,6 +181,7 @@ export default {
     if (window) {
       this.route = location.pathname;
       let connected = window.sessionStorage.getItem('connected');
+      if (window.archx) this.archx = true;
       if (connected) {
         this.resumeConnectedState();
         this.connected = true;
@@ -202,7 +216,7 @@ export default {
         console.error(e);
       }
       this.render += 1;
-      console.log('App', {cwClient: this.cwClient, accounts: this.accounts, walletType: this.walletType});
+      // console.log('App', {cwClient: this.cwClient, accounts: this.accounts, walletType: this.walletType});
     },
     resumeConnectedState: async function (attempts = 0) {
       if (attempts >= 5) {
@@ -214,7 +228,7 @@ export default {
           let walletType = sessionStorage.getItem("connected");
           this.cwClient = await Client(walletType);
           this.accounts = await Accounts(this.cwClient);
-          console.log('App', {cwClient: this.cwClient, accounts: this.accounts, walletType: walletType});
+          // console.log('App', {cwClient: this.cwClient, accounts: this.accounts, walletType: walletType});
         }, 100);
       } catch (e) {
         await this.resumeConnectedState((attempts + 1));
@@ -247,7 +261,7 @@ export default {
         if (!accounts[0].address) return;
         this.accounts = accounts;
       } catch(e) {
-        console.log('Error resolving wallet balance', e);
+        console.error('Error resolving wallet balance', e);
       }
     },
     accountDisplayFormat: function (account = null) {
@@ -327,7 +341,6 @@ div.logo, div.logo a {
 }
 span.address {
   font-weight: 400;
-  /* font-size: 12px; */
   font-size: 14px;
   line-height: 120%;
   align-items: center;

@@ -151,7 +151,7 @@ export default {
         let query = await Tokens(this.cw721, this.cwClient);
         this.tokens = (query['tokens']) ? query.tokens : [];
       }
-      console.log('Tokens query', this.tokens);
+      // console.log('Tokens query', this.tokens);
     },
     tokenData: async function (id = null) {
       if (!id || typeof id !== 'string') return;
@@ -194,7 +194,7 @@ export default {
     updateSelectedDomain: async function (id = null) {
       if (typeof id !== 'string') return;
       let token = await this.tokenData(id);
-      console.log('updateSelectedDomain', token);
+      // console.log('updateSelectedDomain', token);
       return token;
     },
     registrationHandler: function () {

@@ -1,8 +1,9 @@
 import { SigningArchwayClient } from '@archwayhq/arch3.js';
+import { MainnetInfo } from '../chains/mainnet.dryrun2';
 import { ConstantineInfo } from '../chains/testnet.constantine';
 
 const Testnet = ConstantineInfo;
-const Mainnet = null;
+const Mainnet = MainnetInfo;
 const IsTestnet = true;
 
 async function cosmostationClient() {
@@ -23,7 +24,7 @@ async function cosmostationClient() {
   await window.cosmostation.providers.keplr.enable(Blockchain.chainId);
 
   // Default options
-  window.providers.keplr.defaultOptions = {
+  window.cosmostation.providers.keplr.defaultOptions = {
     sign: {
       preferNoSetFee: true,
     }

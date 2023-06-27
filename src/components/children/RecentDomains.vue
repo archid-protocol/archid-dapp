@@ -11,7 +11,7 @@
 
 <script>
 import { Config } from '../../util/query';
-import { Token, Tokens, NumTokens } from '../../util/token';
+import { Token, Tokens, NumTokens, RecentDomains } from '../../util/token';
 
 const LIMIT = 100;
 const MS_DAY = 86_400_000;
@@ -32,7 +32,7 @@ export default {
     loaded: false,
   }),
   mounted: async function () {
-    await this.tokenIds();
+    await this.mintHistory();
     await this.domainData();
     // console.log('Domains list', this.domains);
   },
@@ -41,6 +41,34 @@ export default {
       let cw721Query = await Config(this.cwClient);
       this.cw721 = cw721Query.cw721;
       return;
+    },
+    mintHistory: async function () {
+      if (!this.cw721) await this.setTokenContract();
+      let historyItems = await RecentDomains(this.cw721, this.cwClient);
+      // Order by most recent minted
+      historyItems.reverse();
+
+      // Parse minting history
+      let recentMints = [];
+      let size = (historyItems.length > this.size) ? this.size : historyItems.length;
+      for (let i = 0; i < size; i++) {
+        if (!historyItems[i]['events']) continue;
+        let events = historyItems[i].events;
+        for (let j = 0; j < events.length; j++) {
+          let event = events[j];
+          if (!event['type']) continue;
+          else if (event.type !== 'wasm') continue;
+          else if (!Array.isArray(event['attributes'])) continue;
+          for (let k = 0; k < event.attributes.length; k++) {
+            let attribute = event.attributes[k];
+            if (!attribute['key'] || !attribute['value']) continue;
+            if (attribute.key == 'token_id') {
+              if (recentMints.indexOf(attribute.value) == -1) recentMints.push(attribute.value);
+            }
+          }
+        }
+        if (i == (size - 1)) this.tokens = recentMints;
+      }
     },
     tokenIds: async function () {
       if (!this.cw721) await this.setTokenContract();
@@ -60,7 +88,7 @@ export default {
         let query = await Tokens(this.cw721, this.cwClient);
         this.tokens = (query['tokens']) ? query.tokens : [];
       }
-      console.log('Tokens query', this.tokens);
+      // console.log('Tokens query', this.tokens);
     },
     tokenData: async function (id = null) {
       if (!id || typeof id !== 'string') return;
@@ -111,7 +139,10 @@ export default {
     recentDomains: function () {
       if (!this.domains || !this.size) return [];
       if (!Array.isArray(this.domains)) return [];
-      let sortedDomains = this.domains.slice(0).sort((a,b) => (b.extension.created - a.extension.created));
+      let sortedDomains = this.domains.slice(0).sort((a,b) => {
+        if (!a['extension'] || !b['extension']) return false;
+        else return b.extension.created - a.extension.created;
+      });
       return sortedDomains.slice(0, this.size);
     },
   }

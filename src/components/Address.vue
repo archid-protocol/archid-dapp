@@ -95,7 +95,7 @@ export default {
             this.cwClient = await Client(walletType);
             this.accounts = await Accounts(this.cwClient);
           }
-          console.log('Profile client', {cwClient: this.cwClient, accounts: this.accounts, walletType: walletType});
+          // console.log('Profile client', {cwClient: this.cwClient, accounts: this.accounts, walletType: walletType});
 
           // Load tokens
           await this.tokenIds();
@@ -130,7 +130,7 @@ export default {
         let query = await TokensOf(this.cw721, this.account, this.cwClient);
         this.tokens = (query['tokens']) ? query.tokens : [];
       }
-      console.log('TokensOf query', this.tokens);
+      // console.log('TokensOf query', this.tokens);
     },
     onChange(event) {
       this.page = parseInt(event.target.value);

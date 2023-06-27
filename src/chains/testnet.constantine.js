@@ -4,7 +4,7 @@ export const ConstantineInfo = {
   // The name of the chain to be displayed to the user.
   chainName: "Constantine Testnet",
   // RPC endpoint of the chain.
-  rpc: "https://rpc.constantine.archway.tech" ,
+  rpc: "https://rpc.constantine.archway.tech",
   // REST endpoint of the chain.
   rest: "https://api.constantine.archway.tech",
   // Staking coin information
@@ -19,15 +19,6 @@ export const ConstantineInfo = {
     // You can get id from https://api.coingecko.com/api/v3/coins/list if it is listed.
     // coinGeckoId: ""
 	},
-  // (Optional) If you have a wallet webpage used to stake the coin then provide the url to the website in `walletUrlForStaking`.
-  // The 'stake' button in Keplr extension will link to the webpage.
-  // walletUrlForStaking: "",
-  // The BIP44 path.
-  bip44: {
-    // You can only set the coin type of BIP44.
-    // 'Purpose' is fixed to 44.
-    coinType: 118,
-  },
   // Bech32 configuration to show the address to user.
   // This field is the interface of
   // {
@@ -75,12 +66,6 @@ export const ConstantineInfo = {
       high: 0.2
     },
   }],
-  // (Optional) The number of the coin type.
-  // This field is only used to fetch the address from ENS.
-  // Ideally, it is recommended to be the same with BIP44 path's coin type.
-  // However, some early chains may choose to use the Cosmos Hub BIP44 path of '118'.
-  // So, this is separated to support such chains.
-  coinType: 118,
   // (Optional) This is used to set the fee of the transaction.
   // If this field is not provided, Keplr extension will set the default gas price as (low: 0.01, average: 0.025, high: 0.04).
   // Currently, Keplr doesn't support dynamic calculation of the gas prices based on on-chain data.

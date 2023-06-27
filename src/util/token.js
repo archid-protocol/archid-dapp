@@ -237,6 +237,24 @@ async function HistoryOf(tokenId = null, contract = null, client = null) {
   }
 }
 
+async function RecentDomains(contract = null, client = null) {
+  if (!client) client = await Client();
+  try {
+    if (!contract || typeof contract !== "string") {
+      let cw721Query = await Config(client);
+      contract = cw721Query.cw721;
+    }
+
+    let historyQuery = await client.wasmClient.searchTx({
+      tags: _makeTags(`wasm._contract_address=${contract}&wasm.action=mint`),
+    });
+    return historyQuery;
+  } catch(e) {
+    console.error(e);
+    return {};
+  }
+}
+
 export {
   NumTokens,
   Tokens,
@@ -244,4 +262,5 @@ export {
   Token,
   OwnerOf,
   HistoryOf,
+  RecentDomains,
 }

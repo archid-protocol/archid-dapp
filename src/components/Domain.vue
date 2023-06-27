@@ -85,7 +85,7 @@ export default {
             this.cwClient = await Client(walletType);
             this.accounts = await Accounts(this.cwClient);
           }
-          console.log('Token client', {cwClient: this.cwClient, accounts: this.accounts, walletType: walletType});
+          // console.log('Token client', {cwClient: this.cwClient, accounts: this.accounts, walletType: walletType});
 
           // Load token data
           this.tokenData();
@@ -112,19 +112,19 @@ export default {
       if (!this.$route.params.id || typeof this.$route.params.id !== 'string') return;
       if (!this.cw721) await this.setTokenContract();
       this.token = await Token(this.$route.params.id, this.cw721, this.cwClient);
-      console.log('Token query', this.token);
+      // console.log('Token query', this.token);
     },
     ownerData: async function () {
       if (!this.$route.params.id || typeof this.$route.params.id !== 'string') return;
       if (!this.cw721) await this.setTokenContract();
       this.owner = await OwnerOf(this.$route.params.id, this.cw721, this.cwClient);
-      console.log('Token owner query', this.owner);
+      // console.log('Token owner query', this.owner);
     },
     historyData: async function () {
       if (!this.$route.params.id || typeof this.$route.params.id !== 'string') return;
       if (!this.cw721) await this.setTokenContract();
       this.history = await HistoryOf(this.$route.params.id, this.cw721, this.cwClient);
-      console.log('History query', this.history);
+      // console.log('History query', this.history);
     },
     resolveDomainRecord: async function () {
       if (!this.$route.params.id || typeof this.$route.params.id !== 'string') return;
@@ -133,7 +133,7 @@ export default {
         this.cwClient
       );
       if (typeof this.domainRecord == 'undefined') this.domainRecord = {error: "Error reading from Registry"};
-      console.log('ResolveRecord query', this.domainRecord);
+      // console.log('ResolveRecord query', this.domainRecord);
     },
 
     // Util

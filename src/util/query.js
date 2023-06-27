@@ -5,7 +5,7 @@ const REGISTRY_CONTRACT = process.env.VUE_APP_REGISTRY_CONTRACT;
 /**
  * Resolve a Domain name record from storage
  * @param {String} name : Domain name to be resolved
- * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
+ * @param {SigningCosmWasmClient} client? : (Optional) instance of signing client
  * @returns {QueryResult}
  */
 async function ResolveRecord(name, client = null) {
@@ -16,6 +16,33 @@ async function ResolveRecord(name, client = null) {
     let entrypoint = {
       resolve_record: {
         name: name
+      }
+    };
+    let query = await client.wasmClient.queryClient.wasm.queryContractSmart(
+      REGISTRY_CONTRACT,
+      entrypoint
+    );
+    return query;
+  } catch(e) {
+    console.error(e);
+    return {};
+  }
+}
+
+/**
+ * Resolve registered and unexpired Domain names for a given address
+ * @param {String} address : Address to resolve
+ * @param {SigningCosmWasmClient} client? : (Optional) instance of signing client
+ * @returns {QueryResult}
+ */
+async function ResolveAddress(address, client = null) {
+  if (typeof address !== 'string') return;
+  if (!address.length) return;
+  if (!client) client = await Client();
+  try {
+    let entrypoint = {
+      resolve_address: {
+        address: address
       }
     };
     let query = await client.wasmClient.queryClient.wasm.queryContractSmart(
@@ -80,6 +107,7 @@ async function Config(client = null) {
 
 export {
   ResolveRecord,
+  ResolveAddress,
   RecordExpiration,
   Config
 }

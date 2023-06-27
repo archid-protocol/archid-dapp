@@ -57,7 +57,7 @@
 
 <script>
 import { Client, Accounts } from '../util/client';
-import { Config } from '../util/query';
+import { Config, ResolveAddress } from '../util/query';
 import { NumTokens, TokensOf } from '../util/token';
 import * as Paging from '../util/pagination';
 
@@ -98,7 +98,7 @@ export default {
             this.cwClient = await Client(walletType);
             this.accounts = await Accounts(this.cwClient);
           }
-          console.log('Profile client', {cwClient: this.cwClient, accounts: this.accounts, walletType: walletType});
+          // console.log('Profile client', {cwClient: this.cwClient, accounts: this.accounts, walletType: walletType});
 
           // Load tokens
           await this.tokenIds();
@@ -133,31 +133,62 @@ export default {
         let query = await TokensOf(this.cw721, this.accounts[0].address, this.cwClient);
         this.tokens = (query['tokens']) ? query.tokens : [];
       }
-      console.log('TokensOf query', this.tokens);
+      // console.log('TokensOf query', this.tokens);
     },
 
     // Filter
     filter: function (filters) {
       if (!this.tokens.length) return;
-      console.log('Update filters', filters);
-      let filteredTokens = [];
-
-      // Text filter
+      // console.log('Update filters', filters);
       if (filters.text) {
-        for (let i = 0; i < this.tokens.length; i++) {
-          if (this.tokens[i].includes(filters.text)) {
-            filteredTokens.push(this.tokens[i]);
+        switch (filters.text.length) {
+          case 0:
+          case 1:
+          case 2:
+          case 3: {
+            if (this.search) this.search = null;
+            break;
           }
-          if (i == (this.tokens.length - 1)) {
-            // XXX TODO: type filter (when API available)
-            this.filteredTokens = filteredTokens;
-            this.search = filters.text;
-            console.log(this.filteredTokens);
+          case 46:
+          case 66: {
+            if (filters.text.substring(0,7) == 'archway') this._addressSearch(filters);
+            else this._domainSearch(filters);
+            break;
+          }
+          default: {
+            this._domainSearch(filters);
+            break;
           }
         }
       } else {
         this.search = null;
       }
+    },
+    _domainSearch: function (filters) {
+      let filteredTokens = [];
+      this.page = 0;
+      if (!filters.text) return this.search = null;
+      // Text filter
+      for (let i = 0; i < this.tokens.length; i++) {
+        if (this.tokens[i].includes(filters.text)) {
+          filteredTokens.push(this.tokens[i]);
+        }
+        if (i == (this.tokens.length - 1)) {
+          this.filteredTokens = filteredTokens;
+          this.search = filters.text;
+          // console.log(this.filteredTokens);
+        }
+      }
+    },
+    _addressSearch: async function (filters) {
+      this.page = 0;
+      if (typeof filters.text !== 'string') return this.search = null;
+      if (filters.text.length !== 46 && filters.text.length !== 66) return this.search = null;
+      let query = await ResolveAddress(filters.text, this.cwClient);
+      this.filteredTokens = (query['names']) ? query.names : [];
+      if (!this.filteredTokens.length) this.search = null;
+      else this.search = true;
+      // console.log('Address search query', query, this.filteredTokens);
     },
     onChange(event) {
       this.page = parseInt(event.target.value);

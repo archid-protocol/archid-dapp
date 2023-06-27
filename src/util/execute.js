@@ -23,13 +23,11 @@ async function Register(name, years = 1, base_cost = BASE_DOMAIN_COST, client = 
         name: name
       }
     };
-    console.log('Register entrypoint', entrypoint);
     // Sender
     let accounts = await client.offlineSigner.getAccounts();
     // Purchase cost
     let cost = parseInt(base_cost * years);
     let funds = [coin(String(cost), client.chainInfo.currencies[0].coinMinimalDenom)];
-    console.log('Register?', {args: [name, years, base_cost]}, {calcs: {cost: cost, funds: funds}});
     // Broadcast tx
     let tx = await client.wasmClient.execute(
       accounts[0].address,

@@ -149,7 +149,7 @@ export default {
             this.accounts = await Accounts(this.cwClient);
             this.accountDisplay = this.accounts[0].address;
           }
-          console.log('Home client', {cwClient: this.cwClient, accounts: this.accounts, walletType: walletType});
+          // console.log('Home client', {cwClient: this.cwClient, accounts: this.accounts, walletType: walletType});
         }, 100);
       } catch (e) {
         await this.resumeConnectedState((attempts + 1));
@@ -185,7 +185,7 @@ export default {
         this.cwClient
       );
       
-      console.log('Register tx', this.executeResult);
+      // console.log('Register tx', this.executeResult);
 
       if (!this.executeResult['error']) {
         // Success notification

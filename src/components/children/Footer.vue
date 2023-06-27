@@ -47,7 +47,7 @@
           <h4 class="category">Social</h4>
           <ul class="social">
             <li>
-              <a href="#"><span class="icon icon-discord"></span>Discord</a>
+              <a href="https://discord.gg/ghCCDu3dPB" target="_blank"><span class="icon icon-discord"></span>Discord</a>
             </li>
             <li>
               <a :href="links.twitter" target="_blank"><span class="icon icon-twitter"></span>Twitter <span class="icon icon-external-link">↗</span></a>
@@ -56,14 +56,16 @@
         </div>
       </div>
     </div>
-    <div class="row">
-      <div class="col">
-        <div class="bottom">&#169; Archid {{ year }}</div>
+    <div class="row attribute">
+      <div class="col archid">
+        <div class="bottom">&#169; ArchID {{ year }}</div>
       </div>
-      <div class="col">
-        <div class="bottom"><a href="#">Privacy Policy</a></div>
+      <div class="col privacy">
+        <div class="bottom"><a href="/policy.html" target="_blank">Privacy Policy</a></div>
       </div>
-      <div class="col"></div>
+      <div class="col tos">
+        <div class="bottom"><a href="/tos.html" target="_blank">Terms of Service</a></div>
+      </div>
       <div class="col"></div>
       <div class="col"></div>
     </div>
