@@ -182,10 +182,15 @@ export default {
     },
     _addressSearch: async function (filters) {
       this.page = 0;
+      let filteredTokens = [];
       if (typeof filters.text !== 'string') return this.search = null;
       if (filters.text.length !== 46 && filters.text.length !== 66) return this.search = null;
       let query = await ResolveAddress(filters.text, this.cwClient);
-      this.filteredTokens = (query['names']) ? query.names : [];
+      if (!Array.isArray(query['names'])) return this.search = null;
+      query.names.forEach((name)=> {
+        if (this.tokens.indexOf(name) > -1) filteredTokens.push(name);
+      });
+      this.filteredTokens = filteredTokens
       if (!this.filteredTokens.length) this.search = null;
       else this.search = true;
       // console.log('Address search query', query, this.filteredTokens);
