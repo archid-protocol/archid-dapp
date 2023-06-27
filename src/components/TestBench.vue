@@ -421,6 +421,7 @@
 
 <script>
 import { Client, Accounts } from '../util/client';
+import { ToAtto } from '../util/denom';
 
 import { 
   Config, 
@@ -647,10 +648,12 @@ export default {
     },
     executeWithdraw: async function () {
       if (!this.params.execute.Withdraw.amount) return;
+      let withdrawAmount = ToAtto(Number(this.params.execute.Withdraw.amount));
       this.result.execute = await Withdraw(
-        Number(this.params.execute.Withdraw.amount),
+        withdrawAmount,
         this.cwClient
       );
+      console.log('Withdraw tx', this.result.execute);
     },
     executeRemoveSubdomain: async function () {
       if (!this.params.execute.RemoveSubdomain.domain || !this.params.execute.RemoveSubdomain.subdomain) return;
@@ -679,6 +682,8 @@ export default {
 .page {
   max-width: 90vw;
   padding: 3em;
+  background-color: #FF4D00;
+  padding-top: 8em;
 }
 ul, ul li {
   list-style: none;
