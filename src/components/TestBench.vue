@@ -121,19 +121,19 @@
             />
           </li>
 
-          <!-- RegisterSubDomain (domain, subdomain, new_resolver, mint, expiration, client = null) -->
+          <!-- RegisterSubdomain (domain, subdomain, new_resolver, mint, expiration, client = null) -->
           <li>
             <button 
               class="btn-tx btn-register-tx" 
-              @click="executeRegisterSubDomain();"
-              :disabled="(!params.execute.RegisterSubDomain.domain || !params.execute.RegisterSubDomain.domain || !params.execute.RegisterSubDomain.new_resolver || !params.execute.RegisterSubDomain.new_owner || !params.execute.RegisterSubDomain.expiration)"
-            >ExecuteMsg::RegisterSubDomain</button>
+              @click="executeRegisterSubdomain();"
+              :disabled="(!params.execute.RegisterSubdomain.domain || !params.execute.RegisterSubdomain.domain || !params.execute.RegisterSubdomain.new_resolver || !params.execute.RegisterSubdomain.new_owner || !params.execute.RegisterSubdomain.expiration)"
+            >ExecuteMsg::RegisterSubdomain</button>
             <ol>
               <li>
                 <input 
                   type="text" 
                   class="domain-name" 
-                  v-model="params.execute.RegisterSubDomain.domain" 
+                  v-model="params.execute.RegisterSubdomain.domain" 
                   placeholder="Top level domain name to be updated" 
                 />
               </li>
@@ -141,7 +141,7 @@
                 <input 
                   type="text" 
                   class="subdomain-name" 
-                  v-model="params.execute.RegisterSubDomain.subdomain" 
+                  v-model="params.execute.RegisterSubdomain.subdomain" 
                   placeholder="Subdomain name to be created" 
                 />
               </li>
@@ -149,7 +149,7 @@
                 <input 
                   type="text" 
                   class="new-resolver" 
-                  v-model="params.execute.RegisterSubDomain.new_resolver"
+                  v-model="params.execute.RegisterSubdomain.new_resolver"
                   placeholder="Archway address of new_resolver" 
                 />
               </li>
@@ -157,12 +157,12 @@
                 <input 
                   type="text" 
                   class="new-resolver" 
-                  v-model="params.execute.RegisterSubDomain.new_owner"
+                  v-model="params.execute.RegisterSubdomain.new_owner"
                   placeholder="Archway address of new_owner" 
                 />
               </li>
               <li>
-                <select v-model="params.execute.RegisterSubDomain.mint">
+                <select v-model="params.execute.RegisterSubdomain.mint">
                   <option value="true">Mint subdomain NFT</option>
                   <option value="false">Do not mint subdomain NFT</option>
                 </select>
@@ -173,7 +173,7 @@
                   name="expiration" 
                   type="number" 
                   class="expiration-number" 
-                  v-model="params.execute.RegisterSubDomain.expiration"
+                  v-model="params.execute.RegisterSubdomain.expiration"
                   placeholder="1234567"
                 />
               </li>
@@ -388,23 +388,23 @@
             />
           </li>
 
-          <!-- RemoveSubDomain (domain, subdomain, client = null) -->
+          <!-- RemoveSubdomain (domain, subdomain, client = null) -->
           <li>
             <button 
               class="btn-tx btn-withdraw-tx" 
-              @click="executeRemoveSubDomain();"
-              :disabled="(!params.execute.RemoveSubDomain.domain || !params.execute.RemoveSubDomain.subdomain)"
-            >ExecuteMsg::RemoveSubDomain</button>
+              @click="executeRemoveSubdomain();"
+              :disabled="(!params.execute.RemoveSubdomain.domain || !params.execute.RemoveSubdomain.subdomain)"
+            >ExecuteMsg::RemoveSubdomain</button>
             <input 
               type="text" 
               class="domain-name" 
-              v-model="params.execute.RemoveSubDomain.domain" 
+              v-model="params.execute.RemoveSubdomain.domain" 
               placeholder="Top level domain name to be updated" 
             />
             <input 
               type="text" 
               class="subdomain-name" 
-              v-model="params.execute.RemoveSubDomain.subdomain" 
+              v-model="params.execute.RemoveSubdomain.subdomain" 
               placeholder="Subdomain to be removed" 
             />
           </li>
@@ -432,11 +432,11 @@ import {
   Register,
   RenewRegistration,
   UpdateResolver,
-  RegisterSubDomain,
+  RegisterSubdomain,
   UpdateUserDomainData,
   UpdateConfig,
   Withdraw,
-  RemoveSubDomain
+  RemoveSubdomain
 } from '../util/execute';
 
 export default {
@@ -468,7 +468,7 @@ export default {
           name: null,
           new_resolver: null,
         },
-        RegisterSubDomain: {
+        RegisterSubdomain: {
           domain: null,
           subdomain: null,
           new_resolver: null,
@@ -495,7 +495,7 @@ export default {
         Withdraw: {
           amount: null,
         },
-        RemoveSubDomain: {
+        RemoveSubdomain: {
           domain: null,
           subdomain: null,
         },
@@ -517,7 +517,7 @@ export default {
           let walletType = sessionStorage.getItem("connected");
           this.cwClient = await Client(walletType);
           this.accounts = await Accounts(this.cwClient);
-          if (this.accounts.length) this.params.execute.RegisterSubDomain.new_owner = this.accounts[0].address;
+          if (this.accounts.length) this.params.execute.RegisterSubdomain.new_owner = this.accounts[0].address;
           console.log('Test Bench', {cwClient: this.cwClient, accounts: this.accounts, walletType: walletType});
         }, 100);
       } catch (e) {
@@ -597,20 +597,20 @@ export default {
       if (typeof this.result.execute == 'undefined') this.result.query = {error: "Error calling entry point in Registry"};
       console.log('UpdateResolver tx', this.result.execute);
     },
-    executeRegisterSubDomain: async function () {
+    executeRegisterSubdomain: async function () {
       let mint = true;
-      if (this.params.execute.RegisterSubDomain.mint == "false") mint = false;
+      if (this.params.execute.RegisterSubdomain.mint == "false") mint = false;
 
-      this.result.execute = await RegisterSubDomain(
-        this.params.execute.RegisterSubDomain.domain,
-        this.params.execute.RegisterSubDomain.subdomain,
-        this.params.execute.RegisterSubDomain.new_resolver,
-        this.params.execute.RegisterSubDomain.new_owner,
+      this.result.execute = await RegisterSubdomain(
+        this.params.execute.RegisterSubdomain.domain,
+        this.params.execute.RegisterSubdomain.subdomain,
+        this.params.execute.RegisterSubdomain.new_resolver,
+        this.params.execute.RegisterSubdomain.new_owner,
         mint,
-        this.params.execute.RegisterSubDomain.expiration,
+        this.params.execute.RegisterSubdomain.expiration,
         this.cwClient
       );
-      console.log('RegisterSubDomain tx', this.result.execute);
+      console.log('RegisterSubdomain tx', this.result.execute);
     },
     executeUpdateUserDomainData: async function () {
       if (!this.params.execute.UpdateUserDomainData.name) return;
@@ -652,14 +652,14 @@ export default {
         this.cwClient
       );
     },
-    executeRemoveSubDomain: async function () {
-      if (!this.params.execute.RemoveSubDomain.domain || !this.params.execute.RemoveSubDomain.subdomain) return;
-      this.result.execute = await RemoveSubDomain(
-        this.params.execute.RemoveSubDomain.domain,
-        this.params.execute.RemoveSubDomain.subdomain,
+    executeRemoveSubdomain: async function () {
+      if (!this.params.execute.RemoveSubdomain.domain || !this.params.execute.RemoveSubdomain.subdomain) return;
+      this.result.execute = await RemoveSubdomain(
+        this.params.execute.RemoveSubdomain.domain,
+        this.params.execute.RemoveSubdomain.subdomain,
         this.cwClient
       );
-      console.log('RemoveSubDomain tx', this.result.execute);
+      console.log('RemoveSubdomain tx', this.result.execute);
     }
   },
   computed: {
