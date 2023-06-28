@@ -100,6 +100,11 @@
                 class="btn-connect btn-cosmostation" 
                 @click="connectWallet('cosmostation');"
               ><span class="icon icon-cosmostation"></span>Cosmostation</li>
+              <li 
+                id="connect_leap" 
+                class="btn-connect btn-leap" 
+                @click="connectWallet('leap');"
+              ><span class="icon icon-leap"></span>Leap</li>
             </ul>
           </div>
           <div v-if="connecting">
@@ -119,6 +124,11 @@
                 class="btn-connect btn-cosmostation" 
                 v-if="walletType == walletTypes[1]"
               ><span class="icon icon-cosmostation"></span>Cosmostation</li>
+              <li 
+                id="connect_leap" 
+                class="btn-connect btn-leap" 
+                v-if="walletType == walletTypes[2]"
+              ><span class="icon icon-leap"></span>Leap</li>
             </ul>
             <div class="loading default"></div>
             <div class="cancel reset">
@@ -152,6 +162,7 @@ import Footer from './components/children/Footer.vue';
 const WALLET_DOWNLOADS = {
   keplr: 'https://www.keplr.app/download',
   cosmostation: 'https://cosmostation.io/wallet',
+  leap: 'https://www.leapwallet.io/cosmos'
 };
 
 export default {
@@ -162,7 +173,7 @@ export default {
     accounts: [],
     connected: false,
     connecting: false,
-    walletTypes: ['keplr', 'cosmostation'],
+    walletTypes: ['keplr', 'cosmostation', 'leap'],
     walletType: null,
     archx: false,
     modal: false,

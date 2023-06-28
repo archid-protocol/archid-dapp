@@ -75,6 +75,46 @@ async function keplrClient() {
   return client;
 }
 
+async function leapClient() {
+  if (!window) return {};
+  if (!window['leap']) return {};
+
+  let Blockchain = (IsTestnet) ? Testnet : Mainnet;
+  
+  // Legacy coinType values
+  Blockchain.coinType = 118;
+  Blockchain.bip44 = {
+    coinType: 118
+  };
+
+  let client = {
+    offlineSigner: null,
+    wasmClient: null,
+    chainInfo: Blockchain,
+    fees: "auto"
+  };
+
+  // User must authorize "experimental" chain
+  await window.leap.experimentalSuggestChain(Blockchain);
+  await window.leap.enable(Blockchain.chainId);
+  
+  // Default options
+  window.leap.defaultOptions = {
+    sign: {
+      preferNoSetFee: true,
+    }
+  };
+  
+  // Bootstrap client
+  client.offlineSigner = await window.leap.getOfflineSignerAuto(Blockchain.chainId);
+  client.wasmClient = await SigningArchwayClient.connectWithSigner(
+    Blockchain.rpc, 
+    client.offlineSigner
+  );
+
+  return client;
+}
+
 async function offlineClient() {
   const Blockchain = (IsTestnet) ? Testnet : Mainnet;
   let cwClient = await SigningArchwayClient.connectWithSigner(Blockchain.rpc, null);
@@ -90,5 +130,6 @@ async function offlineClient() {
 export {
   cosmostationClient,
   keplrClient,
+  leapClient,
   offlineClient
 };
