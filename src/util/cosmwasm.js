@@ -45,7 +45,15 @@ async function keplrClient() {
   if (!window) return {};
   if (!window['keplr']) return {};
 
-  const Blockchain = (IsTestnet) ? Testnet : Mainnet;
+  let Blockchain = (IsTestnet) ? Testnet : Mainnet;
+
+  // Legacy coinType values
+  // XXX: This is deprecated and only temporary to support 
+  // users who havn't updated to Keplr version 2.0
+  Blockchain.coinType = 118;
+  Blockchain.bip44 = {
+    coinType: 118
+  };
 
   let client = {
     offlineSigner: null,
