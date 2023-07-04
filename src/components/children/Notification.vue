@@ -10,8 +10,6 @@
         <div :class="type">
             <h3 class="title">{{title}}</h3>
             <p class="body" v-html="msg" v-if="type !== types[0]"></p>
-            
-            <!-- <p class="body" v-if="type == types[0]" :title="msg" :alt="msg" v-html="errorFormat(msg)"></p> -->
             <p class="body" v-if="type == types[0]" :title="msg" :alt="msg">We're not able to fulfill your request at this time</p>
             <div class="clipboard" v-if="type == types[0]">
                <p @click="copy(msg)">Copy Error Details</p>
