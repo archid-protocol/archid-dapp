@@ -10,7 +10,12 @@
         <div :class="type">
             <h3 class="title">{{title}}</h3>
             <p class="body" v-html="msg" v-if="type !== types[0]"></p>
-            <p class="body" v-if="type == types[0]" :title="msg" :alt="msg" v-html="errorFormat(msg)"></p>
+            
+            <!-- <p class="body" v-if="type == types[0]" :title="msg" :alt="msg" v-html="errorFormat(msg)"></p> -->
+            <p class="body" v-if="type == types[0]" :title="msg" :alt="msg">We're not able to fulfill your request at this time</p>
+            <div class="clipboard" v-if="type == types[0]">
+               <p @click="copy(msg)">Copy Error Details</p>
+            </div>
             <div v-if="type == types[2]" class="loading default"></div>
         </div>
         <div class="dismiss cancel">
@@ -51,6 +56,11 @@ export default {
   methods: {
     dismiss: function () {
         this.$emit('closeNotification', true);
+    },
+    copy: function (msg = null) {
+      if (!msg || !window) return;
+      if (!window.navigator) return;
+      window.navigator.clipboard.writeText(msg);
     },
     errorFormat(errorMsg = null) {
       if (!errorMsg) return '';
@@ -140,5 +150,9 @@ p.body {
 }
 .info-alert {
   margin-bottom: 1em;
+}
+div.clipboard p {
+  color: #FF4D00;
+  cursor: pointer;
 }
 </style>
