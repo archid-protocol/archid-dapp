@@ -753,6 +753,10 @@ export default {
     domainDetails: async function () {
       if (!this.token || !this.owner || !this.domainRecord) {
         await this.dataResolutionHandler();
+      } else {
+        if (this.domain && this.token['extension']) {
+          if (this.domain !== this.token.extension.domain) await this.dataResolutionHandler(true);
+        }
       }
       this.closed = !this.closed;
     },

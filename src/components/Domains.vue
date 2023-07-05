@@ -11,7 +11,7 @@
     </div>
 
     <!-- Domains -->
-    <div v-if="tokens.length">
+    <div v-if="tokens.length && searchThreshold !== false">
       <ul class="domains">
         <li v-for="(domain, i) in domainsList" :key="i">
           <DomainListEntry
@@ -48,6 +48,8 @@
       </div>
     </div>
 
+    <div v-if="tokens.length && searchThreshold == false"></div>
+
     <!-- No Domains were found -->
     <div v-if="!tokens.length">
       <p v-if="loaded && cw721">No domains found for contract {{ cw721 }}</p>
@@ -77,6 +79,7 @@ export default {
     tokens: [],
     filteredTokens: [],
     search: null,
+    searchThreshold: null,
     loaded: false,
     title: 'Domains',
     page: 0,
@@ -139,13 +142,14 @@ export default {
     // Filter
     filter: function (filters) {
       if (!this.tokens.length) return;
-      // console.log('Update filters', filters);
+      this.searchThreshold = null;
+      this._collapseDomainListItems();
       if (filters.text) {
+        this.searchThreshold = (filters.text.length >= 3) ? true : false;
         switch (filters.text.length) {
           case 0:
           case 1:
-          case 2:
-          case 3: {
+          case 2: {
             if (this.search) this.search = null;
             break;
           }
@@ -162,6 +166,14 @@ export default {
         }
       } else {
         this.search = null;
+      }
+    },
+    _collapseDomainListItems: function () {
+      if (!document) return;
+      let htmlCollection = document.getElementsByClassName("caret active");
+      if (!htmlCollection.length) return;
+      for (let i = 0; i < htmlCollection.length; i++) {
+        htmlCollection[0].click();
       }
     },
     _domainSearch: function (filters) {
