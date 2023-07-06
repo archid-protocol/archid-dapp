@@ -30,7 +30,7 @@
       <div class="paging row">
         <div class="paging-items row">
           <div class="col left">
-            <button :class="{'chevron-left': true, 'pointer': page > 0, 'disabled': page <= 0}" @click="page = page - 1;" :disabled="page <= 0"></button>
+            <button :class="{'chevron-left': true, 'pointer': page > 0, 'disabled': page <= 0}" @click="pageHandler((page - 1));" :disabled="page <= 0"></button>
           </div>
           <div class="col mid">
             <div class="paging-display">
@@ -42,7 +42,7 @@
             </div>
           </div>
           <div class="col right">
-            <button :class="{'chevron-right': true, 'pointer': page < (totalPages - 1), 'disabled': page >= (totalPages - 1)}" @click="page = page + 1" :disabled="page >= (totalPages - 1)"></button>
+            <button :class="{'chevron-right': true, 'pointer': page < (totalPages - 1), 'disabled': page >= (totalPages - 1)}" @click="pageHandler((page + 1));" :disabled="page >= (totalPages - 1)"></button>
           </div>
         </div>
       </div>
@@ -168,6 +168,11 @@ export default {
         this.search = null;
       }
     },
+    pageHandler: function (page) {
+      if (typeof page !== 'number') return;
+      this._collapseDomainListItems();
+      this.page = page;
+    },
     _collapseDomainListItems: function () {
       if (!document) return;
       let htmlCollection = document.getElementsByClassName("caret active");
@@ -208,6 +213,7 @@ export default {
       // console.log('Address search query', query, this.filteredTokens);
     },
     onChange(event) {
+      this._collapseDomainListItems();
       this.page = parseInt(event.target.value);
     },
 
