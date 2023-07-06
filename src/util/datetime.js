@@ -3,14 +3,14 @@
  * @param {Number} seconds : Integer expiration date in seconds
  * @returns {String} : Human readable date format (Prefixed with "Expired on " if expired)
  */
-function DateFormat(seconds) {
+function DateFormat(seconds, pastOverride = false) {
   let date = new Date((seconds * 1000));
   let dminutes = (parseInt(date.getMinutes()) < 10) ? '0' + date.getMinutes() : date.getMinutes();
   let dateString = date.toLocaleDateString(
     'en-us', { weekday:"long", year:"numeric", month:"short", day:"numeric"}
   ) + ' at ' + date.getHours() + ':' + dminutes;
 
-  if (new Date().getTime() > date.getTime()) return "Expired on " + dateString;
+  if ((new Date().getTime() > date.getTime()) && !pastOverride) return "Expired on " + dateString;
   else return dateString;
 }
 

@@ -47,7 +47,7 @@
     <div class="taken-domain-data" v-if="registration.taken">
       <div class="left">
         <p>Registration Date</p>
-        <p v-if="registration.taken.extension.created">{{ niceDate(registration.taken.extension.created) }}</p>
+        <p v-if="registration.taken.extension.created">{{ niceDate(registration.taken.extension.created, true) }}</p>
       </div>
       <div class="right">
         <p>Expiration Date</p>
