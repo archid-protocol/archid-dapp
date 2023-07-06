@@ -19,7 +19,7 @@
         <router-link to="/" @click="route = '/';showNav = false;">Home</router-link>
       </li>
       <li>
-        <router-link to="/domains" @click="route = '/domains';showNav = false;">Domains</router-link>
+        <router-link to="/domains" @click="route = '/domains';showNav = false;">All Domains</router-link>
       </li>
     </ul>
   </div>
@@ -53,7 +53,7 @@
         <router-link to="/" @click="route = '/';showNav = false;">Home</router-link>
       </li>
       <li>
-        <router-link to="/domains" @click="route = '/domains';showNav = false;">Domains</router-link>
+        <router-link to="/domains" @click="route = '/domains';showNav = false;">All Domains</router-link>
       </li>
       <li>
         <router-link to="/my-domains" @click="route = '/my-domains';showNav = false;">My Domains</router-link>
