@@ -142,7 +142,7 @@ async function Token (tokenId = null, contract = null, client = null) {
 
     return tokenQuery;
   } catch(e) {
-    console.error(e);
+    // console.error(e);
     return {};
   }
 }
