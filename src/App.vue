@@ -135,6 +135,18 @@
               <p class="cancel" @click="connectCancel();">Cancel</p>
             </div>
           </div>
+
+          <!-- Ledger PSA -->
+          <div class="warning warning-ledger row" v-if="ledgerWarning">
+            <div class="col left">
+              <span class="icon icon-warning-alt"></span>
+            </div>
+            <div class="col right">
+              <p class="warning title">Attention Ledger Users</p>
+              <p class="warning msg">Use Keplr to login.</p>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -186,6 +198,7 @@ export default {
       msg: null,
       img: null,
     },
+    ledgerWarning: true,
     formatFromAtto: FromAtto,
   }),
   mounted: async function () {
@@ -426,5 +439,28 @@ div.cancel.reset {
   font-weight: 400;
   font-size: 16px;
   line-height: 150%;
+}
+div.warning.warning-ledger {
+  display: flex;
+  padding: 16px;
+  align-items: center;
+  gap: 16px;
+  align-self: stretch;
+  border-radius: 8px;
+  border: 1px solid #FF4D00;
+  margin-left: 8px;
+  margin-right: 16px;
+}
+div.warning .col.left {
+  max-width: 30px;
+}
+p.warning {
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 120%;
+}
+p.warning.title {
+  color: #FF4D00;
 }
 </style>

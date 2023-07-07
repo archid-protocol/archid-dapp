@@ -352,6 +352,11 @@ div.value {
     width: 24px;
     height: 24px;
 }
+.icon-warning-alt {
+    background-image: url('/img/icon-warning-alt.svg');
+    width: 24px;
+    height: 24px;
+}
 .icon-info {
     background-image: url('/img/icon-info.svg');
     width: 24px;
