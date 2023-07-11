@@ -13,7 +13,7 @@
     <!-- Domains -->
     <div v-if="tokens.length && searchThreshold !== false">
       <ul class="domains">
-        <li v-for="(domain, i) in tokens" :key="i">
+        <li v-for="(domain, i) in domainsList" :key="i">
           <DomainListEntry
             v-bind:domain="domain"
             v-bind:cw721="cw721"
@@ -231,6 +231,11 @@ export default {
       if (!this.tokenQuantity) return 0;
       return Math.ceil((this.tokenQuantity / this.pageSize));
     },
+    domainsList: function () {
+      if (this.filteredTokens && this.search) return this.filteredTokens;
+      else if (this.tokens) return this.tokens;
+      else return [];
+    }
   },
 }
 </script>
