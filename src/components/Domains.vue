@@ -60,7 +60,7 @@
 <script>
 import { Client, Accounts } from '../util/client';
 import { Config, ResolveAddress } from '../util/query';
-import { NumTokens, Tokens } from '../util/token';
+import { NumTokens, Tokens, Token } from '../util/token';
 import * as Paging from '../util/pagination';
 
 import DomainsBanner from './children/DomainsBanner.vue';
@@ -181,20 +181,25 @@ export default {
         htmlCollection[0].click();
       }
     },
-    _domainSearch: function (filters) {
-      let filteredTokens = [];
+    _domainSearch: async function (filters) {
+      let tokenSearch = null;
+      let textFilter = null;
+      let domainSuffix = ".arch";
       this.page = 0;
-      if (!filters.text) return this.search = null;
-      // Text filter
-      for (let i = 0; i < this.tokens.length; i++) {
-        if (this.tokens[i].includes(filters.text)) {
-          filteredTokens.push(this.tokens[i]);
-        }
-        if (i == (this.tokens.length - 1)) {
-          this.filteredTokens = filteredTokens;
-          this.search = filters.text;
-          // console.log(this.filteredTokens);
-        }
+      if (!this.cwClient || typeof filters !== 'object') return this.search = null;
+      else if (!filters.text) return this.search = null;
+      else if (filters.text.length < 5) textFilter = filters.text + domainSuffix;
+      else if (filters.text.slice(-5) !== domainSuffix) textFilter = filters.text + domainSuffix;
+      else textFilter = filters.text;
+      try {
+        if (!this.cw721) await this.setTokenContract();
+        tokenSearch = await Token(textFilter, this.cw721, this.cwClient);
+        if (tokenSearch['extension']) this.filteredTokens = [tokenSearch.extension.domain];
+        else this.filteredTokens = [];
+        this.search = true;
+      } catch(e) {
+        console.error(`Token search for ${filters.text} failed`, e);
+        return;
       }
     },
     _addressSearch: async function (filters) {
