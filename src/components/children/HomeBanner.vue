@@ -7,7 +7,7 @@
         <div class="ln-3">in Archway</div>
       </div>
       <div class="subtitle">
-        <p>A social social security number is how official sources identify you, but not how you introduce yourself. You do it with your name. Start using your ArchID instead of an unmemorable string to identify yourself in Archway.</p>
+        <p>A social security number is how official sources identify you, but not how you introduce yourself. You do that with your name. Start using your ArchID instead of an unmemorable string to identify yourself in Archway.</p>
       </div>
     </div>
     <div class="search" v-if="!isReadOnlyClient(cwClient)">
@@ -42,7 +42,7 @@
       <p class="focus">This domain is who you are in Archway.</p>
       <p class="descr">.arch domains can be registered for 1, 2 or 3 years.</p>
       <p class="descr">Unlimited subdomains can be created for your applications and addresses.</p>
-      <p class="descr">You can add and verify the ownership of applications as well as social profiles to this domain.</p>
+      <p class="descr">You can add and verify the ownership of applications as well as add your social profiles to this domain.</p>
     </div>
     <div class="taken-domain-data" v-if="registration.taken">
       <div class="left">

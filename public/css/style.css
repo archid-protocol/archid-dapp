@@ -11,13 +11,13 @@ html, body {
 div.logo {
     position: absolute;
     top: 58px;
-    left: 8%;
+    left: 9%;
     z-index: 100;
 }
 div.user.connect {
     position: absolute;
     top: 58px;
-    right: 8%;
+    right: 9%;
     min-width: 500px;
     text-align: right;
     z-index: 110;
@@ -174,7 +174,7 @@ div.value {
     background-image: url('/img/chevron-right.svg');
 }
 .paging-items.row {
-    justify-content: flex-end;
+    justify-content: space-between;
     margin-top: 1em;
 }
 .paging-items .col.left, .paging-items .col.right {

@@ -1,9 +1,9 @@
 @media screen and (max-width: 1600px) {
     div.logo {
-        left: 10%;
+        left: 11%;
     }
     div.user.connect {
-        right: 10%;
+        right: 11%;
     }
 }
 
@@ -24,19 +24,19 @@
 
 @media screen and (max-width: 1000px) {
     div.logo {
-        left: 12%;
+        left: 13%;
     }
     div.user.connect {
-        right: 12%;
+        right: 13%;
     }
 }
 
 @media screen and (max-width: 700px) {
     div.logo {
-        left: 14%;
+        left: 15%;
     }
     div.user.connect {
-        right: 14%;
+        right: 15%;
     }
 }
 

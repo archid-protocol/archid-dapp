@@ -26,7 +26,7 @@
       <div class="ln-2 heading txt-focus">An identity<span class="txt-primary">.</span></div>
       <div class="ln-3">
         <p class="descr">When someone asks you who you are, you don't answer <br/>with the number on your ID, you use your name.</p>
-        <p class="descr">ArchID is who you are on Archway, a name for your address, and so much more.</p>
+        <p class="descr">ArchID is who you are on Archway, a name for your address and so much more.</p>
       </div>
       <div class="ln-4 container container-fluid">
         <div class="row home1-row">
@@ -46,17 +46,18 @@
         <div class="row home2-row">
           <div class="col">
             <h3 class="title home2-1">Become recognizable</h3>
-            <p class="home2-1">The simple fact that you can give your ArchID domain instead of a 120 character long string is already a massive advantage.</p>
-            <p class="home2-1">It makes you recognisable, since you choose where you identify yourself with your ArchID.</p>
+            <p class="home2-1">Share your ArchID domain with others instead of your 46 character Archway address.</p>
+            <p class="home2-1">It makes you recognizable and lets you choose how to be identified in Archway.</p>
           </div>
           <div class="col">
             <h3 class="title home2-1">Stay safe</h3>
-            <p class="home2-1">Developers can choose to be identified as the owner of an application and address, allowing wallets to display and verify the owner of a particular interface.</p>
+            <p class="home2-1">Developers can be identified as the owner of an application.</p>
             <p class="home2-1">This makes it harder for people to take advantage of you with phishing applications and campaigns.</p>
           </div>
           <div class="col">
             <h3 class="title home2-1">More than just a name</h3>
-            <p class="home2-1">If you choose to add your social media profiles, that information can be accessed by other applications so that you don’t have to enter and update it on all the applications you use.</p>
+            <p class="home2-1">Add your social profiles and tie together your web3 and web2 identity.</p>
+            <p class="home2-1">Update, remove, edit or reorganize social profiles by leveraging ArchID's updatable NFTs.</p>
           </div>
         </div>
       </div>

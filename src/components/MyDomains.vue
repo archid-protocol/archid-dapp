@@ -11,7 +11,7 @@
     </div>
 
     <!-- Domains -->
-    <div v-if="tokens.length && searchThreshold !== false">
+    <div v-if="tokens.length && searchThreshold !== false && !disconnected">
       <ul class="domains">
         <li v-for="(domain, i) in domainsList" :key="i">
           <DomainListEntry
@@ -48,11 +48,17 @@
       </div>
     </div>
 
-    <div v-if="tokens.length && searchThreshold == false"></div>
+    <!-- No search results found -->
+    <div v-if="tokens.length && searchThreshold == false && !disconnected"></div>
 
     <!-- No Domains were found -->
-    <div v-if="!tokens.length">
+    <div class="warn-helper" v-if="!tokens.length && !disconnected">
       <p v-if="loaded">No domains found for account {{ accounts[0].address }}</p>
+    </div>
+
+    <!-- Disconnected -->
+    <div class="warn-helper" v-if="disconnected">
+      <p v-if="loaded"><a class="connect" @click="connectHandler();">Login</a> to view your domains</p>
     </div>
   </div>
 </template>
@@ -60,7 +66,7 @@
 <script>
 import { Client, Accounts } from '../util/client';
 import { Config, ResolveAddress } from '../util/query';
-import { NumTokens, TokensOf } from '../util/token';
+import { TokensOf } from '../util/token';
 import * as Paging from '../util/pagination';
 
 import DomainsBanner from './children/DomainsBanner.vue';
@@ -82,6 +88,7 @@ export default {
     searchThreshold: null,
     loaded: false,
     title: 'My Domains',
+    disconnected: null,
     page: 0,
     pageSize: Paging.DEFAULT_PAGE_SIZE,
     pageSizes: Paging.ALL_PAGE_SIZES,
@@ -119,23 +126,33 @@ export default {
       return;
     },
     tokenIds: async function () {
+      if (!Array.isArray(this.accounts)) return;
+      if (!this.accounts.length) return this.disconnected = true;
       if (!this.cw721) await this.setTokenContract();
-      // Total tokens
-      let total = await NumTokens(this.cw721, this.cwClient);
-      total = (total['count']) ? total.count : 0;
-      if (!total || typeof total !== 'number') return;
       // Load tokens
-      if (total > LIMIT) {
-        let pages = Math.ceil(total / LIMIT);
-        for (let i = 0; i < pages; i++) {
-          let start = (i > 0) ? this.tokens[this.tokens.length - 1] : null;
-          let query = await TokensOf(this.cw721, this.accounts[0].address, this.cwClient, LIMIT, start);
-          if (query['tokens']) this.tokens = [...this.tokens, ...query.tokens];
-        }
-      } else {
-        let query = await TokensOf(this.cw721, this.accounts[0].address, this.cwClient);
-        this.tokens = (query['tokens']) ? query.tokens : [];
-      }
+      let finished = false, i = 0;
+      do {
+        let start = (i > 0) ? this.tokens[this.tokens.length - 1] : null;
+        let query = await TokensOf(this.cw721, this.accounts[0].address, this.cwClient, LIMIT, start);
+        i++;
+        if (!Array.isArray(query['tokens'])) return;
+        else if (!query.tokens.length) return finished = true;
+        else this.tokens = [...this.tokens, ...query.tokens];
+
+      } while (!finished);
+
+      // let total = LIMIT + 1;
+      // if (total > LIMIT) {
+      //   let pages = Math.ceil(total / LIMIT);
+      //   for (let i = 0; i < pages; i++) {
+      //     let start = (i > 0) ? this.tokens[this.tokens.length - 1] : null;
+      //     let query = await TokensOf(this.cw721, this.accounts[0].address, this.cwClient, LIMIT, start);
+      //     if (query['tokens']) this.tokens = [...this.tokens, ...query.tokens];
+      //   }
+      // } else {
+      //   let query = await TokensOf(this.cw721, this.accounts[0].address, this.cwClient);
+      //   this.tokens = (query['tokens']) ? query.tokens : [];
+      // }
       // console.log('TokensOf query', this.tokens);
     },
 
@@ -216,6 +233,11 @@ export default {
       this._collapseDomainListItems();
       this.page = parseInt(event.target.value);
     },
+    connectHandler: function () {
+      window.scrollTo(0, 0);
+      const connectEl = document.getElementById('connect_modal');
+      connectEl.click();
+    },
 
     // Util
     isSubdomain: function (domain = null) {
@@ -257,5 +279,12 @@ ul li {
   margin-bottom: 1em;
   background: rgba(255, 255, 255, 0.6);
   border-radius: 16px;
+}
+a.connect {
+  cursor: pointer;
+  color: #FF4D00;
+}
+div.warn-helper {
+  padding: 0.2em;
 }
 </style>
