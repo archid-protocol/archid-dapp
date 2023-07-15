@@ -139,5 +139,6 @@ export {
   cosmostationClient,
   keplrClient,
   leapClient,
-  offlineClient
+  offlineClient,
+  IsTestnet
 };

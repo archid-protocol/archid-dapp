@@ -17,6 +17,8 @@
 </template>
 
 <script>
+import { IsTestnet } from '../../util/cosmwasm';
+
 const TYPE_LABELS = {
   mint: "Domain registered.",
   mint_subdomain: "Subdomain registered.",
@@ -26,7 +28,7 @@ const TYPE_LABELS = {
   renew_domain: "Registration renewed"
 };
 
-const TX_EXPLORER_PREFIX = "https://testnet.mintscan.io/archway-testnet/txs/";
+const TX_EXPLORER_PREFIX = (IsTestnet) ? "https://testnet.mintscan.io/archway-testnet/txs/" : "https://mintscan.io/archway/txs/";
 const HEIGHT_EXPLORER_PREFIX = "https://testnet.mintscan.io/archway-testnet/blocks/";
 
 export default {
