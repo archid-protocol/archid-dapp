@@ -29,7 +29,7 @@ const TYPE_LABELS = {
 };
 
 const TX_EXPLORER_PREFIX = (IsTestnet) ? "https://testnet.mintscan.io/archway-testnet/txs/" : "https://mintscan.io/archway/txs/";
-const HEIGHT_EXPLORER_PREFIX = "https://testnet.mintscan.io/archway-testnet/blocks/";
+const HEIGHT_EXPLORER_PREFIX = (IsTestnet) ? "https://testnet.mintscan.io/archway-testnet/blocks/" : "https://mintscan.io/archway/blocks/";
 
 export default {
   props: {
