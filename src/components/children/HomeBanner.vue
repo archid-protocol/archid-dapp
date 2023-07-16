@@ -137,15 +137,14 @@ export default {
       // console.log('Token query', this.token);
     },
     searchWorker: async function (text = null) {
-      this.registration.taken = false;
       if (!this.tokens) return '';
       if (!text) return '';
       if (typeof text !== 'string') return '';
+      this.registration.taken = false;
       let rawText = text.toLowerCase().replace(/[^a-z0-9-]/g,'');
       let searchText = rawText + '.arch';
       let tokenSearch = null;
       let isTaken = null;
-
       try {
         if (!this.cw721) await this.setTokenContract();
         tokenSearch = await Token(searchText, this.cw721, this.cwClient);
@@ -155,7 +154,6 @@ export default {
         console.error(`Token search for ${searchText} failed`, e);
         return;
       }
-
       if (isTaken) {
         // Check validity of expiration
         let token = tokenSearch;
@@ -175,10 +173,16 @@ export default {
       }
     },
     searchHandler: async function () {
-      this.search.result = null;
-      if (!this.search.input || typeof this.search.input !== 'string') return;
-      if (this.search.input.length < 3) return;
-      this.search.result = await this.searchWorker(this.search.input);
+      if (!this.search.input || typeof this.search.input !== 'string') return this._delayedSearchReset();
+      if (this.search.input.length < 3) return this._delayedSearchReset();
+      else this.search.result = await this.searchWorker(this.search.input);
+    },
+    _delayedSearchReset: function () {
+      setTimeout(() => {
+        if (!this.search.input) this.search.result = null;
+        else if (typeof this.search.input !== 'string') this.search.result = null;
+        else if (this.search.input.length < 3) this.search.result = null;
+      }, 300);
     },
     updateSelectedDomain: async function (id = null) {
       if (typeof id !== 'string') return;
