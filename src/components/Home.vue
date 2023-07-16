@@ -26,7 +26,7 @@
       <div class="ln-2 heading txt-focus">An identity<span class="txt-primary">.</span></div>
       <div class="ln-3">
         <p class="descr">When someone asks you who you are, you don't answer <br/>with the number on your ID, you use your name.</p>
-        <p class="descr">ArchID is who you are on Archway, a name for your address and so much more.</p>
+        <p class="descr">ArchID is who you are in Archway Network. A name for your address and so much more.</p>
       </div>
       <div class="ln-4 container container-fluid">
         <div class="row home1-row">
