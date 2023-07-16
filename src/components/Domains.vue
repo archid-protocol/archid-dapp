@@ -34,11 +34,11 @@
           </div>
           <div class="col mid">
             <div class="paging-display">
-              <!-- <div class="page-select-wrapper">
+              <div class="page-select-wrapper" v-if="filteredTokens && search">
                 <select class="page-select"  @change="onChange($event)" v-model="page">
                   <option class="page-select-option form-control" v-for="(pageOption, i) in totalPages" :key="'page-option-'+i" :value="i">{{ String(i+1) }}</option>
                 </select>
-              </div> -->
+              </div>
             </div>
           </div>
           <div class="col right">
@@ -126,7 +126,7 @@ export default {
       let total = await NumTokens(this.cw721, this.cwClient);
       total = (total['count']) ? total.count : 0;
       if (!total || typeof total !== 'number') return;
-      else this.tokenQuantity = total;
+      this.tokenQuantity = total;
       // Load tokens page
       if (this.page > (total / LIMIT)) this.page = Math.floor(total / LIMIT);
       let start = (this.page > 0) ? this.tokens[this.tokens.length - 1] : null;
@@ -166,7 +166,7 @@ export default {
           }
         }
       } else {
-        this.search = null;
+        if (this.search) this.search = null;
       }
     },
     pageHandler: async function (page) {
@@ -210,14 +210,13 @@ export default {
       if (filters.text.length !== 46 && filters.text.length !== 66) return this.search = null;
       let query = await ResolveAddress(filters.text, this.cwClient);
       this.filteredTokens = (query['names']) ? query.names : [];
-      if (!this.filteredTokens.length) this.search = null;
-      else this.search = true;
+      this.search = true;
       // console.log('Address search query', query, this.filteredTokens);
     },
     async onChange(event) {
+      if (!this.filteredTokens || !this.search) return;
       this._collapseDomainListItems();
       this.page = parseInt(event.target.value);
-      await this.tokenIds();
     },
 
     // Util
@@ -228,11 +227,21 @@ export default {
   },
   computed: {
     totalPages: function () {
-      if (!this.tokenQuantity) return 0;
-      return Math.ceil((this.tokenQuantity / this.pageSize));
+      // Searching
+      if (this.search && !this.filteredTokens) return 0;
+      else if (this.search && this.filteredTokens) return Math.ceil((this.filteredTokens.length / this.pageSize));
+      // Not searching / Default display
+      else if (!this.tokenQuantity) return 0;
+      else return Math.ceil((this.tokenQuantity / this.pageSize));
     },
     domainsList: function () {
-      if (this.filteredTokens && this.search) return this.filteredTokens;
+      // Searching
+      if (this.filteredTokens && this.search) {
+        let start = (this.page == 0) ? 0 : this.page * LIMIT;
+        let end = start + LIMIT;
+        return this.filteredTokens.slice(start, end);
+      }
+      // Not searching / Default display
       else if (this.tokens) return this.tokens;
       else return [];
     }
