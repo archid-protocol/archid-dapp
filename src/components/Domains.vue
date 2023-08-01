@@ -5,6 +5,7 @@
       <DomainsBanner
         v-bind:title="title"
         v-bind:context="0"
+        v-bind:collectionSize="tokenQuantity"
         @filter="filter"
       >
       </DomainsBanner>
@@ -38,6 +39,9 @@
                 <select class="page-select"  @change="onChange($event)" v-model="page">
                   <option class="page-select-option form-control" v-for="(pageOption, i) in totalPages" :key="'page-option-'+i" :value="i">{{ String(i+1) }}</option>
                 </select>
+              </div>
+              <div class="page-display-wrapper" v-if="!search">
+                <span>{{ (page + 1) }}</span>
               </div>
             </div>
           </div>
@@ -127,6 +131,7 @@ export default {
       total = (total['count']) ? total.count : 0;
       if (!total || typeof total !== 'number') return;
       this.tokenQuantity = total;
+      console.log('Total AID Tokens', this.tokenQuantity);
       // Load tokens page
       if (this.page > (total / LIMIT)) this.page = Math.floor(total / LIMIT);
       let start = (this.page > 0) ? this.tokens[this.tokens.length - 1] : null;

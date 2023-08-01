@@ -137,13 +137,13 @@
           </div>
 
           <!-- Ledger PSA -->
-          <div class="warning warning-ledger row" v-if="ledgerWarning">
+          <div class="warning warning-msg row" v-if="warning.display">
             <div class="col left">
               <span class="icon icon-warning-alt"></span>
             </div>
             <div class="col right">
-              <p class="warning title">Attention Ledger Users</p>
-              <p class="warning msg">Use Keplr to login.</p>
+              <p class="warning title" v-if="warning.title">{{ warning.title }}</p>
+              <p class="warning msg" v-if="warning.body">{{ warning.body }}</p>
             </div>
           </div>
 
@@ -198,7 +198,11 @@ export default {
       msg: null,
       img: null,
     },
-    ledgerWarning: true,
+    warning: {
+      title: null,
+      body: null,
+      display: false,
+    },
     formatFromAtto: FromAtto,
   }),
   mounted: async function () {
@@ -440,7 +444,7 @@ div.cancel.reset {
   font-size: 16px;
   line-height: 150%;
 }
-div.warning.warning-ledger {
+div.warning.warning-msg {
   display: flex;
   padding: 16px;
   align-items: center;

@@ -22,6 +22,7 @@
             v-bind:isReadOnly="false"
             v-bind:baseCost="parseInt(config.base_cost)"
             v-bind:collapsible="true"
+            v-bind:status="statuses[domain]"
             :key="'item-'+i"
           >
           </DomainListEntry>
@@ -65,13 +66,15 @@
 
 <script>
 import { Client, Accounts } from '../util/client';
-import { Config, ResolveAddress } from '../util/query';
+import { Config, ResolveAddress, ResolveRecord } from '../util/query';
 import { TokensOf } from '../util/token';
 import * as Paging from '../util/pagination';
 
 import DomainsBanner from './children/DomainsBanner.vue';
 import DomainListEntry from './children/DomainListEntry.vue';
 
+const ACTIVE = 1;
+const EXPIRED = 2;
 const LIMIT = 100;
 
 export default {
@@ -84,6 +87,7 @@ export default {
     accounts: [],
     tokens: [],
     filteredTokens: [],
+    statuses: {},
     search: null,
     searchThreshold: null,
     loaded: false,
@@ -112,6 +116,7 @@ export default {
 
           // Load tokens
           await this.tokenIds();
+          await this.tokenStatuses();
           this.loaded = true;
         }, 100);
       } catch (e) {
@@ -138,22 +143,24 @@ export default {
         if (!Array.isArray(query['tokens'])) return;
         else if (!query.tokens.length) return finished = true;
         else this.tokens = [...this.tokens, ...query.tokens];
-
       } while (!finished);
-
-      // let total = LIMIT + 1;
-      // if (total > LIMIT) {
-      //   let pages = Math.ceil(total / LIMIT);
-      //   for (let i = 0; i < pages; i++) {
-      //     let start = (i > 0) ? this.tokens[this.tokens.length - 1] : null;
-      //     let query = await TokensOf(this.cw721, this.accounts[0].address, this.cwClient, LIMIT, start);
-      //     if (query['tokens']) this.tokens = [...this.tokens, ...query.tokens];
-      //   }
-      // } else {
-      //   let query = await TokensOf(this.cw721, this.accounts[0].address, this.cwClient);
-      //   this.tokens = (query['tokens']) ? query.tokens : [];
-      // }
-      // console.log('TokensOf query', this.tokens);
+    },
+    tokenStatuses: async function () {
+      let domains, start, end;
+      if (this.search) domains = this.filteredTokens;
+      else domains = this.tokens;
+      if (!this.tokens.length) return;
+      start = (this.page * this.pageSize);
+      end = (this.page * this.pageSize) + this.pageSize;
+      domains.slice(start, end).forEach(async (domain) => {
+        if (!this.statuses[domain]) {
+          let query = await ResolveRecord(domain, this.cwClient);
+          this.statuses[domain] = {
+            expiration: query.expiration,
+            isExpired: new Date().getTime() > (query.expiration * 1000)
+          };
+        }
+      });
     },
 
     // Filter
@@ -181,9 +188,26 @@ export default {
             break;
           }
         }
+      } else if (typeof filters.type == 'number') {
+        switch (filters.type) {
+          case 0: {
+            this.search = null;
+            break;
+          }
+          case 1:
+          case 2: {
+            this._statusSearch(filters);
+            break;
+          }
+          default: {
+            this.search = null;
+            break;
+          }
+        }
       } else {
         this.search = null;
       }
+      this.tokenStatuses();
     },
     pageHandler: function (page) {
       if (typeof page !== 'number') return;
@@ -229,9 +253,48 @@ export default {
       else this.search = true;
       // console.log('Address search query', query, this.filteredTokens);
     },
+    _statusSearch: async function (filters) {
+      this.page = 0;
+      let filteredTokens = [];
+      switch (filters.type) {
+        case ACTIVE: {
+          this.tokens.forEach(async (domain) => {
+            if (!this.statuses[domain]) {
+              let query = await ResolveRecord(domain, this.cwClient);
+              this.statuses[domain] = {
+                expiration: query.expiration,
+                isExpired: new Date().getTime() > (query.expiration * 1000)
+              };
+            }
+            if (this.statuses[domain].isExpired == false) filteredTokens.push(domain);
+          });
+          break;
+        }
+        case EXPIRED: {
+          this.tokens.forEach(async (domain) => {
+            if (!this.statuses[domain]) {
+              let query = await ResolveRecord(domain, this.cwClient);
+              this.statuses[domain] = {
+                expiration: query.expiration,
+                isExpired: new Date().getTime() > (query.expiration * 1000)
+              };
+            }
+            if (this.statuses[domain].isExpired == true) filteredTokens.push(domain);
+          });
+          break;
+        }
+        default: {
+          this.search = null;
+          break;
+        }
+      }
+      this.filteredTokens = filteredTokens;
+      this.search = true;
+    },
     onChange(event) {
       this._collapseDomainListItems();
       this.page = parseInt(event.target.value);
+      this.tokenStatuses();
     },
     connectHandler: function () {
       window.scrollTo(0, 0);

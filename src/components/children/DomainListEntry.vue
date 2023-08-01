@@ -6,6 +6,10 @@
         <span class="badge badge-warning badge-unsaved-changes" v-if="editing || editingDescr || updatingImg">Unsaved Changes</span>
       </div>
       <div class="right">
+        <div class="status" v-if="status">
+          <span class="badge badge-active" v-if="!status.isExpired">Active</span>
+          <span class="badge badge-expired" v-if="status.isExpired">Expired</span>
+        </div>
         <div :class="{'caret': true, 'active': !closed}" @click="domainDetails();" v-if="collapsible">&caron;</div>
       </div>
     </div>
@@ -654,6 +658,7 @@ export default {
     domain: String,
     cw721: String,
     cwClient: Object,
+    status: Object,
     isSubdomain: Boolean,
     isReadOnly: Boolean,
     baseCost: Number,
@@ -1290,8 +1295,19 @@ div.right {
   width: 30%;
   text-align: right;
 }
+div.right .status,
+div.right .caret,
 div.expiry {
   display: inline-block;
+}
+div.right .status {
+  margin-right: 1em;
+  position: relative;
+  top: -4px;
+}
+div.right .caret {
+  position: relative;
+  top: 12px;
 }
 label {
   margin-bottom: 0.25em;
