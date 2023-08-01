@@ -12,7 +12,7 @@
         </div>
       </div>
       <div class="token-info left" v-if="context == contexts.all">
-        <p v-if="!search.text">Total domains: {{ totalDomains }}</p>
+        <p v-if="!search.text"><strong>Total domains:</strong><br/>{{ totalDomains }}</p>
       </div>
       <div class="text-filter right">
         <input 

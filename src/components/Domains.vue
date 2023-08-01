@@ -64,7 +64,7 @@
 <script>
 import { Client, Accounts } from '../util/client';
 import { Config, ResolveAddress } from '../util/query';
-import { NumTokens, Tokens, Token } from '../util/token';
+import { NumTokens, TokensOf, Tokens, Token } from '../util/token';
 import * as Paging from '../util/pagination';
 
 import DomainsBanner from './children/DomainsBanner.vue';
@@ -131,7 +131,6 @@ export default {
       total = (total['count']) ? total.count : 0;
       if (!total || typeof total !== 'number') return;
       this.tokenQuantity = total;
-      console.log('Total AID Tokens', this.tokenQuantity);
       // Load tokens page
       if (this.page > (total / LIMIT)) this.page = Math.floor(total / LIMIT);
       let start = (this.page > 0) ? this.tokens[this.tokens.length - 1] : null;
@@ -141,7 +140,8 @@ export default {
       //   start: start,
       //   limit: LIMIT,
       //   query: query,
-      //   tokens: this.tokens
+      //   tokens: this.tokens,
+      //   tokenQuantity: this.tokenQuantity
       // });
     },
 
@@ -213,8 +213,27 @@ export default {
       this.page = 0;
       if (typeof filters.text !== 'string') return this.search = null;
       if (filters.text.length !== 46 && filters.text.length !== 66) return this.search = null;
+
+      // Resolved Domains
       let query = await ResolveAddress(filters.text, this.cwClient);
       this.filteredTokens = (query['names']) ? query.names : [];
+
+      // Owned Domains
+      let finished = false, i = 0, tokens = [], limit = 100;
+      do {
+        let start = (i > 0) ? tokens[tokens.length - 1] : null;
+        let query = await TokensOf(this.cw721, filters.text, this.cwClient, limit, start);
+        i++;
+        if (!Array.isArray(query['tokens'])) finished = true;
+        else if (!query.tokens.length) finished = true;
+        else tokens = [...tokens, ...query.tokens];
+      } while (!finished);  
+      if (tokens.length) {
+        tokens.forEach((domain) => {
+          if (this.filteredTokens.indexOf(domain) == -1) this.filteredTokens.push(domain);
+        });
+      }
+      
       this.search = true;
       // console.log('Address search query', query, this.filteredTokens);
     },
