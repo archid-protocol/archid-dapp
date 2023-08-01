@@ -209,6 +209,9 @@ div.value {
     border: none;
     outline: 0px;
 }
+a.flat-link {
+    text-decoration: none;
+}
 
 /* Badges */
 .badge {

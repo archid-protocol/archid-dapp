@@ -139,7 +139,9 @@
             <div class="domain-owner-record">
               <div class="owner" v-if="owner">
                 <p class="descr">Owner</p>
-                <div class="domain-owner value">{{ owner.owner }}</div>
+                <div class="domain-owner value">
+                  <a class="flat-link" :href="'/address/'+owner.owner">{{ owner.owner }}</a>
+                </div>
               </div>
             </div>
             <!-- Domain Record -->
@@ -150,7 +152,13 @@
                   :class="{'domain-resolver': true, 'value': true, 'configurable': owner.owner == viewer}"
                   @click="editDomainRecordHandler();"
                   v-if="!editingResolver || (owner.owner !== viewer)"
-                >{{(domainRecord.address) ? domainRecord.address : 'Expired'}}</div>
+                >
+                  <span v-if="owner.owner == viewer">{{(domainRecord.address) ? domainRecord.address : 'Expired'}}</span>
+                  <span v-if="owner.owner !== viewer">
+                    <a class="flat-link" :href="'/address/'+owner.owner" v-if="domainRecord.address">{{domainRecord.address}}</a>
+                    <span v-if="!domainRecord.address">Expired</span>
+                  </span>
+                </div>
                 <div class="input-group domain-record" v-if="editingResolver && owner.owner == viewer">
                   <input 
                     type="text" 
