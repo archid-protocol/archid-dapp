@@ -1317,6 +1317,9 @@ div.right .caret {
   position: relative;
   top: 12px;
 }
+div.right .caret.active {
+  top: -12px;
+}
 label {
   margin-bottom: 0.25em;
 }

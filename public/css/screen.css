@@ -69,9 +69,8 @@
         font-size: 50px !important;
         word-break: break-word;
     }
-    div.title {
+    div.title.home {
         margin-top: 5em;
-        margin-bottom: 2em;
     }
     .home-badge {
         min-width: 90vw !important;
@@ -132,6 +131,18 @@
         flex-direction: column;
     }
 
+    /* BANNERS */
+    div.title {
+        margin-top: 1em;
+        margin-bottom: 2em;
+    }
+    div.title.domains {
+        margin-top: 8em;
+    }
+    div.title h3 {
+        font-size: 31px !important;
+    }
+
     /* DOMAINS */
     .domain-banner .search {
         display: none;
@@ -158,7 +169,6 @@
         width: 20px;
         height: 20px;
         padding: 27px !important;
-        top: -80px !important;
         font-size: 30px !important;
     }
     div.add span {
@@ -178,7 +188,8 @@
     .row.edit-ctrl .left, .row.edit-ctrl .right {
         width: 100% !important;
     }
-    .domain-banner .wrapper h3, .domain-item .head .left a {
+    .domain-banner .wrapper h3, 
+    .domain-item .head .left a {
         font-size: 30px;
     }
     .page .token-metadata, .domain-history {

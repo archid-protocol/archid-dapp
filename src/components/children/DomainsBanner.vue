@@ -1,6 +1,6 @@
 <template>
   <div class="domain-banner">
-    <div class="title" v-if="title">
+    <div class="title domains" v-if="title">
       <h3>{{title}}</h3>
     </div>
     <div class="search">

@@ -1,7 +1,7 @@
 <template>
   <div :class="{'welcome': true, 'banner': true, 'sm': search.result}" v-if="account" :style="'background-image: url(' + computedBanner + ');'">
     <div class="details" v-if="!search.result">
-      <div class="title">
+      <div class="title home">
         <div class="ln-1">Hello, <span class="your-name">{{ account.slice(0,12) }}</span></div>
         <div class="ln-2">This is who you are</div>
         <div class="ln-3">in Archway</div>
