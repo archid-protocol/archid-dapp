@@ -132,6 +132,12 @@
     }
 
     /* BANNERS */
+    div.logo {
+        left: 11%;
+    }
+    div.user.connect {
+        right: 11%;
+    }
     div.title {
         margin-top: 1em;
         margin-bottom: 2em;
