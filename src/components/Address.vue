@@ -3,7 +3,7 @@
 
     <!-- Address Banner -->
     <div class="address-banner">
-      <div class="title" v-if="account">
+      <div class="title address" v-if="account">
         <h3>{{ accountDisplayFormat(account) }}</h3>
         <h4>Domains</h4>
       </div>

@@ -142,7 +142,8 @@
         margin-top: 1em;
         margin-bottom: 2em;
     }
-    div.title.domains {
+    div.title.domains,
+    div.title.address {
         margin-top: 8em;
     }
     div.title h3 {
@@ -150,7 +151,8 @@
     }
 
     /* DOMAINS */
-    .domain-banner .search {
+    .domain-banner .search,
+    .address-banner .search {
         display: none;
     }
     .domain-banner .domain-banner {
