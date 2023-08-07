@@ -114,7 +114,7 @@ async function CreateNative(id, token_id, expiration, price, client = null) {
 /**
  * Finalize and consume swap for ARCH
  * @param {String} id : ID of swap to finalize
- * @param {Object} swap : A swap details object; can be loaded from `Details` entry point
+ * @param {Object} swap : (Optional) A swap details object; can be loaded from `Details` entry point
  * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
  * @returns {ExecuteResult}
  * @see Details
@@ -210,7 +210,7 @@ async function CreateCw20(id, cw20_contract, token_id, expiration, price, denom 
 /**
  * Finalize and consume swap for cw20 tokens
  * @param {String} id : ID of swap to finalize
- * @param {Object} swap : A swap details object; can be loaded from `Details` entry point
+ * @param {Object} swap : (Optional) A swap details object; can be loaded from `Details` entry point
  * @param {String} denom? : (Optional) denom of payment cw20; only used for memo
  * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
  * @returns {ExecuteResult}
@@ -256,8 +256,6 @@ async function FinishCw20(id, swap, denom = '', client = null) {
 /**
  * Cancel a swap  by ID; must be swap creator
  * @param {String} id : ID of swap to be cancelled
- * @param {Object} swap : A swap details object; can be loaded from `Details` entry point
- * @param {String} denom? : (Optional) denom of payment cw20; only used for memo
  * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
  * @returns {ExecuteResult}
  * @see Details
