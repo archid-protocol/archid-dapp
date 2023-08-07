@@ -2,7 +2,7 @@ import { coin } from "@cosmjs/stargate";
 import { Client } from './client';
 
 const REGISTRY_CONTRACT = process.env.VUE_APP_REGISTRY_CONTRACT;
-const BASE_DOMAIN_COST = 50;
+const BASE_DOMAIN_COST = 1000000000000000000; // 1 ARCH in `aarch`
 
 /**
  * Register a new domain tx
