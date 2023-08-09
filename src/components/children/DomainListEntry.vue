@@ -7,7 +7,9 @@
       </div>
       <div class="right">
         <div class="status" v-if="status">
-          <span class="badge badge-active" v-if="!status.isExpired">Active</span>
+          <span class="badge badge-mismatch" v-if="!status.isExpired && status.isMismatch && !status.isListed">Owner and Domain Record Differ</span>
+          <span class="badge badge-listed" v-if="!status.isExpired && status.isListed">Listed for Sale</span>
+          <span class="badge badge-active" v-if="!status.isExpired && !status.isListed">Active</span>
           <span class="badge badge-expired" v-if="status.isExpired">Expired</span>
         </div>
         <div :class="{'caret': true, 'active': !closed}" @click="domainDetails();" v-if="collapsible">&caron;</div>

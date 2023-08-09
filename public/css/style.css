@@ -223,6 +223,7 @@ a.flat-link {
     font-size: 12px;
     line-height: 120%;
     letter-spacing: -0.01em;
+    margin-right: 1em;
 }
 .badge-warning {
     background: rgba(255, 77, 0, 0.16);
@@ -231,6 +232,10 @@ a.flat-link {
 .badge-active {
     background: rgba(0, 130, 35, 0.14);
     color: #008223;
+}
+.badge-mismatch {
+    background: rgba(255, 77, 0, 0.16);
+    color: #FF4D00;
 }
 .badge-expired {
     background: rgba(216, 2, 40, 0.16);

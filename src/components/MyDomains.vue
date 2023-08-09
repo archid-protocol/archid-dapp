@@ -158,7 +158,9 @@ export default {
           let query = await ResolveRecord(domain, this.cwClient);
           this.statuses[domain] = {
             expiration: query.expiration,
-            isExpired: new Date().getTime() > (query.expiration * 1000)
+            isExpired: new Date().getTime() > (query.expiration * 1000),
+            address: query.address,
+            isMismatch: query.address !== this.accounts[0].address
           };
         }
       });
