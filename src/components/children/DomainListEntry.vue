@@ -134,15 +134,17 @@
               <!-- Extend / Renew Expired -->
               <button class="btn btn-inverse" @click="modals.renew = !modals.renew" v-if="!isSubdomain && owner.owner == viewer && !isExpired">Extend</button>
               <button class="btn btn-inverse" @click="modals.renew = !modals.renew" v-if="!isSubdomain && owner.owner == viewer && isExpired">Renew</button>
+              
+              <div class="wrapper advanced-ctrl" v-if="statusOkay">
+                <!-- Transfer -->
+                <button class="btn btn-inverse" @click="modals.transfer = !modals.transfer" v-if="owner.owner == viewer" :disabled="status.isListed">Transfer</button>
 
-              <!-- Transfer -->
-              <button class="btn btn-inverse" @click="modals.transfer = !modals.transfer" v-if="owner.owner == viewer" :disabled="status.isListed">Transfer</button>
+                <!-- List for Sale -->
+                <button class="btn btn-inverse" @click="modals.marketListing = !modals.marketListing" v-if="owner.owner == viewer && !status.isListed && !isExpired">List for Sale</button>
 
-              <!-- List for Sale -->
-              <button class="btn btn-inverse" @click="modals.marketListing = !modals.marketListing" v-if="owner.owner == viewer && !status.isListed && !isExpired">List for Sale</button>
-
-              <!-- Cancel Sale Listing -->
-              <button class="btn btn-primary" @click="executeCancelSwap();" v-if="owner.owner == viewer && status.isListed">Cancel Listing</button>
+                <!-- Cancel Sale Listing -->
+                <button class="btn btn-primary" @click="executeCancelSwap();" v-if="owner.owner == viewer && status.isListed">Cancel Listing</button>
+              </div>
             </div>
           </div>
           <!-- Col 3; Owner, Domain Record -->
@@ -1284,6 +1286,7 @@ export default {
         };
         // Refresh domain
         await this.dataResolutionHandler(true);
+        this.$emit('listing', this.domain);
       } else {
         // Error notification
         this.notify = {
@@ -1509,6 +1512,11 @@ export default {
       else if (this.updates.transferAddress.length !== 46 && this.updates.transferAddress.length !== 66) return false;
       else if (this.updates.transferAddress.slice(0,7) !== "archway") return false;
       return true;
+    },
+    statusOkay: function () {
+      if (typeof this.status !== 'object') return false;
+      if (typeof this.status['isListed'] !== 'undefined') return true;
+      else return false;
     }
   }
 }
@@ -1836,5 +1844,8 @@ label.img-edit {
 }
 .ctrl .btn-inverse {
   margin-right: 1em;
+}
+div.advanced-ctrl {
+  display: inline;
 }
 </style>
