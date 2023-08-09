@@ -237,6 +237,10 @@ a.flat-link {
     background: rgba(255, 77, 0, 0.16);
     color: #FF4D00;
 }
+.badge-listed {
+    background: #F2EFED;
+    color: #666666;
+}
 .badge-expired {
     background: rgba(216, 2, 40, 0.16);
     color: #D80228;

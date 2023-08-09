@@ -146,7 +146,7 @@ async function FinishNative(id, swap, client = null) {
       MARKETPLACE_CONTRACT,
       entrypoint,
       client.fees,
-      "Swap " + token_id + " for " + price + "aarch",
+      "Swap " + swap.token_id + " for " + swap.price + "aarch",
       funds
     );
     // Tx result
@@ -241,7 +241,7 @@ async function FinishCw20(id, swap, denom = '', client = null) {
       MARKETPLACE_CONTRACT,
       entrypoint,
       client.fees,
-      "Swap " + token_id + " for " + price + denom
+      "Swap " + swap.token_id + " for " + swap.price + denom
     );
     // Tx result
     return tx;
@@ -293,12 +293,12 @@ async function Cancel(id, client = null) {
 
 // Exports
 
-const query = {
+const Query = {
   List,
   Details
 };
 
-const execute = {
+const Execute = {
   CreateNative,
   CreateCw20,
   FinishNative,
@@ -306,4 +306,4 @@ const execute = {
   Cancel
 };
 
-export { query, execute }
+export { Query, Execute }

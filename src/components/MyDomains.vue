@@ -70,6 +70,7 @@ import { Client, Accounts } from '../util/client';
 import { Config, ResolveAddress, ResolveRecord } from '../util/query';
 import { TokensOf } from '../util/token';
 import * as Paging from '../util/pagination';
+import  { Query as MarketplaceQuery } from '../util/marketplace';
 
 import DomainsBanner from './children/DomainsBanner.vue';
 import DomainListEntry from './children/DomainListEntry.vue';
@@ -147,10 +148,12 @@ export default {
       } while (!finished);
     },
     tokenStatuses: async function () {
-      let domains, start, end;
+      let domains, start, end, swaps;
       if (this.search) domains = this.filteredTokens;
       else domains = this.tokens;
       if (!this.tokens.length) return;
+      let swapsQuery = await MarketplaceQuery.List(null, 30, this.cwClient);
+      swaps = (swapsQuery['swaps']) ? swapsQuery.swaps : [];
       start = (this.page * this.pageSize);
       end = (this.page * this.pageSize) + this.pageSize;
       domains.slice(start, end).forEach(async (domain) => {
@@ -160,7 +163,8 @@ export default {
             expiration: query.expiration,
             isExpired: new Date().getTime() > (query.expiration * 1000),
             address: query.address,
-            isMismatch: query.address !== this.accounts[0].address
+            isMismatch: query.address !== this.accounts[0].address,
+            isListed: swaps.indexOf(domain) !== -1
           };
         }
       });
