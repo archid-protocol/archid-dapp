@@ -1,6 +1,8 @@
 import { Client, Accounts } from './client';
 import { Config } from './query';
 
+// Queries
+
 /**
  * Returns the total number of active tokens in the contract; allows for pagination loops
  * @param {String} contract? : (Optional) contract address string for token contract
@@ -255,6 +257,51 @@ async function RecentDomains(contract = null, client = null) {
   }
 }
 
+// Txs
+
+/**
+ * 
+ * @param {String} tokenId : Token to be transferred to new owner
+ * @param {String | Addr} recipient : Archway address of new owner
+ * @param {String} contract? : Optional contract address of ArchID cw721
+ * @param {SigningCosmWasmClient} client? :  Optional instance of signing client
+ * @returns 
+ */
+async function Transfer(tokenId = null, recipient = null, contract = null, client = null) {
+  if (!tokenId || !recipient) return;
+  if (!client) client = await Client();
+  if (!contract) {
+    let cw721Query = await Config(client);
+    contract = cw721Query.cw721;
+  }
+  try {
+    // Msg.
+    let entrypoint = {
+      transfer_nft: {
+        recipient: recipient,
+        token_id: tokenId
+      }
+    };
+    // Sender
+    let accounts = await client.offlineSigner.getAccounts();
+    // Broadcast tx
+    let tx = await client.wasmClient.execute(
+      accounts[0].address,
+      contract,
+      entrypoint,
+      client.fees,
+      "Transferring domain ownership"
+    );
+    // Tx result
+    return tx;
+  } catch (e) {
+    console.error(e);
+    return {
+      error: String(e)
+    };
+  }
+}
+
 export {
   NumTokens,
   Tokens,
@@ -263,4 +310,5 @@ export {
   OwnerOf,
   HistoryOf,
   RecentDomains,
+  Transfer,
 }

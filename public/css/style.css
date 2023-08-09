@@ -434,6 +434,9 @@ a.flat-link {
     font-size: 32px;
     font-weight: 300;
 }
+.modal-header .right .close-x.transfer-domain {
+    top: -90px;
+}
 .modali .modal-header {
     border: none;
 }

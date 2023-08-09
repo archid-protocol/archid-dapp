@@ -23,6 +23,7 @@
             v-bind:baseCost="parseInt(config.base_cost)"
             v-bind:collapsible="true"
             v-bind:status="statuses[domain]"
+            @ownershipTransfer="newOwnerHandler"
             :key="'item-'+i"
           >
           </DomainListEntry>
@@ -161,6 +162,19 @@ export default {
           };
         }
       });
+    },
+    newOwnerHandler: async function (domain) {
+      if (!this.tokens) return;
+      if (!this.tokens.length) return;
+      if (this.tokens.indexOf(domain) < 0) return;
+      // Re-load tokens
+      this.loaded = false;
+      this.tokens = [];
+      this.filteredTokens = [];
+      this.statuses = {};
+      await this.tokenIds();
+      await this.tokenStatuses();
+      this.loaded = true;
     },
 
     // Filter

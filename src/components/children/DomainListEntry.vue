@@ -128,9 +128,13 @@
               <p class="value" v-if="domainRecord.expiration">{{ niceDate(domainRecord.expiration) }}</p>
             </div>
             <!-- Btn. Extend -->
-            <div class="ctrl" v-if="!isSubdomain && owner">
-              <button class="btn btn-inverse" @click="modals.renew = !modals.renew" v-if="owner.owner == viewer && !isExpired">Extend</button>
-              <button class="btn btn-inverse" @click="modals.renew = !modals.renew" v-if="owner.owner == viewer && isExpired">Renew</button>
+            <div class="ctrl" v-if="owner">
+              <!-- Extend / Renew Expired -->
+              <button class="btn btn-inverse" @click="modals.renew = !modals.renew" v-if="!isSubdomain && owner.owner == viewer && !isExpired">Extend</button>
+              <button class="btn btn-inverse" @click="modals.renew = !modals.renew" v-if="!isSubdomain && owner.owner == viewer && isExpired">Renew</button>
+
+              <!-- Transfer -->
+              <button class="btn btn-inverse" @click="modals.transfer = !modals.transfer" v-if="owner.owner == viewer">Transfer</button>
             </div>
           </div>
           <!-- Col 3; Owner, Domain Record -->
@@ -627,12 +631,62 @@
       </div>
     </div>
   </transition>
+
+  <!-- Transfer Modal -->
+  <transition name="modal">
+    <div v-if="modals.transfer && domain" class="modal-wrapper">
+      <div class="modalt">
+        <div class="modal-header transfer-domain">
+          <div class="left">
+            <p class="modal-transfer-domain-title">Are you sure you want to transfer <span class="modal-title modal-domain-title" v-if="domain">{{domain}}</span> to a new owner?</p>
+            <p class="descr warn">This action cannot be undone.</p>
+            <p class="descr warn" v-if="isNotSubdomain(domain)">Confirm the transfer by entering the domain below.</p>
+            <p class="descr warn" v-if="!isNotSubdomain(domain)">Confirm the transfer by entering the subdomain below.</p>
+          </div>
+          <div class="right">
+            <span class="close-x transfer-domain" @click="modals.transfer = !modals.transfer;">&times;</span>
+          </div>
+        </div>
+        <div class="modal-body transfer-domain">
+          <!-- Transfer Confirmation -->
+          <div class="transfer-domain-input">
+            <label class="transfer-domain label" for="transfer_domain" v-if="isNotSubdomain(domain)">Domain to transfer</label>
+            <label class="transfer-domain label" for="transfer_domain" v-if="!isNotSubdomain(domain)">Subdomain to transfer</label>
+            <input 
+              type="text" 
+              class="transfer-domain form-control"
+              name="transfer_domain"
+              v-model="transferConfirmation"
+              :placeholder="domain"
+            />
+          </div>
+          <!-- Transfer Recipient -->
+          <div class="transfer-domain-input" v-if="owner">
+            <label class="transfer-domain label" for="transfer_recipient">Recipient</label>
+            <input 
+              type="text" 
+              class="transfer-domain form-control"
+              name="transfer_recipient"
+              v-model="updates.transferAddress"
+              :placeholder="owner.owner"
+              :disabled="transferConfirmation !== domain"
+              v-if="owner.owner"
+            />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-inverse" @click="modals.transfer = !modals.transfer;">Cancel</button>
+          <button class="btn btn-primary" @click="executeTransfer();" :disabled="!canTransfer">Continue</button>
+        </div>
+      </div>
+    </div>
+  </transition>
 </template>
 
 <script>
 import { Accounts } from '../../util/client';
 import { ResolveRecord } from '../../util/query';
-import { Token, OwnerOf } from '../../util/token';
+import { Token, OwnerOf, Transfer } from '../../util/token';
 import {
   Register,
   RenewRegistration,
@@ -656,10 +710,11 @@ const IPFS_GATEWAY_PREFIX = 'https://ipfs.io/ipfs/';
 const IPFS_CID_PREFIX = 'ipfs://';
 const URL_PREFIXES = ['http://', 'https://'];
 
-const EXTEND_IMG = 'extend.svg';
-const REMOVED_IMG = 'token-burned.svg';
-const DEFAULT_TOKEN_IMG = 'token.svg';
-const METADATA_UPDATE_IMAGE = 'token-update.svg';
+const EXTEND_IMG = "extend.svg";
+const REMOVED_IMG = "token-burned.svg";
+const DEFAULT_TOKEN_IMG = "token.svg";
+const METADATA_UPDATE_IMAGE = "token-update.svg";
+const TRANSFER_IMG = "transfer.svg";
 
 export default {
   props: {
@@ -672,7 +727,7 @@ export default {
     baseCost: Number,
     collapsible: Boolean,
   },
-  emits: ['dataResolution'],
+  emits: ['dataResolution', 'ownershipTransfer'],
   components: { Notification },
   data: () => ({
     token: null,
@@ -688,6 +743,7 @@ export default {
     registering: false,
     domainRecord: null,
     burnConfirmation: null,
+    transferConfirmation: null,
     executeResult: null,
     ui: {
       accounts: [],
@@ -740,13 +796,15 @@ export default {
     updates: {
       metadata: null,
       expiry: 1,
-      resolver: null
+      resolver: null,
+      transferAddress: "",
     },
     modals: {
       renew: false,
       removeSubdomain: false,
       enlargeTokenImg: false,
       editingImg: false,
+      transfer: false,
     },
     notify: {
       type: null,
@@ -1073,6 +1131,50 @@ export default {
         };
       }
     },
+    executeTransfer: async function () {
+      if (typeof this.domain !== 'string' || !this.updates.transferAddress) return;
+
+      // Waiting notification
+      this.notify = {
+        type: "loading",
+        title: "Saying goodbye is never easy",
+        msg: "Preparing to transfer " + this.domain + " to a new owner",
+        img: null,
+      };
+
+      this.resetFormIters();
+
+      this.executeResult = await Transfer(
+        this.domain,
+        this.updates.transferAddress,
+        this.cw721,
+        this.cwClient
+      );
+
+      this.modals.transfer = false;
+      // console.log('RenewRegistration tx', this.executeResult);
+
+      if (!this.executeResult['error']) {
+        this.notify = {
+          type: "success",
+          title: "Domain transferred",
+          msg: this.domain + " has been successfully transferred to a new owner",
+          img: TRANSFER_IMG,
+        };
+        // Resolve owner update and remove from list if
+        // viewing domain list from "My Domains" context
+        await this.dataResolutionHandler(true);
+        this.$emit('ownershipTransfer', this.domain);
+      } else {
+        // Error notification
+        this.notify = {
+          type: "error",
+          title: "Something went wrong",
+          msg: this.executeResult.error,
+          img: null,
+        };
+      }
+    },
     executeUpdateMetadata: async function () {
       if (!this.updates.metadata) return;
       if (!this.isSubdomain) {
@@ -1268,6 +1370,11 @@ export default {
           this.ui.websites.push({open: false});
         }
       }
+    },
+    isNotSubdomain: function (domain) {
+      if (typeof domain !== 'string') return null;
+      else if (domain.slice(0,-5).indexOf(".") < 0) return true;
+      else return false;
     }
   },
   computed: {
@@ -1277,6 +1384,13 @@ export default {
       let img = (this.updates.metadata.image.substr(0,7) == IPFS_CID_PREFIX) ? this.updates.metadata.image.replace(IPFS_CID_PREFIX, IPFS_GATEWAY_PREFIX) : this.updates.metadata.image;
       return img;
     },
+    canTransfer: function () {
+      if (this.transferConfirmation !== this.domain) return false;
+      else if (typeof this.updates.transferAddress !== 'string') return false;
+      else if (this.updates.transferAddress.length !== 46 && this.updates.transferAddress.length !== 66) return false;
+      else if (this.updates.transferAddress.slice(0,7) !== "archway") return false;
+      return true;
+    }
   }
 }
 </script>
@@ -1412,7 +1526,9 @@ input.metadata-subdomain-name {
   top: -48px;
   position: relative;
 }
-.modal-extend-title, .modal-subdomain-remove-title {
+.modal-extend-title, 
+.modal-subdomain-remove-title,
+.modal-transfer-domain-title {
   font-style: normal;
   font-weight: 500;
   font-size: 24px;
@@ -1421,7 +1537,8 @@ input.metadata-subdomain-name {
   color: #000000;
 }
 .modal-extend-title .modal-domain-title,
-.modal-subdomain-remove-title .modal-domain-title {
+.modal-subdomain-remove-title .modal-domain-title,
+.modal-transfer-domain-title .modal-domain-title {
   font-style: normal;
   font-weight: 500;
   font-size: 24px;
@@ -1504,13 +1621,15 @@ div.upload.btn-upload {
 .modal-footer.subdomain {
   justify-content: space-between;
 }
-.remove-subdomain.form-control {
+.remove-subdomain.form-control,
+.transfer-domain.form-control {
   background: #F2EFED;
   border-radius: 8px;
   height: 56px;
   border: none;
 }
-div.remove-subdomain .descr {
+div.remove-subdomain .descr,
+div.transfer-domain .descr {
   font-style: normal;
   font-weight: 400;
   font-size: 16px;
@@ -1519,7 +1638,8 @@ div.remove-subdomain .descr {
   color: #000000;
   margin-bottom: 2px;
 }
-label.remove-subdomain {
+label.remove-subdomain,
+label.transfer-domain {
   font-style: normal;
   font-weight: 400;
   font-size: 16px;
@@ -1530,6 +1650,10 @@ label.remove-subdomain {
 }
 div.remove-subdomain-input {
   padding-top: 2em;
+}
+div.transfer-domain-input {
+  padding-bottom: 1.25em;
+  padding-top: 1em;
 }
 .metadata-token-img.form-control {
   margin-bottom: 1em;
@@ -1591,5 +1715,8 @@ label.img-edit {
   padding: 0px;
   gap: 16px;
   border-radius: 8px;
+}
+.ctrl .btn-inverse {
+  margin-right: 1em;
 }
 </style>
