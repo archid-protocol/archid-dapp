@@ -24,6 +24,7 @@
             v-bind:collapsible="true"
             v-bind:status="statuses[domain]"
             @ownershipTransfer="newOwnerHandler"
+            @listing="newListingHandler"
             :key="'item-'+i"
           >
           </DomainListEntry>
@@ -173,7 +174,7 @@ export default {
       if (!this.tokens) return;
       if (!this.tokens.length) return;
       if (this.tokens.indexOf(domain) < 0) return;
-      // Re-load tokens
+      // Reload all token data
       this.loaded = false;
       this.tokens = [];
       this.filteredTokens = [];
@@ -181,6 +182,14 @@ export default {
       await this.tokenIds();
       await this.tokenStatuses();
       this.loaded = true;
+    },
+    newListingHandler: async function (domain) {
+      if (!this.tokens) return;
+      if (!this.tokens.length) return;
+      if (this.tokens.indexOf(domain) < 0) return;
+      // Reload statuses
+      this.statuses = {};
+      await this.tokenStatuses();
     },
 
     // Filter

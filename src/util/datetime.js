@@ -1,3 +1,5 @@
+const NANOSECONDS_PER_SECOND = 1_000_000_000;
+
 /**
  * Format an expiration date as a human readable date string
  * @param {Number} seconds : Integer expiration date in seconds
@@ -27,7 +29,18 @@ function IsExpired(seconds) {
   return currentTime > expiry;
 }
 
+/**
+ * Covert an expiration in seconds to an expiration in nanoseconds
+ * @param {Number} seconds : Integer expiration date in seconds
+ * @returns {Number}
+ */
+function SecondsToNano(seconds = 0) {
+  if (!seconds) return 0;
+  return seconds * NANOSECONDS_PER_SECOND;
+}
+
 export {
   DateFormat,
-  IsExpired
+  IsExpired,
+  SecondsToNano
 }

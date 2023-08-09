@@ -136,7 +136,13 @@
               <button class="btn btn-inverse" @click="modals.renew = !modals.renew" v-if="!isSubdomain && owner.owner == viewer && isExpired">Renew</button>
 
               <!-- Transfer -->
-              <button class="btn btn-inverse" @click="modals.transfer = !modals.transfer" v-if="owner.owner == viewer">Transfer</button>
+              <button class="btn btn-inverse" @click="modals.transfer = !modals.transfer" v-if="owner.owner == viewer" :disabled="status.isListed">Transfer</button>
+
+              <!-- List for Sale -->
+              <button class="btn btn-inverse" @click="modals.marketListing = !modals.marketListing" v-if="owner.owner == viewer && !status.isListed && !isExpired">List for Sale</button>
+
+              <!-- Cancel Sale Listing -->
+              <button class="btn btn-primary" @click="executeCancelSwap();" v-if="owner.owner == viewer && status.isListed">Cancel Listing</button>
             </div>
           </div>
           <!-- Col 3; Owner, Domain Record -->
@@ -683,6 +689,29 @@
       </div>
     </div>
   </transition>
+
+  <!-- List in Marketplace Modal //here -->
+  <transition name="modal">
+    <div v-if="modals.marketListing && domain" class="modal-wrapper">
+      <div class="modalt">
+        <div class="modal-header list-domain">
+          <div class="left">
+            <p class="modal-list-domain-title">List <span class="modal-title modal-domain-title" v-if="domain">{{domain}}</span> for sale</p>
+          </div>
+          <div class="right">
+            <span class="close-x list-domain" @click="modals.marketListing = !modals.marketListing;">&times;</span>
+          </div>
+        </div>
+        <div class="modal-body list-domain">
+
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-inverse" @click="modals.transfer = !modals.transfer;">Cancel</button>
+          <button class="btn btn-primary" @click="executeTransfer();" :disabled="!canTransfer">Continue</button>
+        </div>
+      </div>
+    </div>
+  </transition>
 </template>
 
 <script>
@@ -697,8 +726,9 @@ import {
   UpdateUserDomainData,
   RemoveSubdomain,
 } from '../../util/execute';
+import { Execute as MarketplaceExecute } from '../../util/marketplace';
 
-import { DateFormat } from '../../util/datetime';
+import { DateFormat, SecondsToNano } from '../../util/datetime';
 import { FromAtto } from '../../util/denom';
 
 import Notification from './Notification.vue'
@@ -729,7 +759,7 @@ export default {
     baseCost: Number,
     collapsible: Boolean,
   },
-  emits: ['dataResolution', 'ownershipTransfer'],
+  emits: ['dataResolution', 'ownershipTransfer', 'listing'],
   components: { Notification },
   data: () => ({
     token: null,
@@ -800,6 +830,7 @@ export default {
       expiry: 1,
       resolver: null,
       transferAddress: "",
+      listingAmount: null
     },
     modals: {
       renew: false,
@@ -807,6 +838,8 @@ export default {
       enlargeTokenImg: false,
       editingImg: false,
       transfer: false,
+      marketListing: false,
+      cancelListing: false
     },
     notify: {
       type: null,
@@ -1154,7 +1187,6 @@ export default {
       );
 
       this.modals.transfer = false;
-      // console.log('RenewRegistration tx', this.executeResult);
 
       if (!this.executeResult['error']) {
         this.notify = {
@@ -1337,6 +1369,91 @@ export default {
         };
         // Refresh domain
         await this.dataResolutionHandler(true);
+      } else {
+        // Error notification
+        this.notify = {
+          type: "error",
+          title: "Something went wrong",
+          msg: this.executeResult.error,
+          img: null,
+        };
+      }
+    },
+    executeListForArch: async function () {//here
+      if (typeof this.domain !== 'string' || typeof this.updates.listingAmount !== 'number' || !this.domainRecord) return;
+      // Waiting notification
+      this.notify = {
+        type: "loading",
+        title: "Creating your swap",
+        msg: "Preparing to list " + this.domain + " in the marketplace",
+        img: null,
+      };
+
+      this.resetFormIters();
+      
+      // Swap will expire when domain expires
+      // XXX TODO: allow user defined swap expirations?
+      let swapExpiration = SecondsToNano(this.domainRecord.expiration);
+      
+      this.executeResult = await MarketplaceExecute.CreateNative(
+        this.domain,
+        this.domain,
+        swapExpiration,
+        this.cwClient
+      );
+
+      if (!this.executeResult['error']) {
+        this.notify = {
+          type: "success",
+          title: "Domain listed",
+          msg: this.domain + " has been successfully added to the marketplace",
+          img: DEFAULT_TOKEN_IMG,
+        };
+        // Resolve token data and status updates
+        await this.dataResolutionHandler(true);
+        this.$emit('listing', this.domain);
+      } else {
+        // Error notification
+        this.notify = {
+          type: "error",
+          title: "Something went wrong",
+          msg: this.executeResult.error,
+          img: null,
+        };
+      }
+    },
+    // executeListForCw20: async function (contract) {
+    //   console.log("XXX TODO: this", contract);
+    //   return;
+    // },
+    executeCancelSwap: async function () {
+      if (typeof this.domain !== 'string') return;
+
+      // Waiting notification
+      this.notify = {
+        type: "loading",
+        title: "Cancelling your swap",
+        msg: "Preparing to remove " + this.domain + " from the marketplace",
+        img: null,
+      };
+
+      this.resetFormIters();
+
+      this.executeResult = await MarketplaceExecute.Cancel(
+        this.domain,
+        this.cwClient
+      );
+
+      if (!this.executeResult['error']) {
+        this.notify = {
+          type: "success",
+          title: "Listing removed",
+          msg: this.domain + " has been successfully removed from the marketplace",
+          img: DEFAULT_TOKEN_IMG,
+        };
+        // Resolve token data and status updates
+        await this.dataResolutionHandler(true);
+        this.$emit('listing', this.domain);
       } else {
         // Error notification
         this.notify = {
@@ -1530,7 +1647,8 @@ input.metadata-subdomain-name {
 }
 .modal-extend-title, 
 .modal-subdomain-remove-title,
-.modal-transfer-domain-title {
+.modal-transfer-domain-title,
+.modal-list-domain-title {
   font-style: normal;
   font-weight: 500;
   font-size: 24px;
@@ -1538,9 +1656,7 @@ input.metadata-subdomain-name {
   letter-spacing: -0.03em;
   color: #000000;
 }
-.modal-extend-title .modal-domain-title,
-.modal-subdomain-remove-title .modal-domain-title,
-.modal-transfer-domain-title .modal-domain-title {
+.modal-domain-title {
   font-style: normal;
   font-weight: 500;
   font-size: 24px;
