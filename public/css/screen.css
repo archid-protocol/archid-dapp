@@ -208,6 +208,29 @@
         margin-bottom: 2em;
     }
 
+    /* DOMAIN LIST ITEM */
+    .domain-item.collapsible {
+        overflow: hidden;
+    }
+
+    .domain-item.collapsible .head {
+        display: flex;
+        flex-direction: column-reverse;
+    }
+    .domain-item.collapsible .head .left,
+    .domain-item.collapsible .head .right {
+        width: 100%;
+    }
+    .right .status {
+        top: 1em !important;
+        margin-bottom: 2em;
+    }
+    div.right .caret {
+        top: unset !important;
+        position: absolute !important;
+        padding-top: 0.7em !important;
+    }
+
     /* MODALS */
     .modalt {
         width: 98%;
@@ -220,5 +243,12 @@
     }
     .modal-body .right span.icon-denom {
         top: unset;
+    }
+
+    /* PAGINATION */
+    .paging .paging-items.row {
+        margin-left: unset;
+        margin-right: unset;
+        padding-right: 1em;
     }
 }

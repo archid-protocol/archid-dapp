@@ -57,8 +57,8 @@ async function Details(id = null, client = null) {
     );
     return query;
   } catch(e) {
-    console.error(e);
-    return {};
+    // console.error(e);
+    return { error: e };
   }
 }
 

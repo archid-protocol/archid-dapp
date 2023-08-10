@@ -181,6 +181,7 @@ div.value {
     max-width: 25px;
 }
 .paging-items  .col.mid {
+    text-align: center;
     max-width: 110px;
 }
 .paging-display .page-select-wrapper {

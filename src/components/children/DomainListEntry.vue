@@ -1843,7 +1843,7 @@ label.img-edit {
   border-radius: 8px;
 }
 .ctrl .btn-inverse {
-  margin-right: 1em;
+  margin-right: 0.25em;
 }
 div.advanced-ctrl {
   display: inline;

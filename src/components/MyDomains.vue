@@ -149,23 +149,22 @@ export default {
       } while (!finished);
     },
     tokenStatuses: async function () {
-      let domains, start, end, swaps;
+      let domains, start, end;
       if (this.search) domains = this.filteredTokens;
       else domains = this.tokens;
       if (!this.tokens.length) return;
-      let swapsQuery = await MarketplaceQuery.List(null, 30, this.cwClient);
-      swaps = (swapsQuery['swaps']) ? swapsQuery.swaps : [];
       start = (this.page * this.pageSize);
       end = (this.page * this.pageSize) + this.pageSize;
       domains.slice(start, end).forEach(async (domain) => {
         if (!this.statuses[domain]) {
           let query = await ResolveRecord(domain, this.cwClient);
+          let swap = await MarketplaceQuery.Details(domain, this.cwClient);
           this.statuses[domain] = {
             expiration: query.expiration,
             isExpired: new Date().getTime() > (query.expiration * 1000),
             address: query.address,
             isMismatch: query.address !== this.accounts[0].address,
-            isListed: swaps.indexOf(domain) !== -1
+            isListed: (swap['error']) ? false : true
           };
         }
       });
