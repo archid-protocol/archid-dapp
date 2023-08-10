@@ -159,12 +159,13 @@ export default {
         if (!this.statuses[domain]) {
           let query = await ResolveRecord(domain, this.cwClient);
           let swap = await MarketplaceQuery.Details(domain, this.cwClient);
+
           this.statuses[domain] = {
             expiration: query.expiration,
             isExpired: new Date().getTime() > (query.expiration * 1000),
             address: query.address,
             isMismatch: query.address !== this.accounts[0].address,
-            isListed: (swap['error']) ? false : true
+            isListed: (swap['error']) ? false : swap.open
           };
         }
       });
