@@ -705,11 +705,25 @@
           </div>
         </div>
         <div class="modal-body list-domain">
-
+          <!-- Listing Amount -->
+          <label class="list label" for="list">Listing Amount</label>
+          <div class="list-input">
+            <input 
+              type="number"
+              step="any"
+              min="0" 
+              class="list-domain form-control"
+              name="list"
+              v-model="updates.listingAmount"
+            />
+            <div class="denom list-denom">
+              <span class="icon icon-denom-alt"></span>&nbsp;<span class="denom denom-text">ARCH</span>
+            </div>
+          </div>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-inverse" @click="modals.transfer = !modals.transfer;">Cancel</button>
-          <button class="btn btn-primary" @click="executeTransfer();" :disabled="!canTransfer">Continue</button>
+          <button class="btn btn-inverse" @click="modals.marketListing = !modals.marketListing;">Cancel</button>
+          <button class="btn btn-primary" @click="executeApproveSpendCw721();" :disabled="updates.listingAmount <= 0">Continue</button>
         </div>
       </div>
     </div>
@@ -732,7 +746,7 @@ import { Execute as MarketplaceExecute } from '../../util/marketplace';
 import { ApproveCw721 } from '../../util/approvals';
 
 import { DateFormat, SecondsToNano } from '../../util/datetime';
-import { FromAtto } from '../../util/denom';
+import { FromAtto, ToAtto } from '../../util/denom';
 
 import Notification from './Notification.vue'
 
@@ -833,7 +847,7 @@ export default {
       expiry: 1,
       resolver: null,
       transferAddress: "",
-      listingAmount: null,
+      listingAmount: 0,
       listingTokenApproved: false,
     },
     modals: {
@@ -1387,11 +1401,15 @@ export default {
     // Marketplace needs approval to transfer the user's cw721 to the buyer
     executeApproveSpendCw721: async function () {
       if (typeof this.domain !== 'string' || typeof this.updates.listingAmount !== 'number' ) return;
+
+      // Close modal
+      this.modals.marketListing = false;
+
       // Waiting notification
       this.notify = {
         type: "loading",
         title: "Marketplace needs approval",
-        msg: "Approve the marketplace to transfer " + this.domain + " to a buyer for " + this.updates.listingAmount + ".arch",
+        msg: "Approve marketplace to transfer " + this.domain + " to a buyer",
         img: null,
       };
 
@@ -1399,12 +1417,13 @@ export default {
         this.domain,
         this.cwClient
       );
+      // console.log('cw721 approval', this.executeResult);
 
       if (!this.executeResult['error']) {
         this.notify = {
           type: "success",
-          title: "Marketplace appoved",
-          msg: "Marketplace has been approved to transfer " + this.domain + " on your behalf",
+          title: "Marketplace approved",
+          msg: "Marketplace has been successfully approved to transfer " + this.domain + " on your behalf",
           img: TRANSFER_IMG,
         };
         this.updates.listingTokenApproved = true;
@@ -1441,13 +1460,16 @@ export default {
       // Swap will expire when domain expires
       // XXX TODO: allow user defined swap expirations?
       let swapExpiration = SecondsToNano(this.domainRecord.expiration);
-      
+      let price = ToAtto(this.updates.listingAmount);
+
       this.executeResult = await MarketplaceExecute.CreateNative(
         this.domain,    // Swap ID
         this.domain,    // Token ID
         swapExpiration, // Listing expiration
+        price,          // Listing price
         this.cwClient
       );
+      // console.log('Listing result', this.executeResult);
 
       if (!this.executeResult['error']) {
         this.notify = {
@@ -1792,7 +1814,8 @@ div.upload.btn-upload {
   justify-content: space-between;
 }
 .remove-subdomain.form-control,
-.transfer-domain.form-control {
+.transfer-domain.form-control,
+.list-domain.form-control {
   background: #F2EFED;
   border-radius: 8px;
   height: 56px;
@@ -1809,7 +1832,8 @@ div.transfer-domain .descr {
   margin-bottom: 2px;
 }
 label.remove-subdomain,
-label.transfer-domain {
+label.transfer-domain,
+label.list {
   font-style: normal;
   font-weight: 400;
   font-size: 16px;
@@ -1891,5 +1915,24 @@ label.img-edit {
 }
 div.advanced-ctrl {
   display: inline;
+}
+input.list-domain {
+  text-align: right;
+  padding-top: 2em;
+  padding-bottom: 2em;
+}
+div.denom.list-denom {
+  position: relative;
+  top: -52px;
+  margin-left: 20px;
+  display: inline-block;
+}
+span.denom-text {
+  position: relative;
+  top: -7px;
+  color: #666666;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 16.8px;
 }
 </style>

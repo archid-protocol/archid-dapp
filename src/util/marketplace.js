@@ -77,6 +77,8 @@ async function CreateNative(id, token_id, expiration, price, client = null) {
   if (!id || !token_id || !expiration || !price) return;
   if (!client) client = await Client();
 
+  let cost = coin(String(price), client.chainInfo.currencies[0].coinMinimalDenom);
+
   try {
     // Msg.
     let entrypoint = {
@@ -85,9 +87,9 @@ async function CreateNative(id, token_id, expiration, price, client = null) {
         payment_token: null,
         token_id: token_id,
         expires: {
-          at_time: expiration
+          at_time: String(expiration)
         },
-        price: String(price),
+        price: cost.amount,
         swap_type: SELL_OFFER
       }
     };
@@ -139,7 +141,7 @@ async function FinishNative(id, swap, client = null) {
     // Sender
     let accounts = await client.offlineSigner.getAccounts();
     // Purchase cost
-    let funds = [coin(swap.price, client.chainInfo.currencies[0].coinMinimalDenom)];
+    let funds = [coin(String(swap.price), client.chainInfo.currencies[0].coinMinimalDenom)];
     // Broadcast tx
     let tx = await client.wasmClient.execute(
       accounts[0].address,

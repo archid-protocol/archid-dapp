@@ -319,7 +319,7 @@ a.flat-link {
     background-image: url('/img/icon-denom.svg');
     width: 22px;
     height: 22px;
-    top: 5px;
+    /* top: 5px; */
 }
 .icon-denom-alt {
     background-image: url('/img/icon-denom-alt.svg');
