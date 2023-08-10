@@ -140,7 +140,7 @@
                 <button class="btn btn-inverse" @click="modals.transfer = !modals.transfer" v-if="owner.owner == viewer" :disabled="status.isListed">Transfer</button>
 
                 <!-- List for Sale -->
-                <button class="btn btn-inverse" @click="modals.marketListing = !modals.marketListing" v-if="owner.owner == viewer && !status.isListed && !isExpired">List for Sale</button>
+                <button class="btn btn-inverse" @click="modals.marketListing = !modals.marketListing" v-if="owner.owner == viewer && !status.isListed && !isExpired && isNotSubdomain(domain)">List for Sale</button>
 
                 <!-- Cancel Sale Listing -->
                 <button class="btn btn-primary" @click="executeCancelSwap();" v-if="owner.owner == viewer && status.isListed">Cancel Listing</button>
@@ -729,6 +729,7 @@ import {
   RemoveSubdomain,
 } from '../../util/execute';
 import { Execute as MarketplaceExecute } from '../../util/marketplace';
+import { ApproveCw721 } from '../../util/approvals';
 
 import { DateFormat, SecondsToNano } from '../../util/datetime';
 import { FromAtto } from '../../util/denom';
@@ -832,7 +833,8 @@ export default {
       expiry: 1,
       resolver: null,
       transferAddress: "",
-      listingAmount: null
+      listingAmount: null,
+      listingTokenApproved: false,
     },
     modals: {
       renew: false,
@@ -1382,8 +1384,50 @@ export default {
         };
       }
     },
+    // Marketplace needs approval to transfer the user's cw721 to the buyer
+    executeApproveSpendCw721: async function () {
+      if (typeof this.domain !== 'string' || typeof this.updates.listingAmount !== 'number' ) return;
+      // Waiting notification
+      this.notify = {
+        type: "loading",
+        title: "Marketplace needs approval",
+        msg: "Approve the marketplace to transfer " + this.domain + " to a buyer for " + this.updates.listingAmount + ".arch",
+        img: null,
+      };
+
+      this.executeResult = await ApproveCw721(
+        this.domain,
+        this.cwClient
+      );
+
+      if (!this.executeResult['error']) {
+        this.notify = {
+          type: "success",
+          title: "Marketplace appoved",
+          msg: "Marketplace has been approved to transfer " + this.domain + " on your behalf",
+          img: TRANSFER_IMG,
+        };
+        this.updates.listingTokenApproved = true;
+        setTimeout(async () => {
+          await this.executeListForArch();
+        }, 1000);
+      } else {
+        // Error notification
+        this.notify = {
+          type: "error",
+          title: "Something went wrong",
+          msg: this.executeResult.error,
+          img: null,
+        };
+      }
+    },
     executeListForArch: async function () {//here
-      if (typeof this.domain !== 'string' || typeof this.updates.listingAmount !== 'number' || !this.domainRecord) return;
+      if (
+        typeof this.domain !== 'string' 
+        || typeof this.updates.listingAmount !== 'number' 
+        || !this.updates.listingTokenApproved
+        || !this.domainRecord
+      ) return;
       // Waiting notification
       this.notify = {
         type: "loading",
@@ -1399,9 +1443,9 @@ export default {
       let swapExpiration = SecondsToNano(this.domainRecord.expiration);
       
       this.executeResult = await MarketplaceExecute.CreateNative(
-        this.domain,
-        this.domain,
-        swapExpiration,
+        this.domain,    // Swap ID
+        this.domain,    // Token ID
+        swapExpiration, // Listing expiration
         this.cwClient
       );
 

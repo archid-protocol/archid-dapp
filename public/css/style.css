@@ -438,6 +438,9 @@ a.flat-link {
     right: 8%;
     top: 118px;
 }
+.modal-header {
+    border-bottom: none;
+}
 .modal-header .right .close-x {
     position: relative;
     top: -40px;

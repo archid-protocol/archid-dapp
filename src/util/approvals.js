@@ -32,7 +32,7 @@ async function ApproveCw20(amount, cw20_contract, denom, client = null) {
       cw20_contract,
       entrypoint,
       client.fees,
-      "Approve ArchID marketplace to transfer " + amount + denom
+      "Approve ArchID to spend " + amount + denom
     );
     // Tx result
     return tx;
@@ -71,7 +71,7 @@ async function ApproveCw721(token_id, client = null) {
       CW721_CONTRACT,
       entrypoint,
       client.fees,
-      "Approve ArchID marketplace to transfer " + token_id
+      "Approving ArchID to transfer " + token_id
     );
     // Tx result
     return tx;
