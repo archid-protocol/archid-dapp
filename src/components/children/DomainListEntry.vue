@@ -692,7 +692,7 @@
     </div>
   </transition>
 
-  <!-- List in Marketplace Modal //here -->
+  <!-- List in Marketplace Modal -->
   <transition name="modal">
     <div v-if="modals.marketListing && domain" class="modal-wrapper">
       <div class="modalt">
@@ -748,7 +748,7 @@ import { ApprovalsCw721, ApproveCw721 } from '../../util/approvals';
 import { DateFormat, SecondsToNano } from '../../util/datetime';
 import { FromAtto, ToAtto } from '../../util/denom';
 
-import Notification from './Notification.vue'
+import Notification from './Notification.vue';
 
 const MARKETPLACE_CONTRACT = process.env.VUE_APP_MARKETPLACE_CONTRACT;
 
@@ -1120,7 +1120,7 @@ export default {
     cancelUpdateHandler: async function () {
       await this.dataResolutionHandler(true);
     },
-    marketListingHandler: async function () {//here
+    marketListingHandler: async function () {
       // Check if token already approved for listing
       let approved;
       let query = await ApprovalsCw721(this.domain, false, this.cwClient);
@@ -1458,7 +1458,7 @@ export default {
         };
       }
     },
-    executeListForArch: async function () {//here
+    executeListForArch: async function () {
       if (
         typeof this.domain !== 'string' 
         || typeof this.updates.listingAmount !== 'number' 

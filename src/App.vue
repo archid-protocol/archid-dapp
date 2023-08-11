@@ -21,6 +21,9 @@
       <li>
         <router-link to="/domains" @click="route = '/domains';showNav = false;">All Domains</router-link>
       </li>
+      <li>
+        <router-link to="/marketplace" @click="route = '/marketplace';showNav = false;">Marketplace</router-link>
+      </li>
     </ul>
   </div>
   <div class="loggedin" v-else>
@@ -57,6 +60,9 @@
       </li>
       <li>
         <router-link to="/my-domains" @click="route = '/my-domains';showNav = false;">My Domains</router-link>
+      </li>
+      <li>
+        <router-link to="/marketplace" @click="route = '/marketplace';showNav = false;">Marketplace</router-link>
       </li>
       <li>
         <div class="pointer disconnect" @click="disconnectWallet();">Logout</div>

@@ -39,8 +39,19 @@ function SecondsToNano(seconds = 0) {
   return seconds * NANOSECONDS_PER_SECOND;
 }
 
+/**
+ * Convert an expiration in nanoseconds to an expiration in seconds
+ * @param {Number} nanoseconds : Integer expiration date in nanoseconds
+ * @returns {Number}
+ */
+function NanoToSeconds(nanoseconds = 0) {
+  if (!nanoseconds) return 0;
+  return nanoseconds / NANOSECONDS_PER_SECOND;
+}
+
 export {
   DateFormat,
   IsExpired,
-  SecondsToNano
+  SecondsToNano,
+  NanoToSeconds
 }
