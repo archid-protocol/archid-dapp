@@ -723,7 +723,7 @@
         </div>
         <div class="modal-footer">
           <button class="btn btn-inverse" @click="modals.marketListing = !modals.marketListing;">Cancel</button>
-          <button class="btn btn-primary" @click="executeApproveSpendCw721();" :disabled="updates.listingAmount <= 0">Continue</button>
+          <button class="btn btn-primary" @click="marketListingHandler();" :disabled="updates.listingAmount <= 0">Continue</button>
         </div>
       </div>
     </div>
@@ -743,12 +743,14 @@ import {
   RemoveSubdomain,
 } from '../../util/execute';
 import { Execute as MarketplaceExecute } from '../../util/marketplace';
-import { ApproveCw721 } from '../../util/approvals';
+import { ApprovalsCw721, ApproveCw721 } from '../../util/approvals';
 
 import { DateFormat, SecondsToNano } from '../../util/datetime';
 import { FromAtto, ToAtto } from '../../util/denom';
 
 import Notification from './Notification.vue'
+
+const MARKETPLACE_CONTRACT = process.env.VUE_APP_MARKETPLACE_CONTRACT;
 
 const ACCOUNT_TYPES = ['twitter', 'github', 'email'];
 const TWITTER = ACCOUNT_TYPES[0];
@@ -1118,6 +1120,25 @@ export default {
     cancelUpdateHandler: async function () {
       await this.dataResolutionHandler(true);
     },
+    marketListingHandler: async function () {//here
+      // Check if token already approved for listing
+      let approved;
+      let query = await ApprovalsCw721(this.domain, false, this.cwClient);
+      if (!query['approvals']) approved = false;
+      else if (!Array.isArray(query.approvals)) approved = false;
+      else if (!query.approvals.length) approved = false;
+      else {
+        query.approvals.forEach((approval) => {
+          if (approval['spender']) {
+            if (approval.spender == MARKETPLACE_CONTRACT) approved = true;
+          }
+        });
+      }
+      // Request approval for marketplace to spend cw721 (if required)
+      if (!approved) await this.executeApproveSpendCw721();
+      // List for sale
+      await this.executeListForArch();
+    },
     closeNotification: function () {
       this.notify = {
         type: null,
@@ -1420,16 +1441,13 @@ export default {
       // console.log('cw721 approval', this.executeResult);
 
       if (!this.executeResult['error']) {
-        this.notify = {
-          type: "success",
-          title: "Marketplace approved",
-          msg: "Marketplace has been successfully approved to transfer " + this.domain + " on your behalf",
-          img: TRANSFER_IMG,
-        };
+        // this.notify = {
+        //   type: "success",
+        //   title: "Marketplace approved",
+        //   msg: "Marketplace has been successfully approved to transfer " + this.domain + " on your behalf",
+        //   img: TRANSFER_IMG,
+        // };
         this.updates.listingTokenApproved = true;
-        setTimeout(async () => {
-          await this.executeListForArch();
-        }, 1000);
       } else {
         // Error notification
         this.notify = {

@@ -3,6 +3,37 @@ import { Client } from './client';
 const MARKETPLACE_CONTRACT = process.env.VUE_APP_MARKETPLACE_CONTRACT;
 const CW721_CONTRACT = process.env.VUE_APP_CW721_CONTRACT;
 
+// Queries
+
+/**
+ * 
+ * @param {String} token_id : Token to list approvals of
+ * @param {Boolean} include_expired : Include expired approvals in query result, or don't
+ * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
+ * @returns {QueryResult}
+ */
+async function ApprovalsCw721(token_id, include_expired = false, client = null) {
+  if (!token_id || typeof include_expired !== 'boolean') return;
+  try {
+    let entrypoint = {
+      approvals: {
+        token_id: token_id,
+        include_expired: include_expired
+      }
+    };
+    let query = await client.wasmClient.queryClient.wasm.queryContractSmart(
+      CW721_CONTRACT,
+      entrypoint
+    );
+    return query;
+  } catch(e) {
+    console.error(e);
+    return {};
+  }
+}
+
+// Txs
+
 /**
  * Allow swap contract admin over a specified amount of some cw20 token
  * @param {Number} amount : Amount of cw20 tokens swap contract can transfer
@@ -12,7 +43,7 @@ const CW721_CONTRACT = process.env.VUE_APP_CW721_CONTRACT;
  * @returns {ExecuteResult}
  */
 async function ApproveCw20(amount, cw20_contract, denom, client = null) {
-  if (!amount) return;
+  if (!amount || !cw20_contract) return;
   if (!client) client = await Client();
 
   try {
@@ -85,5 +116,6 @@ async function ApproveCw721(token_id, client = null) {
 
 export {
   ApproveCw20,
+  ApprovalsCw721,
   ApproveCw721
 }

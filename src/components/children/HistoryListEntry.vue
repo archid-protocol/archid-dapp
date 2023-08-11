@@ -1,7 +1,15 @@
 <template>
   <div class="history history-item row" v-if="events.length">
     <div class="col type">
-      <p v-if="history.type"><span :class="{'icon': true, 'icon-domain-history-plus': (history.type == 'mint' || history.type == 'mint_subdomain' || history.type == 'renew_domain' || history.type == 'transfer_nft'), 'icon-domain-history-metadata': history.type == 'update_metadata', 'icon-domain-history-minus': history.type == 'remove_subdomain'}"></span>{{ formatTypeLabel(history.type) }}</p>
+      <p v-if="history.type">
+        <span 
+          :class="{
+            'icon': true, 
+            'icon-domain-history-plus': (history.type == 'mint' || history.type == 'mint_subdomain' || history.type == 'renew_domain' || history.type == 'transfer_nft'), 
+            'icon-domain-history-metadata': (history.type == 'update_metadata' || history.type == 'approve'), 
+            'icon-domain-history-minus': (history.type == 'remove_subdomain' || history.type == 'approve')
+          }"
+        ></span>{{ formatTypeLabel(history.type) }}</p>
     </div>
     <div class="col height">
       <p v-if="history.block">
@@ -26,7 +34,8 @@ const TYPE_LABELS = {
   remove_subdomain: "Subdomain removed.",
   update_metadata: "Metadata updated.",
   renew_domain: "Registration renewed",
-  transfer_nft: "Ownership transferred"
+  transfer_nft: "Ownership transferred",
+  approve: "Approvals updated"
 };
 
 const TX_EXPLORER_PREFIX = (IsTestnet) ? "https://testnet.mintscan.io/archway-testnet/txs/" : "https://mintscan.io/archway/txs/";
@@ -106,9 +115,9 @@ export default {
                   historyEntry.type = "transfer_nft";
                 }
 
-                // XXX: Extensions are logged as metadata update events
-                // Extend domain registration
-                // else if () historyEntry.type = "extend";
+                if (types.indexOf('approve') !== -1) {
+                  historyEntry.type = "approve";
+                }
               }
             }
           }

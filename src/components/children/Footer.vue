@@ -27,7 +27,7 @@
               <a class="integrate-archid" :href="links.integrate" target="_blank">Integrating with ArchID<span class="icon icon-external-link">↗</span></a>
             </li>
             <li>
-              <a :href="links.github" target="_blank">GitHub <span class="icon icon-external-link">↗</span></a>
+              <a :href="links.github" target="_blank"><span class="icon icon-github"></span>GitHub <span class="icon icon-external-link">↗</span></a>
             </li>
           </ul>
         </div>
@@ -37,7 +37,7 @@
           <h4 class="category">Support</h4>
           <ul class="support">
             <li>
-              <a :href="links.mailto">Reach Out <span class="icon icon-external-link">↗</span></a>
+              <a :href="links.mailto"><span class="icon icon-mail"></span>Reach Out <span class="icon icon-external-link">↗</span></a>
             </li>
           </ul>
         </div>
@@ -50,7 +50,7 @@
               <a :href="links.discord" target="_blank"><span class="icon icon-discord"></span>Discord<span class="icon icon-external-link">↗</span></a>
             </li>
             <li>
-              <a :href="links.twitter" target="_blank"><span class="icon icon-twitter"></span>Twitter <span class="icon icon-external-link">↗</span></a>
+              <a :href="links.twitter" target="_blank"><span class="icon icon-twitter"></span>X (Twitter) <span class="icon icon-external-link">↗</span></a>
             </li>
           </ul>
         </div>
@@ -82,7 +82,7 @@ export default {
       about: "https://medium.com/@archid.protocol/archid-a-name-service-for-archway-network-c221193fa989",
       discord: "https://discord.gg/ghCCDu3dPB",
       github: "https://github.com/archid-protocol",
-      integrate: "https://gist.github.com/drewstaylor/088af645dd36c013c02a2b4d05110479",
+      integrate: "https://docs.archid.app",
       mailto: "mailto:archid.protocol@gmail.com",
       mydomains: "https://archid.app/my-domains",
       twitter: "https://twitter.com/archidapp",

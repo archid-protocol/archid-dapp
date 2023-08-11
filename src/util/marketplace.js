@@ -13,7 +13,7 @@ const SELL_OFFER = true;
  * @param {String} start? : (Optional) Start paginated request after this swap id. Default null
  * @param {Number} limit? : (Optional) Amount of swaps per paginated request. Default limit 10, maximum limit 30
  * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
- * @returns 
+ * @returns {QueryResult}
  */
 async function List(start, limit, client = null) {
   if (!client) client = await Client();
@@ -39,7 +39,7 @@ async function List(start, limit, client = null) {
  * Get details of a specific swap
  * @param {String} id : Swap id to get details for
  * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
- * @returns 
+ * @returns {QueryResult}
  */
 async function Details(id = null, client = null) {
   if (typeof id !== 'string') return;
