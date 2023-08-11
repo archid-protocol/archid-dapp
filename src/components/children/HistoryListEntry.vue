@@ -28,11 +28,11 @@
 import { IsTestnet } from '../../util/cosmwasm';
 
 const TYPE_LABELS = {
-  mint: "Domain registered.",
-  mint_subdomain: "Subdomain registered.",
-  burn: "Subdomain removed.",
-  remove_subdomain: "Subdomain removed.",
-  update_metadata: "Metadata updated.",
+  mint: "Domain registered",
+  mint_subdomain: "Subdomain registered",
+  burn: "Subdomain removed",
+  remove_subdomain: "Subdomain removed",
+  update_metadata: "Metadata updated",
   renew_domain: "Registration renewed",
   transfer_nft: "Ownership transferred",
   approve: "Approvals updated"
