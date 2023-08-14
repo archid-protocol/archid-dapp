@@ -5,9 +5,11 @@
         <span 
           :class="{
             'icon': true, 
-            'icon-domain-history-plus': (history.type == 'mint' || history.type == 'mint_subdomain' || history.type == 'renew_domain' || history.type == 'transfer_nft'), 
-            'icon-domain-history-metadata': (history.type == 'update_metadata' || history.type == 'approve'), 
-            'icon-domain-history-minus': (history.type == 'remove_subdomain' || history.type == 'approve')
+            'icon-domain-history-plus': (history.type == 'mint' || history.type == 'mint_subdomain' || history.type == 'renew_domain'),
+            'icon-domain-history-transfer': history.type == 'transfer_nft', 
+            'icon-domain-history-metadata': (history.type == 'update_metadata'), 
+            'icon-domain-history-minus': (history.type == 'remove_subdomain'),
+            'icon-domain-history-approvals-updated': history.type == 'approve'
           }"
         ></span>{{ formatTypeLabel(history.type) }}</p>
     </div>

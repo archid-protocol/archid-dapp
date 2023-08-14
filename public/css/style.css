@@ -386,10 +386,11 @@ a.flat-link {
 .icon-domain-history-plus, 
 .icon-domain-history-minus, 
 .icon-domain-history-metadata, 
-.icon-domain-history-transfer {
+.icon-domain-history-transfer,
+.icon-domain-history-approvals-updated {
     width: 16px;
     height: 16px;
-    top: 1px;
+    top: 2px;
 }
 .icon-domain-history-plus {
     background-image: url('/img/icon-domain-history-plus.svg');
@@ -403,7 +404,9 @@ a.flat-link {
 .icon-domain-history-transfer {
     background-image: url('/img/icon-domain-history-transfer.svg');
 }
-
+.icon-domain-history-approvals-updated {
+    background-image: url('/img/icon-domain-history-approvals-updated.svg');
+}
 /* Modals */
 .modal-wrapper {
     position: fixed;
