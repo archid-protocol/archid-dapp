@@ -71,7 +71,8 @@ import MarketplaceListEntry from './children/MarketplaceListEntry.vue';
 
 const MARKETPLACE_CONTRACT = process.env.VUE_APP_MARKETPLACE_CONTRACT;
 
-const LIMIT = 10;
+// XXX TODO: Fix pagination response
+const LIMIT = 30;
 const ALL_LISTINGS = 0;
 const MY_LISTINGS = 1;
 
@@ -128,9 +129,29 @@ export default {
     },
     swapIds: async function () {
       if (typeof this.page !== 'number') return;
+
       let swapsQuery = await MarketplaceQuery.List(null, LIMIT, this.cwClient);
       if (swapsQuery['swaps']) this.swaps = swapsQuery.swaps;
       console.log('swapsQuery', this.swaps);
+
+      // XXX TODO: Fix pagination response
+      // let finished = false, i = 0;
+      // do {
+      //   let start = (i > 0) ? this.swaps[this.swaps.length - 1] : null;
+      //   let query = await MarketplaceQuery.List(start, LIMIT, this.cwClient);
+      //   console.log('Swaps query', {
+      //     query: query, 
+      //     start: start,
+      //     limit: LIMIT,
+      //     i: i,
+      //     swaps: this.swaps
+      //   });
+      //   i++;
+      //   if (!Array.isArray(query['swaps'])) return;
+      //   else if (!query.swaps.length) {
+      //     return finished = true;
+      //   } else this.swaps = [...this.swaps, ...query.swaps];
+      // } while (!finished);
     },
 
     // Filter
@@ -197,6 +218,7 @@ export default {
     },
     // Refresh list of swaps after swapping, or cancelling a swap
     dataResolution: async function () {
+      this._collapseListItems();
       await this.swapIds();
     },
     async onChange(event) {
@@ -217,12 +239,18 @@ export default {
     swapsList: function () {
       // Searching
       if (this.filteredSwaps && this.search) {
-        let start = (this.page == 0) ? 0 : this.page * LIMIT;
-        let end = start + LIMIT;
+        let start = (this.page == 0) ? 0 : this.page * this.pageSize;
+        let end = start + this.pageSize;
         return this.filteredSwaps.slice(start, end);
       }
       // Not searching / Default display
-      else return this.swaps;
+      else {
+        // XXX TODO: Fix pagination response in contract
+        // return this.swaps;
+        let start = (this.page == 0) ? 0 : this.page * this.pageSize;
+        let end = start + this.pageSize;
+        return this.swaps.slice(start, end);
+      }
     }
   },
 }
