@@ -3,8 +3,8 @@ import { Client } from './client';
 
 const MARKETPLACE_CONTRACT = process.env.VUE_APP_MARKETPLACE_CONTRACT;
 
-const SELL_OFFER = true;
-// const BUY_OFFER = false;
+const SELL_OFFER = "Sale";
+// const BUY_OFFER = "Offer";
 
 // Queries
 

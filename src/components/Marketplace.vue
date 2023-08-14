@@ -69,6 +69,8 @@ import * as Paging from '../util/pagination';
 import MarketplaceBanner from './children/MarketplaceBanner.vue';
 import MarketplaceListEntry from './children/MarketplaceListEntry.vue';
 
+const MARKETPLACE_CONTRACT = process.env.VUE_APP_MARKETPLACE_CONTRACT;
+
 const LIMIT = 10;
 const ALL_LISTINGS = 0;
 const MY_LISTINGS = 1;
@@ -82,6 +84,7 @@ export default {
     config: null,
     cw721: null,
     swaps: [],
+    swapContract: MARKETPLACE_CONTRACT,
     filteredSwaps: [],
     search: null,
     searchThreshold: null,

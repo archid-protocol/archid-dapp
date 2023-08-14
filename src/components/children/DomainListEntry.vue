@@ -7,7 +7,7 @@
       </div>
       <div class="right">
         <div class="status" v-if="status">
-          <span class="badge badge-mismatch" v-if="!status.isExpired && status.isMismatch && !status.isListed">Owner and Domain Record Differ</span>
+          <span class="icon icon-info domain-resolver-mismatch" alt="Domain owner and record differ" title="Domain owner and record differ" v-if="!status.isExpired && status.isMismatch && !status.isListed"></span>
           <span class="badge badge-listed" v-if="!status.isExpired && status.isListed">Listed for Sale</span>
           <span class="badge badge-active" v-if="!status.isExpired && !status.isListed">Active</span>
           <span class="badge badge-expired" v-if="status.isExpired">Expired</span>
@@ -1136,6 +1136,10 @@ export default {
       }
       // Request approval for marketplace to spend cw721 (if required)
       if (!approved) await this.executeApproveSpendCw721();
+      else {
+        this.updates.listingTokenApproved = true;
+        this.modals.marketListing = false;
+      }
       // List for sale
       await this.executeListForArch();
     },
@@ -1441,12 +1445,6 @@ export default {
       // console.log('cw721 approval', this.executeResult);
 
       if (!this.executeResult['error']) {
-        // this.notify = {
-        //   type: "success",
-        //   title: "Marketplace approved",
-        //   msg: "Marketplace has been successfully approved to transfer " + this.domain + " on your behalf",
-        //   img: TRANSFER_IMG,
-        // };
         this.updates.listingTokenApproved = true;
       } else {
         // Error notification
@@ -1930,6 +1928,7 @@ label.img-edit {
 }
 .ctrl .btn-inverse {
   margin-right: 0.25em;
+  margin-bottom: 0.25em;
 }
 div.advanced-ctrl {
   display: inline;
@@ -1952,5 +1951,9 @@ span.denom-text {
   font-weight: 400;
   font-size: 14px;
   line-height: 16.8px;
+}
+.icon-info.domain-resolver-mismatch {
+  cursor: help;
+  top: 8px;
 }
 </style>

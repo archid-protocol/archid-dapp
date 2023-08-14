@@ -12,64 +12,40 @@
       <div class="container-c" v-if="token && swap">
         <div class="domain-data top row">
           
-          <!-- Col 1; Image -->
-          <div class="col img-t">
-            <div class="token-img wrapper">
-              <div :class="{'img': true, 'token-img': true, 'pointer': tokenImg !== defaultTokenImg}" :style="'background-image: url(' + tokenImg + ');'" @click="viewImgHandler();"></div>
-            </div>
-            <!-- Enlarge Token Image Modal -->
-            <transition name="modal">
-              <div v-if="modals.enlargeTokenImg && tokenImg !== defaultTokenImg" class="modal-wrapper">
-                <div class="modali">
-                  <div class="modal-header img-edit">
-                    <div class="close-btn-right">
-                      <button class="btn-inverse btn-close-alt" @click="modals.enlargeTokenImg = !modals.enlargeTokenImg;">
-                        <span class="close-x img-edit">&times;</span>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="modal-body img-edit">
-                    <div class="text-center">
-                      <img class="domain-img-lg img-fluid pointer" :src="tokenImg" @click="modals.enlargeTokenImg = !modals.enlargeTokenImg;" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </transition>
-          </div>
-
-          <!-- Col 2; Price, Expiry -->
-          <div class="col">
-            <!-- Price -->
-            <div class="price" v-if="swap.price">
-              <p class="descr">Price</p>
-              <p class="value swap-price">{{ formatFromAtto(swap.price) }}<span class="icon icon-denom"></span></p>
-            </div>
+          <!-- Col 1; Domain Expiration -->
+          <div class="col domain-expiry">
             <!-- Expiration -->
             <div class="expiry" v-if="domainRecord">
-              <p class="descr">Domain Expires</p>
+              <p class="descr">Domain expires on</p>
               <p class="value" v-if="domainRecord.expiration">{{ niceDate(domainRecord.expiration) }}</p>
             </div>
           </div>
 
-          <!-- Col 3; Swap Listing -->
-          <div class="col">
-            <div class="expiry" v-if="swap.expires && swap.open">
-              <p class="descr">Listing Expires</p>
+          <!-- Col 2; Listing Expiry -->
+          <div class="col listing-expiry">
+            <!-- Expiration -->
+            <div class="expiry" v-if="swap.expires">
+              <p class="descr">Listing expires on</p>
               <p class="value" v-if="swap.expires.at_time">{{ niceDateFromNano(swap.expires.at_time) }}</p>
             </div>
+          </div>
+
+          <!-- Col 3; Finalize Swap -->
+          <div class="col finalize-swap">
+            <!-- Price -->
+            <div class="price" v-if="swap.price">
+              <p class="value swap-price">{{ formatFromAtto(swap.price) }}<span class="icon icon-denom"></span></p>
+            </div>
             <div class="purchase">
-              <p class="descr" v-if="!swap.open">This listing is cancelled or completed</p>
               <button 
-                class="btn btn-primary" 
+                class="btn btn-inverse" 
                 @click="executeFinishNative();" 
-                :disabled="!swap.open"
                 v-if="account && account !== swap.creator"
               >Buy Domain</button>
               <button 
                 class="btn btn-primary" 
                 @click="executeCancelSwap();" 
-                v-if="account == swap.creator && swap.open"
+                v-if="account == swap.creator"
               >Cancel Listing</button>
             </div>
           </div>
@@ -201,7 +177,7 @@ export default {
       // Waiting notification
       this.notify = {
         type: "loading",
-        title: "Finalizing your purchase",
+        title: "Getting your domain ready",
         msg: "Preparing to give " + this.domain + " a new home",
         img: null,
       };
@@ -316,6 +292,17 @@ div.right .caret,
 div.expiry {
   display: inline-block;
 }
+div.expiry .descr {
+  gap: 4px;
+  margin-bottom: 0.25rem;
+}
+div.expiry .value {
+  gap: 4px;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 16.8px;
+  letter-spacing: -1%;
+}
 div.right .caret {
   position: relative;
   top: 12px;
@@ -354,6 +341,10 @@ span.cost {
 }
 .icon-denom {
   margin-left: 8px;
+  width: 32px;
+  height: 32px;
+  top: -7px;
+  position: relative;
 }
 .col.img-t {
   max-width: 280px;
@@ -400,6 +391,23 @@ span.denom-text {
   font-weight: 400;
   font-size: 14px;
   line-height: 16.8px;
+}
+.col.finalize-swap {
+  text-align: right;
+}
+.col.finalize-swap, .col.finalize-swap div {
+  display: inline-block;
+}
+.value.swap-price {
+  font-weight: 500;
+  font-size: 32px;
+  line-height: 41.6px;
+  letter-spacing: -2%;
+}
+.purchase button {
+  top: -7px;
+  position: relative;
+  margin-left: 0.75em;
 }
 /* 
 .modal-header.subdomain-remove, 
