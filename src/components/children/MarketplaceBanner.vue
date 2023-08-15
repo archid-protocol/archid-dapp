@@ -54,6 +54,7 @@ export default {
       this.$emit('listingType', type);
     },
     textSearchHandler: function () {
+      this.market.type = ALL_LISTINGS; 
       this.$emit('filter', this.search);
     },
   }

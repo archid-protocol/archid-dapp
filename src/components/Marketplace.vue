@@ -190,7 +190,8 @@ export default {
       else if (type == MY_LISTINGS && !this.accounts.length) return;
       this.page = 0;
       this.context = type;
-      this._addressSearch(this.accounts[0].address);
+      if (this.context == ALL_LISTINGS) this.search = null;
+      else this._addressSearch(this.accounts[0].address);
     },
     _domainSearch: async function (filters) {
       let swapSearch = null;
@@ -215,8 +216,18 @@ export default {
       }
     },
     _addressSearch: async function (filters) {
+      let filteredSwaps = []
+      let address = (typeof filters == 'string') ? filters : filters.text;
       this.page = 0;
-      console.log('_addressSearch', filters);
+      let swapsQuery = await MarketplaceQuery.SwapsOf(address, this.cwClient);
+      console.log('swapsQuery?', swapsQuery, address);
+      if (Array.isArray(swapsQuery)) {
+        swapsQuery.forEach((swap) => {
+          if (swap['token_id']) filteredSwaps.push(swap.token_id);
+        });
+        this.filteredSwaps = filteredSwaps;
+        this.search = true;
+      }
     },
 
     // Handlers
@@ -248,8 +259,8 @@ export default {
   computed: {
     totalPages: function () {
       // Searching
-      if (this.search && !this.filteredTokens) return 0;
-      else if (this.search && this.filteredTokens) return Math.ceil((this.filteredTokens.length / this.pageSize));
+      if (this.search && !this.filteredSwaps) return 0;
+      else if (this.search && this.filteredSwaps) return Math.ceil((this.filteredSwaps.length / this.pageSize));
       // Not searching / Default display
       else if (!this.swaps.length) return 0;
       else return Math.ceil((this.swaps.length / this.pageSize));
