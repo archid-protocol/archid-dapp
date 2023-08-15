@@ -1,5 +1,6 @@
 import { coin } from "@cosmjs/stargate";
 import { Client } from './client';
+import { FromAtto } from "./denom";
 
 const MARKETPLACE_CONTRACT = process.env.VUE_APP_MARKETPLACE_CONTRACT;
 
@@ -62,6 +63,33 @@ async function Details(id = null, client = null) {
   }
 }
 
+/**
+ * Get all swaps created by a specific address
+ * @param {String} address : Swap creator to get listings for
+ * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
+ * @returns {QueryResult}
+ */
+async function SwapsOf(address = null, client = null) {
+  if (typeof address !== 'string') return;
+  if (!client) client = await Client();
+  try {
+    let entrypoint = {
+      swaps_of: {
+        address: address
+      }
+    };
+
+    let query = await client.wasmClient.queryClient.wasm.queryContractSmart(
+      MARKETPLACE_CONTRACT,
+      entrypoint
+    );
+    return query;
+  } catch(e) {
+    console.error(e);
+    return { error: e };
+  }
+}
+
 // Txs
 
 /**
@@ -101,7 +129,7 @@ async function CreateNative(id, token_id, expiration, price, client = null) {
       MARKETPLACE_CONTRACT,
       entrypoint,
       client.fees,
-      "Create swap: " + token_id + " for " + price + "aarch"
+      "Create swap: " + token_id + " for " + FromAtto(price) + "ARCH"
     );
     // Tx result
     return tx;
@@ -148,7 +176,7 @@ async function FinishNative(id, swap, client = null) {
       MARKETPLACE_CONTRACT,
       entrypoint,
       client.fees,
-      "Swap " + swap.token_id + " for " + swap.price + "aarch",
+      "Swap " + swap.token_id + " for " + FromAtto(swap.price) + "ARCH",
       funds
     );
     // Tx result
@@ -297,7 +325,8 @@ async function Cancel(id, client = null) {
 
 const Query = {
   List,
-  Details
+  Details,
+  SwapsOf
 };
 
 const Execute = {

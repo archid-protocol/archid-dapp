@@ -193,8 +193,26 @@ export default {
       this._addressSearch(this.accounts[0].address);
     },
     _domainSearch: async function (filters) {
+      let swapSearch = null;
+      let textFilter = null;
+      let domainSuffix = ".arch";
       this.page = 0;
-      console.log('_domainSearch', filters);
+      if (!this.cwClient || typeof filters !== 'object') return this.search = null;
+      else if (!filters.text) return this.search = null;
+      else if (filters.text.length < 5) textFilter = filters.text + domainSuffix;
+      else if (filters.text.slice(-5) !== domainSuffix) textFilter = filters.text + domainSuffix;
+      else textFilter = filters.text;
+      try {
+        swapSearch = await MarketplaceQuery.Details(textFilter, this.cwClient);
+        if (swapSearch['error']) this.filteredSwaps = [];
+        else if (swapSearch['token_id']) this.filteredSwaps = [swapSearch.token_id];
+        else this.filteredSwaps = [textFilter];
+        this.search = true;
+        // console.log('[filteredSwaps, query]', [this.filteredSwaps, swapSearch]);
+      } catch(e) {
+        console.error(`Swap search for ${filters.text} failed`, e);
+        return;
+      }
     },
     _addressSearch: async function (filters) {
       this.page = 0;
