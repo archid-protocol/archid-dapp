@@ -132,7 +132,7 @@ export default {
 
       let swapsQuery = await MarketplaceQuery.List(null, LIMIT, this.cwClient);
       if (swapsQuery['swaps']) this.swaps = swapsQuery.swaps;
-      console.log('swapsQuery', this.swaps);
+      // console.log('swapsQuery', this.swaps);
 
       // XXX TODO: Fix pagination response
       // let finished = false, i = 0;
@@ -220,7 +220,7 @@ export default {
       let address = (typeof filters == 'string') ? filters : filters.text;
       this.page = 0;
       let swapsQuery = await MarketplaceQuery.SwapsOf(address, this.cwClient);
-      console.log('swapsQuery?', swapsQuery, address);
+      // console.log('swapsQuery', swapsQuery, address);
       if (Array.isArray(swapsQuery)) {
         swapsQuery.forEach((swap) => {
           if (swap['token_id']) filteredSwaps.push(swap.token_id);
