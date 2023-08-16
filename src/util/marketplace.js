@@ -22,8 +22,10 @@ async function List(start, limit, client = null) {
     let entrypoint = {
       list: {}
     };
-    if (start) entrypoint.list.start = start;
+    if (start) entrypoint.list.start_after = start;
     if (limit) entrypoint.list.limit = limit;
+
+    console.log('List', entrypoint);
 
     let query = await client.wasmClient.queryClient.wasm.queryContractSmart(
       MARKETPLACE_CONTRACT,

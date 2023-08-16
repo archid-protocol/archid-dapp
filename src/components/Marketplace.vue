@@ -72,7 +72,7 @@ import MarketplaceListEntry from './children/MarketplaceListEntry.vue';
 const MARKETPLACE_CONTRACT = process.env.VUE_APP_MARKETPLACE_CONTRACT;
 
 // XXX TODO: Fix pagination response
-const LIMIT = 30;
+const LIMIT = 10;
 const ALL_LISTINGS = 0;
 const MY_LISTINGS = 1;
 
@@ -130,28 +130,30 @@ export default {
     swapIds: async function () {
       if (typeof this.page !== 'number') return;
 
-      let swapsQuery = await MarketplaceQuery.List(null, LIMIT, this.cwClient);
-      if (swapsQuery['swaps']) this.swaps = swapsQuery.swaps;
+      // let swapsQuery = await MarketplaceQuery.List(null, LIMIT, this.cwClient);
+      // if (swapsQuery['swaps']) this.swaps = swapsQuery.swaps;
       // console.log('swapsQuery', this.swaps);
 
       // XXX TODO: Fix pagination response
-      // let finished = false, i = 0;
-      // do {
-      //   let start = (i > 0) ? this.swaps[this.swaps.length - 1] : null;
-      //   let query = await MarketplaceQuery.List(start, LIMIT, this.cwClient);
-      //   console.log('Swaps query', {
-      //     query: query, 
-      //     start: start,
-      //     limit: LIMIT,
-      //     i: i,
-      //     swaps: this.swaps
-      //   });
-      //   i++;
-      //   if (!Array.isArray(query['swaps'])) return;
-      //   else if (!query.swaps.length) {
-      //     return finished = true;
-      //   } else this.swaps = [...this.swaps, ...query.swaps];
-      // } while (!finished);
+      let finished = false, i = 0;
+      do {
+        let start = (i > 0) ? this.swaps[this.swaps.length - 1] : null;
+        let query = await MarketplaceQuery.List(start, LIMIT, this.cwClient);
+
+        console.log('Swaps query', {
+          query: query, 
+          start: start,
+          limit: LIMIT,
+          i: i,
+          swaps: this.swaps
+        });
+
+        i++;
+
+        if (!Array.isArray(query['swaps'])) return finished = true;
+        else if (!query.swaps.length) return finished = true;
+        else this.swaps = [...this.swaps, ...query.swaps];
+      } while (!finished);
     },
 
     // Filter
@@ -235,7 +237,6 @@ export default {
       if (typeof page !== 'number') return;
       this._collapseListItems();
       this.page = page;
-      await this.swapIds();
     },
     _collapseListItems: function () {
       if (!document) return;
@@ -267,19 +268,29 @@ export default {
     },
     swapsList: function () {
       // Searching
-      if (this.filteredSwaps && this.search) {
-        let start = (this.page == 0) ? 0 : this.page * this.pageSize;
-        let end = start + this.pageSize;
-        return this.filteredSwaps.slice(start, end);
+      // if (this.filteredSwaps && this.search) {
+      //   let start = (this.page == 0) ? 0 : this.page * this.pageSize;
+      //   let end = start + this.pageSize;
+      //   return this.filteredSwaps.slice(start, end);
+      // }
+      // // Not searching / Default display
+      // else {
+      //   let start = (this.page == 0) ? 0 : this.page * this.pageSize;
+      //   let end = start + this.pageSize;
+      //   return this.swaps.slice(start, end);
+      // }
+
+      let swaps, start, end;
+      if (this.search) swaps = this.filteredTokens;
+      else swaps = this.swaps;
+      if (this.page == 0) {
+        start = 0;
+        end = this.pageSize;
+      } else {
+        start = (this.page * this.pageSize);
+        end = (this.page * this.pageSize) + this.pageSize;
       }
-      // Not searching / Default display
-      else {
-        // XXX TODO: Fix pagination response in contract
-        // return this.swaps;
-        let start = (this.page == 0) ? 0 : this.page * this.pageSize;
-        let end = start + this.pageSize;
-        return this.swaps.slice(start, end);
-      }
+      return swaps.slice(start, end);
     }
   },
 }
