@@ -25,8 +25,6 @@ async function List(start, limit, client = null) {
     if (start) entrypoint.list.start_after = start;
     if (limit) entrypoint.list.limit = limit;
 
-    console.log('List', entrypoint);
-
     let query = await client.wasmClient.queryClient.wasm.queryContractSmart(
       MARKETPLACE_CONTRACT,
       entrypoint
@@ -131,7 +129,7 @@ async function CreateNative(id, token_id, expiration, price, client = null) {
       MARKETPLACE_CONTRACT,
       entrypoint,
       client.fees,
-      "Create swap: " + token_id + " for " + FromAtto(price) + "ARCH"
+      "List " + token_id + " for " + FromAtto(price) + "ARCH"
     );
     // Tx result
     return tx;
@@ -227,7 +225,7 @@ async function CreateCw20(id, cw20_contract, token_id, expiration, price, denom 
       MARKETPLACE_CONTRACT,
       entrypoint,
       client.fees,
-      "Create swap: " + token_id + " for " + price + denom
+      "List " + token_id + " for " + FromAtto(price) + denom
     );
     // Tx result
     return tx;
