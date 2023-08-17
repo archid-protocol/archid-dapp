@@ -37,9 +37,9 @@
     <div class="connect user" v-if="accounts.length">
       <a id="user_account">
         <div class="menu-target main row">
-          <div class="col">
-            <span class="balance">{{ formatFromAtto(accounts[0].balance.amount) }}</span>
-            <span class="icon icon-denom"></span>
+          <div class="col" :alt="formatFromAtto(accounts[0].balance.amount) + ' ARCH'" :title="formatFromAtto(accounts[0].balance.amount) + ' ARCH'">
+            <span class="balance">{{ balanceDisplayFormat(accounts[0].balance.amount) }}</span>
+            <span class="icon icon-denom menu-icon"></span>
           </div>
           <div class="col">
             <span class="address">{{ accountDisplayFormat(accounts[0].address) }}</span>
@@ -297,6 +297,11 @@ export default {
       } catch(e) {
         console.error('Error resolving wallet balance', e);
       }
+    },
+    balanceDisplayFormat: function (balance = null) {
+      if (!balance) return "";
+      let archBalance = FromAtto(balance);
+      return archBalance.toLocaleString("en");
     },
     accountDisplayFormat: function (account = null) {
       if (!account) return "";
