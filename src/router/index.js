@@ -7,6 +7,7 @@ import Domain from '../components/Domain';
 import MyDomains from '../components/MyDomains';
 import Address from '../components/Address';
 import Marketplace from '../components/Marketplace';
+import MarketplaceSwap from '../components/MarketplaceSwap';
 
 const PageNotFound = Home;
 
@@ -18,6 +19,7 @@ const routes = [
   { path: '/address/:id', name: 'Address', component: Address, meta: { requiresAuth: true } },
   { path: '/my-domains', name: 'My Domains', component: MyDomains, meta: { requiresAuth: true } },
   { path: '/marketplace', name: 'Marketplace', component: Marketplace, meta: { requiresAuth: true } },
+  { path: '/marketplace/:id', name: 'Marketplace Swap', component: MarketplaceSwap, meta: { requiresAuth: true } },
   { path: '/:pathMatch(.*)*', name: 'not-found', component: PageNotFound }
 ];
 

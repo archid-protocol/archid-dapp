@@ -1,18 +1,18 @@
 <template>
   <div :class="{'domain-item': true, 'collapsible': true, 'expanded': !closed || !collapsible}">
     <div class="head">
-      <div class="left">
+      <div :class="{'left': true, 'pointer': collapsible}" @click="domainDetails($event);">
         <router-link class="domain-name header" v-if="domain" :to="'/domains/' + domain">{{domain}}</router-link>
         <span class="badge badge-warning badge-unsaved-changes" v-if="editing || editingDescr || updatingImg">Unsaved Changes</span>
       </div>
-      <div class="right">
+      <div :class="{'right': true, 'pointer': collapsible}" @click="domainDetails($event);">
         <div class="status" v-if="status">
           <span class="icon icon-info domain-resolver-mismatch" @click="modals.resolverMismatch = !modals.resolverMismatch" alt="Domain owner and record differ" title="Domain owner and record differ" v-if="!status.isExpired && status.isMismatch && !status.isListed"></span>
           <span class="badge badge-listed" v-if="!status.isExpired && status.isListed">Listed for Sale</span>
           <span class="badge badge-active" v-if="!status.isExpired && !status.isListed">Active</span>
           <span class="badge badge-expired" v-if="status.isExpired">Expired</span>
         </div>
-        <div :class="{'caret': true, 'active': !closed}" @click="domainDetails();" v-if="collapsible">&caron;</div>
+        <div :class="{'caret': true, 'active': !closed}" v-if="collapsible">&caron;</div>
       </div>
     </div>
     <div class="body" v-if="!closed || !collapsible">
@@ -144,6 +144,13 @@
 
                 <!-- Cancel Sale Listing -->
                 <button class="btn btn-primary" @click="executeCancelSwap();" v-if="owner.owner == viewer && status.isListed">Cancel Listing</button>
+
+                <!-- Buy Domain -->
+                <router-link 
+                  :to="'/marketplace/' + domain" 
+                  class="btn btn-inverse" 
+                  v-if="domain && owner.owner !== viewer && status.isListed"
+                >Buy Domain</router-link>
               </div>
             </div>
           </div>
@@ -880,7 +887,13 @@ export default {
     if (!this.collapsible) await this.domainDetails();
   },
   methods: {
-    domainDetails: async function () {
+    domainDetails: async function (evt = null) {
+      if (evt) {
+        if (!this.collapsible 
+          || evt.target.tagName == 'A' 
+          || evt.target.className.indexOf('domain-resolver-mismatch') > -1
+        ) return;
+      }
       if (!this.token || !this.owner || !this.domainRecord) {
         await this.dataResolutionHandler();
       } else {

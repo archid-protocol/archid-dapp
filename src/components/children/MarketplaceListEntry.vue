@@ -1,11 +1,11 @@
 <template>
   <div :class="{'market-item': true, 'domain-item': true, 'collapsible': true, 'expanded': !closed || !collapsible}">
     <div class="head">
-      <div class="left">
+      <div :class="{'left': true, 'pointer': collapsible}" @click="swapDetails($event);">
         <router-link class="domain-name header" v-if="domain" :to="'/domains/' + domain">{{domain}}</router-link>
       </div>
-      <div class="right">
-        <div :class="{'caret': true, 'active': !closed}" @click="swapDetails();" v-if="collapsible">&caron;</div>
+      <div class="right pointer" @click="swapDetails($event);">
+        <div :class="{'caret': true, 'active': !closed}" v-if="collapsible">&caron;</div>
       </div>
     </div>
     <div class="body" v-if="!closed || !collapsible">
@@ -123,7 +123,10 @@ export default {
     }
   },
   methods: {
-    swapDetails: async function () {
+    swapDetails: async function (evt = null) {
+      if (evt) {
+        if (!this.collapsible || evt.srcElement.tagName == 'A') return;
+      }
       if (!this.swap) await this.dataResolutionHandler();
       this.closed = !this.closed;
     },
@@ -146,7 +149,7 @@ export default {
     swapData: async function () {
       if (!this.domain || typeof this.domain !== 'string') return;
       this.swap = await MarketplaceQuery.Details(this.domain, this.cwClient);
-      if (!this.swap['error']) console.log('Details query (swap)', this.swap);
+      // if (!this.swap['error']) console.log('Details query (swap)', this.swap);
     },
     resolveDomainRecord: async function () {
       if (!this.domain || typeof this.domain !== 'string') return;
