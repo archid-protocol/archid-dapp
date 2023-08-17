@@ -25,6 +25,7 @@
             v-bind:status="statuses[domain]"
             @ownershipTransfer="newOwnerHandler"
             @listing="newListingHandler"
+            @dataResolution="newOwnerHandler"
             :key="'item-'+i"
           >
           </DomainListEntry>

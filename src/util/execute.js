@@ -109,6 +109,7 @@ async function UpdateResolver(name, new_resolver, client = null) {
         new_resolver: new_resolver
       }
     };
+
     // Sender
     let accounts = await client.offlineSigner.getAccounts();
     // Broadcast tx

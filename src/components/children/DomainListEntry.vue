@@ -736,8 +736,17 @@
     </div>
   </transition>
 
-  <!-- Domain Record / Resolver Mismatched Modal  -->
-  
+  <!-- Domain Record / Resolver Mismatched Modal -->
+  <ResolverMismatch
+    v-bind:domain="domain"
+    v-bind:cw721="cw721"
+    v-bind:cwClient="cwClient"
+    v-bind:showModal="modals.resolverMismatch"
+    @dataResolution="resolverMismatchHandler"
+    @close="modals.resolverMismatch = false"
+    v-if="status && cwClient"
+  >
+  </ResolverMismatch>
 </template>
 
 <script>
@@ -758,6 +767,7 @@ import { ApprovalsCw721, ApproveCw721 } from '../../util/approvals';
 import { DateFormat, SecondsToNano } from '../../util/datetime';
 import { FromAtto, ToAtto } from '../../util/denom';
 
+import ResolverMismatch from './modals/ResolverMismatch.vue';
 import Notification from './Notification.vue';
 
 const MARKETPLACE_CONTRACT = process.env.VUE_APP_MARKETPLACE_CONTRACT;
@@ -789,7 +799,7 @@ export default {
     collapsible: Boolean,
   },
   emits: ['dataResolution', 'ownershipTransfer', 'listing'],
-  components: { Notification },
+  components: { ResolverMismatch, Notification },
   data: () => ({
     token: null,
     owner: null,
@@ -929,6 +939,11 @@ export default {
         this.$emit('dataResolution', true);
         this.$root.resolveUpdates();
       }
+    },
+    resolverMismatchHandler: function () {
+      this.dataResolutionHandler(true);
+      this.$emit('dataResolution', this.domain);
+      this.$root.resolveUpdates();
     },
     tokenData: async function () {
       if (!this.domain || typeof this.domain !== 'string') return;
