@@ -244,6 +244,7 @@ export default {
       let searchEl = document.getElementById('search_marketplace');
       if (searchEl) searchEl.value = null;
       this.search = null;
+      this.swaps = [];
       this.filteredSwaps = [];
       this.page = 0;
       await this.swapIds();

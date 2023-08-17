@@ -146,7 +146,7 @@ export default {
     swapData: async function () {
       if (!this.domain || typeof this.domain !== 'string') return;
       this.swap = await MarketplaceQuery.Details(this.domain, this.cwClient);
-      console.log('Details query (swap)', this.swap);
+      if (!this.swap['error']) console.log('Details query (swap)', this.swap);
     },
     resolveDomainRecord: async function () {
       if (!this.domain || typeof this.domain !== 'string') return;
