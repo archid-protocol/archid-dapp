@@ -7,7 +7,7 @@
       </div>
       <div class="right">
         <div class="status" v-if="status">
-          <span class="icon icon-info domain-resolver-mismatch" alt="Domain owner and record differ" title="Domain owner and record differ" v-if="!status.isExpired && status.isMismatch && !status.isListed"></span>
+          <span class="icon icon-info domain-resolver-mismatch" @click="modals.resolverMismatch = !modals.resolverMismatch" alt="Domain owner and record differ" title="Domain owner and record differ" v-if="!status.isExpired && status.isMismatch && !status.isListed"></span>
           <span class="badge badge-listed" v-if="!status.isExpired && status.isListed">Listed for Sale</span>
           <span class="badge badge-active" v-if="!status.isExpired && !status.isListed">Active</span>
           <span class="badge badge-expired" v-if="status.isExpired">Expired</span>
@@ -728,6 +728,9 @@
       </div>
     </div>
   </transition>
+
+  <!-- Domain Record / Resolver Mismatched Modal  -->
+  
 </template>
 
 <script>
@@ -859,7 +862,8 @@ export default {
       editingImg: false,
       transfer: false,
       marketListing: false,
-      cancelListing: false
+      cancelListing: false,
+      resolverMismatch: false,
     },
     notify: {
       type: null,
@@ -1953,7 +1957,7 @@ span.denom-text {
   line-height: 16.8px;
 }
 .icon-info.domain-resolver-mismatch {
-  cursor: help;
+  cursor: pointer;
   top: 8px;
 }
 </style>

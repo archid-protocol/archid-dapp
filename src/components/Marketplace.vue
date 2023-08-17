@@ -238,8 +238,14 @@ export default {
       }
     },
     // Refresh list of swaps after swapping, or cancelling a swap
+    // and reset search and pagination arguments
     dataResolution: async function () {
       this._collapseListItems();
+      let searchEl = document.getElementById('search_marketplace');
+      if (searchEl) searchEl.value = null;
+      this.search = null;
+      this.filteredSwaps = [];
+      this.page = 0;
       await this.swapIds();
     },
     async onChange(event) {

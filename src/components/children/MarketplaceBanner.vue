@@ -12,6 +12,7 @@
       </div>
       <div class="text-filter right">
         <input 
+          id="search_marketplace"
           type="text" 
           placeholder="Search domain name, Archway address"
           class="domain form-control"
