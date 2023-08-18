@@ -745,6 +745,7 @@
     @dataResolution="resolverMismatchHandler"
     @close="modals.resolverMismatch = false"
     v-if="status && cwClient"
+    :key="'resolver-mismatch-my-domains-' + domain"
   >
   </ResolverMismatch>
 </template>

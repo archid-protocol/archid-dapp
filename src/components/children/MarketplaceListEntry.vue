@@ -66,8 +66,22 @@
     v-bind:img="notify.img"
     v-if="notify.type"
     @closeNotification="closeNotification"
+    @resolverModal="showResolverModal"
   >
   </Notification>
+
+  <!-- Domain Record / Resolver Mismatched Modal -->
+  <ResolverMismatch
+    v-bind:domain="domain"
+    v-bind:cw721="cw721"
+    v-bind:cwClient="cwClient"
+    v-bind:showModal="modals.resolverMismatch"
+    @dataResolution="resolverMismatchHandler"
+    @close="resolverMismatchHandler"
+    v-if="domain && cw721 && cwClient"
+    :key="'resolver-mismatch-my-domains-' + domain"
+  >
+  </ResolverMismatch>
 </template>
 
 <script>
@@ -77,6 +91,7 @@ import { FromAtto, ToAtto } from '../../util/denom';
 import { Token } from '../../util/token';
 import { Query as MarketplaceQuery, Execute as MarketplaceExecute } from '../../util/marketplace';
 
+import ResolverMismatch from './modals/ResolverMismatch.vue';
 import Notification from './Notification.vue';
 
 const DEFAULT_TOKEN_IMG = "token.svg";
@@ -93,7 +108,7 @@ export default {
     collapsible: Boolean,
   },
   emits: ['dataResolution'],
-  components: { Notification },
+  components: { Notification, ResolverMismatch },
   data: () => ({
     token: null,
     swap: null,
@@ -103,6 +118,7 @@ export default {
     executeResult: null,
     modals: {
       enlargeTokenImg: false,
+      resolverMismatch: false,
     },
     notify: {
       type: null,
@@ -141,6 +157,13 @@ export default {
         this.$root.resolveUpdates();
       }
     },
+    showResolverModal: function () {
+      this.modals.resolverMismatch = true;
+    },
+    resolverMismatchHandler: function () {
+      this.modals.resolverMismatch = false;
+      this.dataResolutionHandler(true);
+    },
     tokenData: async function () {
       if (!this.domain || typeof this.domain !== 'string') return;
       this.token = await Token(this.domain, this.cw721, this.cwClient);
@@ -166,13 +189,14 @@ export default {
       else if (!this.token.extension['image']) return;
       this.modals.enlargeTokenImg = !this.modals.enlargeTokenImg;
     },
-    closeNotification: function () {
+    closeNotification: function (type) {
       this.notify = {
         type: null,
         title: null,
         msg: null,
         img: null,
       };
+      if (type == 'sold') this.dataResolutionHandler(true);
     },
 
     // Txs
@@ -190,18 +214,21 @@ export default {
         this.swap,    // Swap
         this.cwClient
       );
-      console.log('Swap purchase', this.executeResult);
+      // console.log('Swap purchase', this.executeResult);
 
       if (!this.executeResult['error']) {
+        // Resolve token data and status updates
+        await this.tokenData();
+        await this.swapData();
+        await this.resolveDomainRecord();
+
+        // Release notification
         this.notify = {
-          type: "success",
+          type: "sold",
           title: "Your new domain is almost ready",
           msg: "Now that " + this.domain + " is yours, don't forget to update the domain record to your own address",
           img: DEFAULT_TOKEN_IMG,
         };
-        // Resolve token data and status updates
-        await this.dataResolutionHandler(true);
-        this.$emit('dataResolution', true);
       } else {
         // Error notification
         this.notify = {
@@ -229,15 +256,17 @@ export default {
       );
 
       if (!this.executeResult['error']) {
+        // Resolve token data and status updates
+        await this.dataResolutionHandler(true);
+        this.$emit('dataResolution', true);
+
+        // Release notification
         this.notify = {
           type: "success",
           title: "Listing removed",
           msg: this.domain + " has been successfully removed from the marketplace",
           img: DEFAULT_TOKEN_IMG,
         };
-        // Resolve token data and status updates
-        await this.dataResolutionHandler(true);
-        this.$emit('dataResolution', true);
       } else {
         // Error notification
         this.notify = {

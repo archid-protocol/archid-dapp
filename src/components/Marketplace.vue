@@ -113,6 +113,7 @@ export default {
             this.accounts = await Accounts(this.cwClient);
           }
           // Load swaps
+          await this.setTokenContract();
           await this.swapIds();
           this.loaded = true;
         }, 100);
