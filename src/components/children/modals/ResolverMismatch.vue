@@ -35,7 +35,7 @@
                 v-model="newResolver"
                 placeholder="Archway address for this domain"
               />
-              <span class="input-group-text pointer" @click="newResolver = owner.owner;">Resolve to me</span>
+              <span class="input-group-text pointer" @click="newResolver = account">Resolve to me</span>
               <span class="input-group-text pointer exit edit-descr" @click="editDomainRecordHandler();">&times;</span>
             </div>
             <p class="descr" v-if="!editingResolver && !isSubdomain">Click the domain record to update it.</p>
@@ -68,6 +68,7 @@
 </template>
 
 <script>
+import { Accounts } from '../../../util/client';
 import { OwnerOf } from '../../../util/token';
 import { ResolveRecord } from '../../../util/query';
 import { UpdateResolver } from '../../../util/execute';
@@ -86,6 +87,7 @@ export default {
   emits: ['dataResolution', 'close'],
   components: { Notification },
   data: () => ({
+    account: null,
     newResolver: null,
     domainRecord: null,
     isExpired: null,
@@ -101,6 +103,7 @@ export default {
     },
   }),
   mounted: async function () {
+    this.account = await this.getAccount();
     await this.ownerData();
     await this.resolveDomainRecord();
     this.loaded = true;
@@ -167,6 +170,12 @@ export default {
     },
 
     // Util
+    getAccount: async function () {
+      if (!this.cwClient) return null;
+      let accounts = await Accounts(this.cwClient);
+      if (!accounts.length) return null;
+      return accounts[0].address;
+    },
     editDomainRecordHandler: function () {
       this.newResolver = null;
       this.editingResolver = false;
