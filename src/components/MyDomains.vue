@@ -243,6 +243,7 @@ export default {
       if (typeof page !== 'number') return;
       this._collapseDomainListItems();
       this.page = page;
+      this.tokenStatuses();
     },
     _collapseDomainListItems: function () {
       if (!document) return;

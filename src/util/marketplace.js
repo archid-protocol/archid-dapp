@@ -129,7 +129,7 @@ async function CreateNative(id, token_id, expiration, price, client = null) {
       MARKETPLACE_CONTRACT,
       entrypoint,
       client.fees,
-      "List " + token_id + " for " + FromAtto(price) + "ARCH"
+      "List " + token_id + " for " + FromAtto(price, true) + " ARCH"
     );
     // Tx result
     return tx;
@@ -176,7 +176,7 @@ async function FinishNative(id, swap, client = null) {
       MARKETPLACE_CONTRACT,
       entrypoint,
       client.fees,
-      "Swap " + swap.token_id + " for " + FromAtto(swap.price) + "ARCH",
+      "Swap " + swap.token_id + " for " + FromAtto(swap.price, true) + " ARCH",
       funds
     );
     // Tx result
@@ -225,7 +225,7 @@ async function CreateCw20(id, cw20_contract, token_id, expiration, price, denom 
       MARKETPLACE_CONTRACT,
       entrypoint,
       client.fees,
-      "List " + token_id + " for " + FromAtto(price) + denom
+      "List " + token_id + " for " + FromAtto(price, true) + denom
     );
     // Tx result
     return tx;
