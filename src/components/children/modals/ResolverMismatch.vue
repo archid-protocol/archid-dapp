@@ -22,10 +22,6 @@
               v-if="!editingResolver"
             >
               <span>{{(domainRecord.address) ? domainRecord.address : 'Expired'}}</span>
-              <span>
-                <a class="flat-link" :href="'/address/'+owner.owner" v-if="domainRecord.address">{{domainRecord.address}}</a>
-                <span v-if="!domainRecord.address">Expired</span>
-              </span>
             </div>
             <div class="input-group domain-record value" v-if="editingResolver">
               <input 
