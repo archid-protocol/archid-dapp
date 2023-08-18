@@ -1509,8 +1509,11 @@ export default {
       // Swap will expire when domain expires
       // XXX TODO: allow user defined swap expirations?
       let swapExpiration = SecondsToNano(this.domainRecord.expiration);
-      let useBigInt = Number.isInteger(this.updates.listingAmount);
-      let price = ToAtto(this.updates.listingAmount, useBigInt);
+      // XXX TMP: temporary BigNum fix; 
+      // TODO: use BigNum lib for ToAtto math
+      let listingAmount = (this.updates.listingAmount >= 1000) ? parseInt(this.updates.listingAmount) : this.updates.listingAmount;
+      let useBigInt = Number.isInteger(listingAmount);
+      let price = ToAtto(listingAmount, useBigInt);
 
       this.executeResult = await MarketplaceExecute.CreateNative(
         this.domain,    // Swap ID
