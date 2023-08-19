@@ -158,16 +158,17 @@ export default {
       end = (this.page * this.pageSize) + this.pageSize;
       domains.slice(start, end).forEach(async (domain) => {
         if (!this.statuses[domain]) {
-          let query = await ResolveRecord(domain, this.cwClient);
-          let swap = await MarketplaceQuery.Details(domain, this.cwClient);
-
-          this.statuses[domain] = {
-            expiration: query.expiration,
-            isExpired: new Date().getTime() > (query.expiration * 1000),
-            address: query.address,
-            isMismatch: query.address !== this.accounts[0].address,
-            isListed: (swap['error']) ? false : true
-          };
+          setTimeout(async () => {
+            let query = await ResolveRecord(domain, this.cwClient);
+            let swap = await MarketplaceQuery.Details(domain, this.cwClient);
+            this.statuses[domain] = {
+              expiration: query.expiration,
+              isExpired: new Date().getTime() > (query.expiration * 1000),
+              address: query.address,
+              isMismatch: query.address !== this.accounts[0].address,
+              isListed: (swap['error']) ? false : true
+            };
+          }, 500);
         }
       });
     },
