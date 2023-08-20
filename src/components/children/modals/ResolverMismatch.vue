@@ -104,6 +104,11 @@ export default {
     await this.resolveDomainRecord();
     this.loaded = true;
   },
+  watch: {
+    async showModal() {
+      await this.ownerData();
+    },
+  },
   methods: {
     // Queries
     ownerData: async function () {
