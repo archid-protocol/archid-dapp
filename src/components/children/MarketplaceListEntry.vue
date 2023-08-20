@@ -40,7 +40,7 @@
               <button 
                 class="btn btn-inverse" 
                 @click="executeFinishNative();" 
-                v-if="account && account !== swap.creator"
+                v-if="account && account !== swap.creator && swap.expires"
               >Buy Domain</button>
               <button 
                 class="btn btn-primary" 
@@ -161,6 +161,14 @@ export default {
       this.modals.resolverMismatch = true;
     },
     resolverMismatchHandler: function () {
+      if (!this.collapsible) {
+        this.notify = {
+          type: null,
+          title: null,
+          msg: null,
+          img: null,
+        };
+      }
       this.modals.resolverMismatch = false;
       this.dataResolutionHandler(true);
     },
