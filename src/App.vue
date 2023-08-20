@@ -301,6 +301,7 @@ export default {
     balanceDisplayFormat: function (balance = null) {
       if (!balance) return "";
       let archBalance = FromAtto(balance);
+      if (archBalance < 1) return archBalance;
       return archBalance.toLocaleString("en");
     },
     accountDisplayFormat: function (account = null) {
