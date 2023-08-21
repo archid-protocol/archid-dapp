@@ -5,7 +5,7 @@ import { FromAtto } from "./denom";
 const MARKETPLACE_CONTRACT = process.env.VUE_APP_MARKETPLACE_CONTRACT;
 
 const SELL_OFFER = "Sale";
-// const BUY_OFFER = "Offer";
+const BUY_OFFER = "Offer";
 
 // Queries
 
@@ -76,6 +76,33 @@ async function SwapsOf(address = null, client = null) {
     let entrypoint = {
       swaps_of: {
         address: address
+      }
+    };
+
+    let query = await client.wasmClient.queryClient.wasm.queryContractSmart(
+      MARKETPLACE_CONTRACT,
+      entrypoint
+    );
+    return query;
+  } catch(e) {
+    console.error(e);
+    return { error: e };
+  }
+}
+
+/**
+ * Count the total number of swaps for a `SwapType` ('Sale' / 'Offer')
+ * @param {String} type : Either SELL_OFFER ('Sale') or BUY_OFFER ('Offer')
+ * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
+ * @returns 
+ */
+async function GetTotal(type = SELL_OFFER, client = null) {
+  if (type !== SELL_OFFER && type !== BUY_OFFER) type = SELL_OFFER;
+  if (!client) client = await Client();
+  try {
+    let entrypoint = {
+      get_total: {
+        swap_type: type
       }
     };
 
@@ -326,7 +353,8 @@ async function Cancel(id, client = null) {
 const Query = {
   List,
   Details,
-  SwapsOf
+  SwapsOf,
+  GetTotal
 };
 
 const Execute = {

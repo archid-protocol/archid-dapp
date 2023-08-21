@@ -85,6 +85,7 @@ export default {
     config: null,
     cw721: null,
     swaps: [],
+    swapQuantity: null,
     swapContract: MARKETPLACE_CONTRACT,
     filteredSwaps: [],
     search: null,
@@ -130,22 +131,25 @@ export default {
     },
     swapIds: async function () {
       if (typeof this.page !== 'number') return;
-      let finished = false, i = 0;
-      do {
-        let start = (i > 0) ? this.swaps[this.swaps.length - 1] : null;
-        let query = await MarketplaceQuery.List(start, LIMIT, this.cwClient);
-        // console.log('Swaps query', {
-        //   query: query, 
-        //   start: start,
-        //   limit: LIMIT,
-        //   i: i,
-        //   swaps: this.swaps
-        // });
-        i++;
-        if (!Array.isArray(query['swaps'])) return finished = true;
-        else if (!query.swaps.length) return finished = true;
-        else this.swaps = [...this.swaps, ...query.swaps];
-      } while (!finished);
+
+      // Enumerate swaps
+      let total = await MarketplaceQuery.GetTotal('Sale', this.cwClient);
+      if (!total) return;
+      this.swapQuantity = parseInt(total);
+
+      // Load swaps page
+      if (this.page > (total / LIMIT)) this.page = Math.floor(total / LIMIT);
+      let start = (this.page > 0) ? this.swaps[this.swaps.length - 1] : null;
+      let query = await MarketplaceQuery.List(start, LIMIT, this.cwClient);
+      if (!Array.isArray(query['swaps'])) return;
+      else if (!query.swaps.length) return;
+      this.swaps = [...this.swaps, ...query.swaps];
+      // console.log('Swaps query', {
+      //   query: query, 
+      //   start: start,
+      //   limit: LIMIT,
+      //   swaps: this.swaps
+      // });
     },
 
     // Filter
@@ -229,6 +233,7 @@ export default {
       if (typeof page !== 'number') return;
       this._collapseListItems();
       this.page = page;
+      await this.swapIds();
     },
     _collapseListItems: function () {
       if (!document) return;
@@ -262,8 +267,8 @@ export default {
       if (this.search && !this.filteredSwaps) return 0;
       else if (this.search && this.filteredSwaps) return Math.ceil((this.filteredSwaps.length / this.pageSize));
       // Not searching / Default display
-      else if (!this.swaps.length) return 0;
-      else return Math.ceil((this.swaps.length / this.pageSize));
+      else if (!this.swapQuantity) return 0;
+      else return Math.ceil((this.swapQuantity / this.pageSize));
     },
     swapsList: function () {
       let swaps, start, end;
@@ -277,7 +282,7 @@ export default {
         end = (this.page * this.pageSize) + this.pageSize;
       }
       return swaps.slice(start, end);
-    }
+    },
   },
 }
 </script>
