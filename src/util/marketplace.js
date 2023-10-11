@@ -63,13 +63,6 @@ async function Details(id = null, client = null) {
   }
 }
 
-// SwapsOf { 
-//   address: Addr,
-//   swap_type: Option<SwapType>,
-//   page: Option<u32>,
-//   limit: Option<u32>,
-// },
-
 /**
  * Get all swaps created by a specific address
  * @param {String} address : Swap creator to get listings for
