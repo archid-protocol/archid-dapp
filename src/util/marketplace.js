@@ -4,8 +4,8 @@ import { FromAtto } from "./denom";
 
 const MARKETPLACE_CONTRACT = process.env.VUE_APP_MARKETPLACE_CONTRACT;
 
-const SELL_OFFER = "Sale";
-const BUY_OFFER = "Offer";
+const SALE = "Sale";
+const OFFER = "Offer";
 
 // Queries
 
@@ -63,19 +63,39 @@ async function Details(id = null, client = null) {
   }
 }
 
+// SwapsOf { 
+//   address: Addr,
+//   swap_type: Option<SwapType>,
+//   page: Option<u32>,
+//   limit: Option<u32>,
+// },
+
 /**
  * Get all swaps created by a specific address
  * @param {String} address : Swap creator to get listings for
+ * @param {String} type : Swap type; must be either "Sale" or "Offer"
+ * @param {Number} page : Results page to be returned; starts at 0. Requesting a non-existent page returns an error.
+ * @param {Number} limit : Maximum quantity of results to return. An integer greater than 0 and less than 100.
  * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
  * @returns {QueryResult}
  */
-async function SwapsOf(address = null, client = null) {
+async function SwapsOf(
+  address = null, 
+  type = SALE,
+  page = 0, 
+  limit = 10, 
+  client = null
+) {
   if (typeof address !== 'string') return;
+  if (typeof type !== SALE && typeof type !== OFFER) type = SALE;
   if (!client) client = await Client();
   try {
     let entrypoint = {
       swaps_of: {
-        address: address
+        address: address,
+        swap_type: type,
+        page: page,
+        limit: limit
       }
     };
 
@@ -92,12 +112,12 @@ async function SwapsOf(address = null, client = null) {
 
 /**
  * Count the total number of swaps for a `SwapType` ('Sale' / 'Offer')
- * @param {String} type : Either SELL_OFFER ('Sale') or BUY_OFFER ('Offer')
+ * @param {String} type : Either SALE ('Sale') or OFFER ('Offer')
  * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
- * @returns 
+ * @returns {QueryResult}
  */
-async function GetTotal(type = SELL_OFFER, client = null) {
-  if (type !== SELL_OFFER && type !== BUY_OFFER) type = SELL_OFFER;
+async function GetTotal(type = SALE, client = null) {
+  if (type !== SALE && type !== OFFER) type = SALE;
   if (!client) client = await Client();
   try {
     let entrypoint = {
@@ -116,6 +136,238 @@ async function GetTotal(type = SELL_OFFER, client = null) {
     return { error: e };
   }
 }
+
+/**
+ * Fetch all swaps of type `SwapType::Offer`
+ * @param {Number} page : Results page to be returned; starts at 0. Requesting a non-existent page returns an error.
+ * @param {Number} limit : Maximum quantity of results to return. An integer greater than 0 and less than 100.
+ * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
+ * @returns {QueryResult}
+ */
+async function GetOffers(page = 0, limit = 10, client = null) {
+  if (!client) client = await Client();
+  try {
+    let entrypoint = {
+      get_offers: {
+        page: page,
+        limit: limit
+      }
+    };
+
+    let query = await client.wasmClient.queryClient.wasm.queryContractSmart(
+      MARKETPLACE_CONTRACT,
+      entrypoint
+    );
+    return query;
+  } catch(e) {
+    console.error(e);
+    return { error: e };
+  }
+}
+
+/**
+ * Fetch all swaps of type `SwapType::Sale`
+ * @param {Number} page : Results page to be returned; starts at 0. Requesting a non-existent page returns an error.
+ * @param {Number} limit : Maximum quantity of results to return. An integer greater than 0 and less than 100.
+ * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
+ * @returns {QueryResult}
+ */
+async function GetListings(page = 0, limit = 10, client = null) {
+  if (!client) client = await Client();
+  try {
+    let entrypoint = {
+      get_listings: {
+        page: page,
+        limit: limit
+      }
+    };
+
+    let query = await client.wasmClient.queryClient.wasm.queryContractSmart(
+      MARKETPLACE_CONTRACT,
+      entrypoint
+    );
+    return query;
+  } catch(e) {
+    console.error(e);
+    return { error: e };
+  }
+}
+
+/**
+ * Fetch all swaps for a specific token ID. Can be filtered by swap type.
+ * @param {String} token_id 
+ * @param {String} type? : Optional filter to limit results by swap type; must be either "Sale" or "Offer" (or `null` to show all results)
+ * @param {Number} page : Results page to be returned; starts at 0. Requesting a non-existent page returns an error.
+ * @param {Number} limit : Maximum quantity of results to return. An integer greater than 0 and less than 100.
+ * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
+ * @returns {QueryResult}
+ */
+async function ListingsOfToken(
+  token_id = null, 
+  type = null, 
+  page = 0, 
+  limit = 10, 
+  client = null
+) {
+  if (typeof token_id !== 'string') return;
+  if (!client) client = await Client();
+  try {
+    let entrypoint = {
+      listings_of_token: {
+        token_id: token_id,
+        page: page,
+        limit: limit
+      }
+    };
+    if (type) entrypoint.listings_of_token.swap_type = type;
+
+    let query = await client.wasmClient.queryClient.wasm.queryContractSmart(
+      MARKETPLACE_CONTRACT,
+      entrypoint
+    );
+    return query;
+  } catch(e) {
+    console.error(e);
+    return { error: e };
+  }
+}
+
+/**
+ * Fetch all swaps within a given price range
+ * @param {Number} min? : (Optional) Minimum price range, cannot be negative. Defaults to 0.
+ * @param {Number} max? : (Optional) Maximum price range. Defaults to showing all swaps greater than `min`
+ * @param {String} type : Swap type; must be either "Sale" or "Offer"
+ * @param {Number} page : Results page to be returned; starts at 0. Requesting a non-existent page returns an error.
+ * @param {Number} limit : Maximum quantity of results to return. An integer greater than 0 and less than 100.
+ * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
+ * @returns {QueryResult}
+ */
+async function SwapsByPrice(
+  min = null,
+  max = null,
+  type = SALE,
+  page = 0, 
+  limit = 10, 
+  client = null
+) {
+  if (type !== SALE && type !== OFFER) type = SALE;
+  if (typeof min !== 'number') min = null;
+  if (typeof max !== 'number') max = null;
+  if (!client) client = await Client();
+  try {
+    let entrypoint = {
+      swaps_by_price: {
+        swap_type: type,
+        page: page,
+        limit: limit
+      }
+    };
+    if (min) entrypoint.swaps_by_price.min = min;
+    if (max) entrypoint.swaps_by_price.max = max;
+
+    let query = await client.wasmClient.queryClient.wasm.queryContractSmart(
+      MARKETPLACE_CONTRACT,
+      entrypoint
+    );
+    return query;
+  } catch(e) {
+    console.error(e);
+    return { error: e };
+  }
+}
+
+/**
+ * Fetch all swaps for a given denom. 
+ * Must provide `payment_token` (contract address) for cw20 swaps; 
+ * Or, exclude `payment_token` to fetch swaps for native ARCH.
+ * @param {String|Addr} payment_token? : (Optional) Cosmos address of the cw20 payment token, or `null` for native ARCH
+ * @param {String} type : Swap type; must be either "Sale" or "Offer"
+ * @param {Number} page : Results page to be returned; starts at 0. Requesting a non-existent page returns an error.
+ * @param {Number} limit : Maximum quantity of results to return. An integer greater than 0 and less than 100.
+ * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
+ * @returns {QueryResult}
+ */
+async function SwapsByDenom(
+  payment_token = null,
+  type = SALE,
+  page = 0, 
+  limit = 10, 
+  client = null
+) {
+  if (!client) client = await Client();
+  if (typeof payment_token !== 'string') payment_token = null;
+  try {
+    let entrypoint = {
+      swaps_by_denom: {
+        swap_type: type,
+        page: page,
+        limit: limit
+      }
+    };
+    if (payment_token) entrypoint.swaps_by_denom.payment_token = payment_token;
+
+    let query = await client.wasmClient.queryClient.wasm.queryContractSmart(
+      MARKETPLACE_CONTRACT,
+      entrypoint
+    );
+    return query;
+  } catch(e) {
+    console.error(e);
+    return { error: e };
+  }
+}
+
+/**
+ * Fetch all swaps by payment type; either cw20 payments or native ARCH payments
+ * @param {Boolean} cw20 : `true` to show all swaps for cw20 payments, `false` to show all swaps for native ARCH payments
+ * @param {String} type : Swap type; must be either "Sale" or "Offer"
+ * @param {Number} page : Results page to be returned; starts at 0. Requesting a non-existent page returns an error.
+ * @param {Number} limit : Maximum quantity of results to return. An integer greater than 0 and less than 100.
+ * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
+ * @returns {QueryResult}
+ */
+async function SwapsByPaymentType(
+  cw20 = false, 
+  type = SALE,
+  page = 0, 
+  limit = 10, 
+  client = null
+) {
+  if (!client) client = await Client();
+  if (typeof cw20 !== 'boolean') cw20 = false;
+  try {
+    let entrypoint = {
+      swaps_by_denom: {
+        cw20: cw20,
+        swap_type: type,
+        page: page,
+        limit: limit
+      }
+    };
+
+    let query = await client.wasmClient.queryClient.wasm.queryContractSmart(
+      MARKETPLACE_CONTRACT,
+      entrypoint
+    );
+    return query;
+  } catch(e) {
+    console.error(e);
+    return { error: e };
+  }
+}
+
+const Query = {
+  List,
+  Details,
+  SwapsOf,
+  GetTotal,
+  GetOffers,
+  GetListings,
+  ListingsOfToken,
+  SwapsByPrice,
+  SwapsByDenom,
+  SwapsByPaymentType
+};
 
 // Txs
 
@@ -145,7 +397,7 @@ async function CreateNative(id, token_id, expiration, price, client = null) {
           at_time: String(expiration)
         },
         price: cost.amount,
-        swap_type: SELL_OFFER
+        swap_type: SALE
       }
     };
     // Sender
@@ -190,7 +442,7 @@ async function FinishNative(id, swap, client = null) {
         token_id: swap.token_id,
         expires: swap.expires,
         price: swap.price,
-        swap_type: SELL_OFFER
+        swap_type: SALE
       }
     };
     // Sender
@@ -241,7 +493,7 @@ async function CreateCw20(id, cw20_contract, token_id, expiration, price, denom 
           at_time: expiration
         },
         price: String(price),
-        swap_type: SELL_OFFER
+        swap_type: SALE
       }
     };
     // Sender
@@ -287,7 +539,7 @@ async function FinishCw20(id, swap, denom = '', client = null) {
         token_id: swap.token_id,
         expires: swap.expires,
         price: swap.price,
-        swap_type: SELL_OFFER
+        swap_type: SALE
       }
     };
     // Sender
@@ -348,15 +600,6 @@ async function Cancel(id, client = null) {
   }
 }
 
-// Exports
-
-const Query = {
-  List,
-  Details,
-  SwapsOf,
-  GetTotal
-};
-
 const Execute = {
   CreateNative,
   CreateCw20,
@@ -365,4 +608,5 @@ const Execute = {
   Cancel
 };
 
+// Export
 export { Query, Execute }

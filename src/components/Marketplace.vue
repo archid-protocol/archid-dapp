@@ -217,7 +217,14 @@ export default {
       let filteredSwaps = []
       let address = (typeof filters == 'string') ? filters : filters.text;
       this.page = 0;
-      let swapsQuery = await MarketplaceQuery.SwapsOf(address, this.cwClient);
+      // XXX TODO: Handle pagination
+      let swapsQuery = await MarketplaceQuery.SwapsOf(
+        address, 
+        "Sale",
+        0,
+        100,
+        this.cwClient
+      );
       // console.log('swapsQuery', swapsQuery, address);
       if (Array.isArray(swapsQuery)) {
         swapsQuery.forEach((swap) => {
