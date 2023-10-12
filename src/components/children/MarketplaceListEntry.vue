@@ -106,6 +106,7 @@ export default {
     cw721: String,
     cwClient: Object,
     collapsible: Boolean,
+    parentDetails: Object,
   },
   emits: ['dataResolution'],
   components: { Notification, ResolverMismatch },
@@ -178,6 +179,11 @@ export default {
       // console.log('Token query', this.token);
     },
     swapData: async function () {
+      if (this.parentDetails && this.firstLoad) {
+        this.swap = this.parentDetails;
+        this.firstLoad = false;
+        return;
+      }
       if (!this.domain || typeof this.domain !== 'string') return;
       this.swap = await MarketplaceQuery.Details(this.domain, this.cwClient);
       // if (!this.swap['error']) console.log('Details query (swap)', this.swap);

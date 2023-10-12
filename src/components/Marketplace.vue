@@ -16,7 +16,8 @@
       <ul class="swaps">
         <li v-for="(swap, i) in swapsList" :key="i">
           <MarketplaceListEntry
-            v-bind:domain="swap"
+            v-bind:domain="swap.token_id"
+            v-bind:parentDetails="swap"
             v-bind:accounts="accounts"
             v-bind:cw721="cw721"
             v-bind:cwClient="cwClient"
@@ -146,14 +147,14 @@ export default {
 
       // Load swaps page
       if (this.page > (total / LIMIT)) this.page = Math.floor(total / LIMIT);
-      let start = (this.page > 0) ? this.swaps[this.swaps.length - 1] : null;
-      let query = await MarketplaceQuery.List(start, LIMIT, this.cwClient);
+      let query = await MarketplaceQuery.GetListings(this.page, LIMIT, this.cwClient);
+      
       if (!Array.isArray(query['swaps'])) return;
       else if (!query.swaps.length) return;
       this.swaps = [...this.swaps, ...query.swaps];
       // console.log('Swaps query', {
       //   query: query, 
-      //   start: start,
+      //   start: this.page,
       //   limit: LIMIT,
       //   swaps: this.swaps
       // });
@@ -224,7 +225,6 @@ export default {
       }
     },
     _addressSearch: async function (filters, page = 0) {
-      let filteredSwaps = []
       let address = (typeof filters == 'string') ? filters : filters.text;
       this.page = page;
       // Verify page needs loading
@@ -235,10 +235,7 @@ export default {
         this.swapQuantity = parseInt(swapsQuery.total);
         this.filters.type = "SwapsOf";
         this.filters.value = address;
-        swapsQuery.swaps.forEach((swap) => {
-          if (swap['token_id']) filteredSwaps.push(swap.token_id);
-        });
-        this.filteredSwaps = [...this.filteredSwaps, ...filteredSwaps];
+        this.filteredSwaps = [...this.filteredSwaps, ...swapsQuery.swaps];
         this.search = true;
       }
     },
