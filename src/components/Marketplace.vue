@@ -27,7 +27,7 @@
           </MarketplaceListEntry>
         </li>
       </ul>
-      <div class="paging row">
+      <div class="paging row" v-if="filters.type !== 'Details'">
         <div class="paging-items row">
           <div class="col left">
             <button :class="{'chevron-left': true, 'pointer': page > 0, 'disabled': page <= 0}" @click="pageHandler((page - 1));" :disabled="page <= 0"></button>
@@ -87,6 +87,10 @@ export default {
     swaps: [],
     swapQuantity: null,
     swapContract: MARKETPLACE_CONTRACT,
+    filters: {
+      type: null,
+      value: null
+    },
     filteredSwaps: [],
     search: null,
     searchThreshold: null,
@@ -137,6 +141,9 @@ export default {
       if (!total) return;
       this.swapQuantity = parseInt(total);
 
+      // Verify page needs loading
+      if (this.swaps.length >= total) return;
+
       // Load swaps page
       if (this.page > (total / LIMIT)) this.page = Math.floor(total / LIMIT);
       let start = (this.page > 0) ? this.swaps[this.swaps.length - 1] : null;
@@ -156,6 +163,7 @@ export default {
     filter: function (filters) {
       if (!this.swaps.length) return;
       this.searchThreshold = null;
+      this.filters = {type: null, value: null};
       this._collapseListItems();
       if (filters.text) {
         this.searchThreshold = (filters.text.length >= 3) ? true : false;
@@ -207,30 +215,30 @@ export default {
         else if (swapSearch['token_id']) this.filteredSwaps = [swapSearch.token_id];
         else this.filteredSwaps = [textFilter];
         this.search = true;
+        this.filters.type = "Details";
+        this.filters.value = textFilter;
         // console.log('[filteredSwaps, query]', [this.filteredSwaps, swapSearch]);
       } catch(e) {
         console.error(`Swap search for ${filters.text} failed`, e);
         return;
       }
     },
-    _addressSearch: async function (filters) {
+    _addressSearch: async function (filters, page = 0) {
       let filteredSwaps = []
       let address = (typeof filters == 'string') ? filters : filters.text;
-      this.page = 0;
-      // XXX TODO: Handle pagination
-      let swapsQuery = await MarketplaceQuery.SwapsOf(
-        address, 
-        "Sale",
-        0,
-        100,
-        this.cwClient
-      );
-      // console.log('swapsQuery', swapsQuery, address);
-      if (Array.isArray(swapsQuery)) {
-        swapsQuery.forEach((swap) => {
+      this.page = page;
+      // Verify page needs loading
+      if (this.filteredSwaps.length >= this.swapQuantity) return;
+      // Load page
+      let swapsQuery = await MarketplaceQuery.SwapsOf(address, "Sale", page, this.pageSize, this.cwClient);
+      if (Array.isArray(swapsQuery.swaps)) {
+        this.swapQuantity = parseInt(swapsQuery.total);
+        this.filters.type = "SwapsOf";
+        this.filters.value = address;
+        swapsQuery.swaps.forEach((swap) => {
           if (swap['token_id']) filteredSwaps.push(swap.token_id);
         });
-        this.filteredSwaps = filteredSwaps;
+        this.filteredSwaps = [...this.filteredSwaps, ...filteredSwaps];
         this.search = true;
       }
     },
@@ -240,7 +248,16 @@ export default {
       if (typeof page !== 'number') return;
       this._collapseListItems();
       this.page = page;
-      await this.swapIds();
+      if (this.search) await this.filterPageHandler();
+      else await this.swapIds();
+    },
+    filterPageHandler: async function () {
+      switch(this.filters.type) {
+        case "SwapsOf": {
+          await this._addressSearch(this.filters.value, this.page);
+          break;
+        }
+      }
     },
     _collapseListItems: function () {
       if (!document) return;
@@ -264,23 +281,21 @@ export default {
     },
     async onChange(event) {
       if (!this.filteredSwaps || !this.search) return;
-      this._collapseListItems();
-      this.page = parseInt(event.target.value);
+      let page = parseInt(event.target.value)
+      this.pageHandler(page);
     },
   },
   computed: {
     totalPages: function () {
       // Searching
       if (this.search && !this.filteredSwaps) return 0;
-      else if (this.search && this.filteredSwaps) return Math.ceil((this.filteredSwaps.length / this.pageSize));
       // Not searching / Default display
       else if (!this.swapQuantity) return 0;
       else return Math.ceil((this.swapQuantity / this.pageSize));
     },
     swapsList: function () {
       let swaps, start, end;
-      if (this.search) swaps = this.filteredSwaps;
-      else swaps = this.swaps;
+      swaps = (this.search) ? this.filteredSwaps : this.swaps;
       if (this.page == 0) {
         start = 0;
         end = this.pageSize;

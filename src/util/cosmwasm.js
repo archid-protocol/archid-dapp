@@ -4,8 +4,7 @@ import { ConstantineInfo } from '../chains/testnet.constantine';
 
 const Testnet = ConstantineInfo;
 const Mainnet = MainnetInfo;
-const IsTestnet = false;
-// const IsTestnet = true;
+const IsTestnet = (/true/).test(process.env.VUE_APP_IS_TESTNET);
 
 async function cosmostationClient() {
   if (!window) return {};
