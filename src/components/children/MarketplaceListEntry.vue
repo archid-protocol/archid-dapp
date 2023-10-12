@@ -2,10 +2,15 @@
   <div :class="{'market-item': true, 'domain-item': true, 'collapsible': true, 'expanded': !closed || !collapsible}">
     <div class="head">
       <div :class="{'left': true, 'pointer': collapsible}" @click="swapDetails($event);">
-        <router-link class="domain-name header" v-if="domain" :to="'/domains/' + domain">{{domain}}</router-link>
+        <div class="col">
+          <router-link class="domain-name header" v-if="domain" :to="'/domains/' + domain">{{domain}}</router-link>
+        </div>
       </div>
       <div class="right pointer" @click="swapDetails($event);">
-        <div :class="{'caret': true, 'active': !closed}" v-if="collapsible">&caron;</div>
+        <div class="col parent-details">
+          <span v-if="parentDetails" class="value swap-price">{{ formatFromAtto(parentDetails.price) }}<span class="icon icon-denom parent-details"></span></span>
+        </div>
+        <div :class="{'caret': true, 'col': true, 'active': !closed}" v-if="collapsible">&caron;</div>
       </div>
     </div>
     <div class="body" v-if="!closed || !collapsible">
@@ -455,33 +460,10 @@ span.denom-text {
   position: relative;
   margin-left: 0.75em;
 }
-/* 
-.modal-header.subdomain-remove, 
-.modal-footer.subdomain {
-  border: none;
+.col.parent-details {
+  display: inline;
 }
-.modal-footer.subdomain {
-  justify-content: space-between;
-} 
-.list-domain.form-control {
-  background: #F2EFED;
-  border-radius: 8px;
-  height: 56px;
-  border: none;
+.icon-denom.parent-details {
+  top: 4px;
 }
-label.list {
-  font-style: normal;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 150%;
-  letter-spacing: -0.01em;
-  color: #666666;
-  margin-bottom: 0.5em;
-}
-input.list-domain {
-  text-align: right;
-  padding-top: 2em;
-  padding-bottom: 2em;
-}
-*/
 </style>
