@@ -330,7 +330,7 @@ async function SwapsByPaymentType(
   if (typeof cw20 !== 'boolean') cw20 = false;
   try {
     let entrypoint = {
-      swaps_by_denom: {
+      swaps_by_payment_type: {
         cw20: cw20,
         swap_type: type,
         page: page,

@@ -35,12 +35,12 @@
           </div>
           <div class="col mid">
             <div class="paging-display">
-              <div class="page-select-wrapper" v-if="filteredSwaps && search">
+              <!-- <div class="page-select-wrapper" v-if="filteredSwaps && search">
                 <select class="page-select"  @change="onChange($event)" v-model="page">
                   <option class="page-select-option form-control" v-for="(pageOption, i) in totalPages" :key="'page-option-'+i" :value="i">{{ String(i+1) }}</option>
                 </select>
-              </div>
-              <div class="page-display-wrapper" v-if="!search">
+              </div> -->
+              <div class="page-display-wrapper">
                 <span>{{ (page + 1) }}</span>
               </div>
             </div>
@@ -96,7 +96,7 @@ export default {
     search: null,
     searchThreshold: null,
     loaded: false,
-    title: 'Marketplace',
+    title: 'Domains for Sale',
     page: 0,
     pageSize: Paging.DEFAULT_PAGE_SIZE,
     pageSizes: Paging.ALL_PAGE_SIZES,
@@ -163,6 +163,7 @@ export default {
     // Filter
     filter: function (filters) {
       if (!this.swaps.length) return;
+      this.page = 0;
       this.searchThreshold = null;
       this.filters = {type: null, value: null};
       this._collapseListItems();
@@ -186,6 +187,9 @@ export default {
             break;
           }
         }
+      } else if (filters.denom) {
+        if (filters.denom == 0) return this.search = null;
+        this._denomSearch(filters);
       } else {
         if (this.search) this.search = null;
       }
@@ -197,8 +201,17 @@ export default {
       else if (type == MY_LISTINGS && !this.accounts.length) return;
       this.page = 0;
       this.context = type;
-      if (this.context == ALL_LISTINGS) this.search = null;
-      else this._addressSearch(this.accounts[0].address);
+      if (this.context == ALL_LISTINGS) {
+        this.search = null;
+        this.filters = {
+          type: null,
+          value: null
+        };
+        this.filteredSwaps = [];
+        return;
+      }
+      
+      this._addressSearch(this.accounts[0].address);
     },
     _domainSearch: async function (filters) {
       let swapSearch = null;
@@ -239,6 +252,36 @@ export default {
         this.search = true;
       }
     },
+    _denomSearch: async function (filters, page = 0) {
+      if (!filters.denom) return;
+      let type;
+      this.page = page;
+      // Verify page needs loading
+      if (this.filteredSwaps.length >= this.swapQuantity && filters.denom == this.filters.value) return;
+      switch (parseInt(filters.denom)) {
+        // ARCH
+        case 1: {
+          type = false;
+          break;
+        }
+        // cw20
+        case 2: {
+          type = true;
+          break;
+        }
+      }
+
+      if (page == 0) this.filteredSwaps = [];
+      let swapsQuery = await MarketplaceQuery.SwapsByPaymentType(type, "Sale", page, this.pageSize, this.cwClient);
+
+      if (Array.isArray(swapsQuery.swaps)) {
+        this.swapQuantity = parseInt(swapsQuery.total);
+        this.filters.type = "SwapsByPaymentType"
+        this.filters.value = filters.denom;
+        this.filteredSwaps = [...this.filteredSwaps, ...swapsQuery.swaps];
+        this.search = true;
+      }
+    },
 
     // Handlers
     pageHandler: async function (page) {
@@ -253,6 +296,10 @@ export default {
         case "SwapsOf": {
           await this._addressSearch(this.filters.value, this.page);
           break;
+        }
+        case "SwapsByPaymentType": {
+          let filters = { denom: this.filters.value };
+          await this._denomSearch(filters, this.page);
         }
       }
     },
