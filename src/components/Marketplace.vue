@@ -35,12 +35,12 @@
           </div>
           <div class="col mid">
             <div class="paging-display">
-              <!-- <div class="page-select-wrapper" v-if="filteredSwaps && search">
+              <div class="page-select-wrapper" v-if="filteredSwaps && search && totalPages">
                 <select class="page-select"  @change="onChange($event)" v-model="page">
                   <option class="page-select-option form-control" v-for="(pageOption, i) in totalPages" :key="'page-option-'+i" :value="i">{{ String(i+1) }}</option>
                 </select>
-              </div> -->
-              <div class="page-display-wrapper">
+              </div>
+              <div class="page-display-wrapper" v-else>
                 <span>{{ (page + 1) }}</span>
               </div>
             </div>
@@ -166,6 +166,7 @@ export default {
       this.page = 0;
       this.searchThreshold = null;
       this.filters = {type: null, value: null};
+      this.filteredSwaps = [];
       this._collapseListItems();
       if (filters.text) {
         this.searchThreshold = (filters.text.length >= 3) ? true : false;
@@ -225,13 +226,13 @@ export default {
       else textFilter = filters.text;
       try {
         swapSearch = await MarketplaceQuery.Details(textFilter, this.cwClient);
-        if (swapSearch['error']) this.filteredSwaps = [];
-        else if (swapSearch['token_id']) this.filteredSwaps = [swapSearch.token_id];
-        else this.filteredSwaps = [textFilter];
+        if (swapSearch['error']) return this.filteredSwaps = [];
+        else if (swapSearch['token_id']) this.filteredSwaps[this.page] = [swapSearch];
+        else return this.filteredSwaps = [];
         this.search = true;
         this.filters.type = "Details";
         this.filters.value = textFilter;
-        // console.log('[filteredSwaps, query]', [this.filteredSwaps, swapSearch]);
+        this.swapQuantity = (this.filteredSwaps[this.page]) ? this.filteredSwaps[this.page].length : 0;
       } catch(e) {
         console.error(`Swap search for ${filters.text} failed`, e);
         return;
@@ -240,15 +241,13 @@ export default {
     _addressSearch: async function (filters, page = 0) {
       let address = (typeof filters == 'string') ? filters : filters.text;
       this.page = page;
-      // Verify page needs loading
-      if (this.filteredSwaps.length >= this.swapQuantity) return;
       // Load page
       let swapsQuery = await MarketplaceQuery.SwapsOf(address, "Sale", page, this.pageSize, this.cwClient);
       if (Array.isArray(swapsQuery.swaps)) {
         this.swapQuantity = parseInt(swapsQuery.total);
         this.filters.type = "SwapsOf";
         this.filters.value = address;
-        this.filteredSwaps = [...this.filteredSwaps, ...swapsQuery.swaps];
+        this.filteredSwaps[page] = swapsQuery.swaps;
         this.search = true;
       }
     },
@@ -256,8 +255,6 @@ export default {
       if (!filters.denom) return;
       let type;
       this.page = page;
-      // Verify page needs loading
-      if (this.filteredSwaps.length >= this.swapQuantity && filters.denom == this.filters.value) return;
       switch (parseInt(filters.denom)) {
         // ARCH
         case 1: {
@@ -270,15 +267,12 @@ export default {
           break;
         }
       }
-
-      if (page == 0) this.filteredSwaps = [];
       let swapsQuery = await MarketplaceQuery.SwapsByPaymentType(type, "Sale", page, this.pageSize, this.cwClient);
-
       if (Array.isArray(swapsQuery.swaps)) {
         this.swapQuantity = parseInt(swapsQuery.total);
         this.filters.type = "SwapsByPaymentType"
         this.filters.value = filters.denom;
-        this.filteredSwaps = [...this.filteredSwaps, ...swapsQuery.swaps];
+        this.filteredSwaps[page] = swapsQuery.swaps;
         this.search = true;
       }
     },
@@ -339,7 +333,11 @@ export default {
     },
     swapsList: function () {
       let swaps, start, end;
-      swaps = (this.search) ? this.filteredSwaps : this.swaps;
+      if (this.search) {
+        swaps = (this.filteredSwaps) ? this.filteredSwaps[this.page] : [];
+        return swaps;
+      }
+      swaps = this.swaps;
       if (this.page == 0) {
         start = 0;
         end = this.pageSize;
