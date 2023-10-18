@@ -63,6 +63,7 @@
 
 <script>
 import { Client, Accounts } from '../util/client';
+import { ToAtto } from '../util/denom';
 import { Config } from '../util/query';
 import { Query as MarketplaceQuery } from '../util/marketplace';
 import * as Paging from '../util/pagination';
@@ -191,6 +192,8 @@ export default {
       } else if (filters.denom) {
         if (filters.denom == 0) return this.search = null;
         this._denomSearch(filters);
+      } else if (filters.price) {
+        this._priceSearch(filters);
       } else {
         if (this.search) this.search = null;
       }
@@ -267,11 +270,37 @@ export default {
           break;
         }
       }
-      let swapsQuery = await MarketplaceQuery.SwapsByPaymentType(type, "Sale", page, this.pageSize, this.cwClient);
+      let swapsQuery = await MarketplaceQuery.SwapsByPaymentType(
+        type, "Sale", 
+        page, 
+        this.pageSize, 
+        this.cwClient
+      );
       if (Array.isArray(swapsQuery.swaps)) {
         this.swapQuantity = parseInt(swapsQuery.total);
         this.filters.type = "SwapsByPaymentType"
         this.filters.value = filters.denom;
+        this.filteredSwaps[page] = swapsQuery.swaps;
+        this.search = true;
+      }
+    },
+    _priceSearch: async function (filters, page = 0) {
+      if (!filters.price) return;
+      this.page = page;
+      let min = ToAtto(filters.price.min, true);
+      let max = ToAtto(filters.price.max, true);
+      let swapsQuery = await MarketplaceQuery.SwapsByPrice(
+        min,
+        max,
+        "Sale",
+        page,
+        this.pageSize,
+        this.cwClient
+      );
+      if (Array.isArray(swapsQuery.swaps)) {
+        this.swapQuantity = parseInt(swapsQuery.total);
+        this.filters.type = "SwapsByPrice"
+        this.filters.value = filters.price;
         this.filteredSwaps[page] = swapsQuery.swaps;
         this.search = true;
       }
@@ -292,8 +321,12 @@ export default {
           break;
         }
         case "SwapsByPaymentType": {
-          let filters = { denom: this.filters.value };
-          await this._denomSearch(filters, this.page);
+          await this._denomSearch({ denom: this.filters.value }, this.page);
+          break;
+        }
+        case "SwapsByPrice": {
+          await this._priceSearch({ price: this.filters.value }, this.page);
+          break;
         }
       }
     },

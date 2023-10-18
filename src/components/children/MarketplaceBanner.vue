@@ -39,7 +39,10 @@
         </div>
         <!-- Price Range Filters -->
         <div :class="{'price-filter': true, 'active': contexts.filters == filterContext.contexts[2]}">
-          <div class="col">Price</div>
+          <div class="col">
+            <div v-if="!filters.price.min || !filters.price.max">Price</div>
+            <div v-else>{{ filters.price.min }}-{{ filters.price.max }} ARCH</div>
+          </div>
           <div 
             :class="{'caret': true, 'col': true, 'active': contexts.filters == filterContext.contexts[2]}"
             @click="contexts.filters = (contexts.filters == filterContext.contexts[2]) ? filterContext.contexts[0] : filterContext.contexts[2]"
@@ -49,15 +52,26 @@
           <div class="row">
             <div class="col from">
               <label>From</label>
-              <input class="form-control" type="number" placeholder="0" v-model="filters.price.min">
+              <input 
+                class="form-control" 
+                type="number" 
+                min="0"
+                placeholder="0" 
+                @change="priceFilterHandler()" 
+                v-model="filters.price.min"
+              >
             </div>
             <div class="col to">
               <label>To</label>
-              <input class="form-control" type="number" placeholder="0" v-model="filters.price.max">
+              <input 
+                class="form-control" 
+                type="number" 
+                :min="maxPriceMinimum"
+                placeholder="0" 
+                @change="priceFilterHandler()" 
+                v-model="filters.price.max"
+              >
             </div>
-          </div>
-          <div class="row">
-            <button class="btn btn-primary search-price">Search</button>
           </div>
         </div>
       </div>
@@ -129,6 +143,7 @@ export default {
       this.market.type = ALL_LISTINGS;
       this.filters.price = { min: null, max: null };
       this.filterContext.price = NO_FILTER;
+      this.filterContext.denom = DENOM_FILTER;
 
       // console.log(this.filters.denom.labels[this.denomFilter]);
       let denomFilter = {
@@ -156,10 +171,25 @@ export default {
       this.filterContext.price = NO_FILTER;
       this.$emit('filter', this.search);
     },
+    priceFilterHandler: function () {
+      if (!this.filters.price.min || !this.filters.price.max) return;
+      this.market.type = ALL_LISTINGS;
+      this.filters.denom.selectedFilter = NO_FILTER;
+      this.filterContext.denom = NO_FILTER;
+      this.filterContext.price = PRICE_RANGE_FILTER;
+      let min = (this.filters.price.min > this.filters.price.max) ? this.filters.price.max : this.filters.price.min;
+      let max = (this.filters.price.max < this.filters.price.min) ? this.filters.price.min : this.filters.price.max;
+      let filter = {price: {min, max}};
+      this.$emit('filter', filter);
+    }
   },
   computed: {
     denomFilter() {
       return this.filters.denom.selectedFilter;
+    },
+    maxPriceMinimum() {
+      let min = (this.filters.price.min) ? this.filters.price.min : 0;
+      return (min + 1);
     }
   }
 }

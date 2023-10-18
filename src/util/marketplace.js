@@ -244,8 +244,8 @@ async function SwapsByPrice(
   client = null
 ) {
   if (type !== SALE && type !== OFFER) type = SALE;
-  if (typeof min !== 'number') min = null;
-  if (typeof max !== 'number') max = null;
+  if (typeof min !== 'number' && typeof min !== 'bigint') min = null;
+  if (typeof max !== 'number' && typeof min !== 'bigint') max = null;
   if (!client) client = await Client();
   try {
     let entrypoint = {
@@ -255,8 +255,8 @@ async function SwapsByPrice(
         limit: limit
       }
     };
-    if (min) entrypoint.swaps_by_price.min = min;
-    if (max) entrypoint.swaps_by_price.max = max;
+    if (min) entrypoint.swaps_by_price.min = String(min);
+    if (max) entrypoint.swaps_by_price.max = String(max);
 
     let query = await client.wasmClient.queryClient.wasm.queryContractSmart(
       MARKETPLACE_CONTRACT,
