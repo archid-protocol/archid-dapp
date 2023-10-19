@@ -10,6 +10,20 @@
         <div class="col parent-details">
           <span v-if="parentDetails" class="value swap-price">{{ formatFromAtto(parentDetails.price) }}<span class="icon icon-denom parent-details"></span></span>
         </div>
+        <div class="col finalize-swap parent-details">
+          <div class="purchase" v-if="parentDetails">
+            <button 
+              class="btn btn-inverse" 
+              @click="executeFinishNative();" 
+              v-if="account && account !== parentDetails.creator"
+            >Buy Domain</button>
+            <button 
+              class="btn btn-primary" 
+              @click="executeCancelSwap();" 
+              v-if="account == parentDetails.creator"
+            >Cancel Listing</button>
+          </div>
+        </div>
         <div :class="{'caret': true, 'col': true, 'active': !closed}" v-if="collapsible">&caron;</div>
       </div>
     </div>
@@ -34,26 +48,7 @@
               <p class="value" v-if="swap.expires.at_time">{{ niceDateFromNano(swap.expires.at_time) }}</p>
             </div>
           </div>
-
-          <!-- Col 3; Finalize Swap -->
-          <div class="col finalize-swap">
-            <!-- Price -->
-            <div class="price" v-if="swap.price">
-              <p class="value swap-price">{{ formatFromAtto(swap.price) }}<span class="icon icon-denom"></span></p>
-            </div>
-            <div class="purchase">
-              <button 
-                class="btn btn-inverse" 
-                @click="executeFinishNative();" 
-                v-if="account && account !== swap.creator && swap.expires"
-              >Buy Domain</button>
-              <button 
-                class="btn btn-primary" 
-                @click="executeCancelSwap();" 
-                v-if="account == swap.creator"
-              >Cancel Listing</button>
-            </div>
-          </div>
+          
         </div>
 
       </div>
@@ -333,10 +328,10 @@ div.left, div.right {
   display: inline-block;
 }
 div.left {
-  width: 70%;
+  width: 30%;
 }
 div.right {
-  width: 30%;
+  width: 70%;
   text-align: right;
 }
 div.right .caret,
@@ -465,5 +460,8 @@ span.denom-text {
 }
 .icon-denom.parent-details {
   top: 4px;
+}
+.finalize-swap.parent-details {
+  margin-right: 2em;
 }
 </style>

@@ -194,6 +194,8 @@ export default {
         this._denomSearch(filters);
       } else if (filters.price) {
         this._priceSearch(filters);
+      } else if (filters.reset) {
+        this._searchReset();
       } else {
         if (this.search) this.search = null;
       }
@@ -216,6 +218,13 @@ export default {
       }
       
       this._addressSearch(this.accounts[0].address);
+    },
+    _searchReset: async function () {
+      this.filters.type = null;
+      this.filters.value = null;
+      this.filteredSwaps = [];
+      this.search = null;
+      this.searchThreshold = null;
     },
     _domainSearch: async function (filters) {
       let swapSearch = null;
