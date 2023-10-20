@@ -35,7 +35,8 @@ async function cosmostationClient() {
 
   client.wasmClient = await SigningArchwayClient.connectWithSigner(
     Blockchain.rpc, 
-    client.offlineSigner
+    client.offlineSigner,
+    { gasAdjustment: 1.4 }
   );
 
   return client;
@@ -77,7 +78,8 @@ async function keplrClient() {
   client.offlineSigner = await window.getOfflineSignerAuto(Blockchain.chainId);
   client.wasmClient = await SigningArchwayClient.connectWithSigner(
     Blockchain.rpc, 
-    client.offlineSigner
+    client.offlineSigner,
+    { gasAdjustment: 1.4 }
   );
 
   return client;
@@ -117,7 +119,8 @@ async function leapClient() {
   client.offlineSigner = await window.leap.getOfflineSignerAuto(Blockchain.chainId);
   client.wasmClient = await SigningArchwayClient.connectWithSigner(
     Blockchain.rpc, 
-    client.offlineSigner
+    client.offlineSigner,
+    { gasAdjustment: 1.4 }
   );
 
   return client;
