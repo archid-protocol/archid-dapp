@@ -1,13 +1,27 @@
 <template>
   <div class="loggedout" v-if="!connected">
-    <div class="logo">
+    <div class="logo col">
       <router-link to="/" @click="route = '/'; showNav = false;">
         <span class="icon icon-archid"></span>
         <span class="brand-a">Arch</span>
         <span class="brand-b">ID</span>
       </router-link>
     </div>
-    <div class="connect user">
+    <div class="middle nav quick-nav col">
+      <div>
+        <router-link 
+          to="/domains" 
+          type="button" 
+          :class="{'btn': true, 'btn-primary': route !== '/domains', 'btn-inverse': route == '/domains'}"
+        >All Domains</router-link>
+        <router-link 
+          to="/marketplace" 
+          type="button" 
+          :class="{'btn': true, 'btn-primary': route !== '/marketplace', 'btn-inverse': route == '/marketplace'}"
+        >Marketplace</router-link>
+      </div>
+    </div>
+    <div class="connect user col">
       <a id="connect_modal" class="btn btn-primary btn-show-modal pointer" @click="modal = !modal;">Connect Wallet</a>
       <div class="col disconnected">
         <span :class="{'caret-inv': true, 'active': true}" v-if="!showNav" @click="showNav = !showNav;">&caron;</span>
@@ -27,28 +41,49 @@
     </ul>
   </div>
   <div class="loggedin" v-else>
-    <div class="logo">
+    <div class="logo col">
       <router-link to="/" @click="route = '/'; showNav = false;">
         <span class="icon icon-archid"></span>
         <span class="brand-a">Arch</span>
         <span class="brand-b">ID</span>
       </router-link>
     </div>
-    <div class="connect user" v-if="accounts.length">
-      <a id="user_account">
-        <div class="menu-target main row">
-          <div class="col" :alt="formatFromAtto(accounts[0].balance.amount) + ' ARCH'" :title="formatFromAtto(accounts[0].balance.amount) + ' ARCH'">
-            <span class="balance">{{ balanceDisplayFormat(accounts[0].balance.amount) }}</span>
-            <span class="icon icon-denom menu-icon"></span>
+    <div class="middle nav quick-nav col">
+      <div>
+        <router-link 
+          to="/domains" 
+          type="button" 
+          :class="{'btn': true, 'btn-primary': route !== '/domains', 'btn-inverse': route == '/domains'}"
+          @click="route = '/domains';showNav = false;"
+        >All Domains</router-link>
+        <router-link 
+          to="/marketplace" 
+          type="button" 
+          :class="{'btn': true, 'btn-primary': route !== '/marketplace', 'btn-inverse': route == '/marketplace'}"
+          @click="route = '/marketplace';showNav = false;"
+        >Marketplace</router-link>
+      </div>
+    </div>
+    <div class="connect user col" v-if="accounts.length">
+      <div class="balance col">
+        <div class="wallet-balance" :alt="formatFromAtto(accounts[0].balance.amount) + ' ARCH'" :title="formatFromAtto(accounts[0].balance.amount) + ' ARCH'">
+          <span class="balance">{{ balanceDisplayFormat(accounts[0].balance.amount) }}</span>
+          <span class="icon icon-denom menu-icon"></span>
+        </div>
+      </div>
+      <a id="user_account" class="col">
+        <div class="menu-target main">
+          <div class="account-name">
+            <span class="account-name">{{ accountName }}</span>
           </div>
-          <div class="col">
+          <div class="account-address">
             <span class="address">{{ accountDisplayFormat(accounts[0].address) }}</span>
           </div>
-          <div class="col">
-            <span :class="{'caret-inv': true, 'active': true}" v-if="!showNav" @click="showNav = !showNav;">&caron;</span>
-            <span class="close-x menu" v-if="showNav" @click="showNav = !showNav;">&times;</span>
-          </div>
-        </div>  
+        </div>
+        <div class="col">
+          <span :class="{'caret-inv': true, 'active': true}" v-if="!showNav" @click="showNav = !showNav;">&caron;</span>
+          <span class="close-x menu" v-if="showNav" @click="showNav = !showNav;">&times;</span>
+        </div>
       </a>
     </div>
     <ul class="navigation" v-if="showNav">
@@ -189,6 +224,7 @@ export default {
   data: () => ({
     cwClient: null,
     accounts: [],
+    accountName: null,
     connected: false,
     connecting: false,
     walletTypes: ['keplr', 'cosmostation', 'leap'],
@@ -232,6 +268,7 @@ export default {
       try {
         this.cwClient = await Client(this.walletType);
         this.accounts = await Accounts(this.cwClient);
+        if (this.cwClient.accountData['name']) this.accountName = this.cwClient.accountData.name;
         if (!this.accounts[0].address) return;
         this.connected = true;
         this.connecting = false;
@@ -262,6 +299,7 @@ export default {
           let walletType = sessionStorage.getItem("connected");
           this.cwClient = await Client(walletType);
           this.accounts = await Accounts(this.cwClient);
+          if (this.cwClient.accountData['name']) this.accountName = this.cwClient.accountData.name;
           // console.log('App', {cwClient: this.cwClient, accounts: this.accounts, walletType: walletType});
         }, 100);
       } catch (e) {
@@ -377,6 +415,8 @@ div.logo, div.logo a {
   display: inline-block;
 }
 #user_account {
+  top: -28px;
+  position: relative;
   color: #ffffff;
 }
 span.address {
@@ -388,12 +428,23 @@ span.address {
   color: rgba(255, 255, 255, 0.6);
   margin-right: 20px;
 }
+.caret-inv, .close-x.menu {
+  position: relative;
+}
 .caret-inv {
   float: right;
-}
-.caret-inv, .close-x.menu {
-  top: -25px;
+  top: -38px;
   position: relative;
+  left: 10px;
+  font-weight: 200;
+  font-size: 40px;
+}
+.close-x.menu {
+  top: -40px;
+  left: 8px;
+  position: relative;
+  font-size: 20px;
+  font-weight: 200;
 }
 .col.disconnected span {
   color: white;
@@ -478,5 +529,26 @@ p.warning {
 }
 p.warning.title {
   color: #FF4D00;
+}
+div.account-name {
+  position: relative;
+  right: 20px;
+}
+div.wallet-balance {
+  color: #FFFFFF;
+  text-align: center;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 150%;
+  letter-spacing: -0.16px;
+  top: 11px;
+  position: relative;
+}
+a.btn-primary:focus {
+  color: #FFFFFF;
+}
+a.btn-inverse:focus {
+  color: #FF4D00
 }
 </style>
