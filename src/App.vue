@@ -366,9 +366,6 @@ li a {
 li a:hover, .wallet-connect li:hover, li .disconnect:hover {
   opacity: 0.75;
 }
-#connect_modal {
-  float: right;
-}
 .loggedout {
   clear: both;
 }
@@ -414,6 +411,9 @@ div.logo, div.logo a {
   clear: both;
   display: inline-block;
 }
+#connect_modal {
+  margin-right: 0.5em;
+}
 #user_account {
   top: -28px;
   position: relative;
@@ -447,8 +447,8 @@ span.address {
   font-weight: 200;
 }
 .col.disconnected span {
-  color: white;
-  top: 7px;
+  color: #FFFFFF;
+  top: -34px;
 }
 .icon-denom {
   margin-left: 3px;
