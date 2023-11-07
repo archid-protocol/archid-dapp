@@ -175,7 +175,7 @@ export default {
             expiration: query.expiration,
             isExpired: new Date().getTime() > (query.expiration * 1000),
             address: query.address,
-            isMismatch: query.address !== this.accounts[0].address,
+            isMismatch: query.address !== this.account,
             isListed: (swap['error']) ? false : true
           };
         }
