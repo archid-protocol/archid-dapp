@@ -228,9 +228,9 @@ async function HistoryOf(tokenId = null, contract = null, client = null) {
       contract = cw721Query.cw721;
     }
 
-    let historyQuery = await client.wasmClient.searchTx({
-      tags: _makeTags(`wasm._contract_address=${contract}&wasm.token_id=${tokenId}`),
-    });
+    let historyQuery = await client.wasmClient.searchTx(
+      _makeTags(`wasm._contract_address=${contract}&wasm.token_id=${tokenId}`),
+    );
 
     return historyQuery;
   } catch(e) {
@@ -247,9 +247,10 @@ async function RecentDomains(contract = null, client = null) {
       contract = cw721Query.cw721;
     }
 
-    let historyQuery = await client.wasmClient.searchTx({
-      tags: _makeTags(`wasm._contract_address=${contract}&wasm.action=mint`),
-    });
+    let historyQuery = await client.wasmClient.searchTx(
+      _makeTags(`wasm._contract_address=${contract}&wasm.action=mint`),
+    );
+
     return historyQuery;
   } catch(e) {
     console.error(e);
