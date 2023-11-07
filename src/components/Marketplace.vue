@@ -200,7 +200,7 @@ export default {
         if (this.search) this.search = null;
       }
     },
-    listingType: function (type) {
+    listingType: async function (type) {
       if (this.listingTypes.indexOf(type) == -1) return;
       else if (type == this.context) return;
       else if (type == MY_LISTINGS && !this.accounts) return;
@@ -214,6 +214,8 @@ export default {
           value: null
         };
         this.filteredSwaps = [];
+        this.searchThreshold = null;
+        await this.swapIds();
         return;
       }
       
