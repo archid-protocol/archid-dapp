@@ -62,7 +62,7 @@ export default {
   components: { DomainBanner, DomainListEntry, HistoryListEntry },
   data: () => ({
     cwClient: null,
-    accounts: null,
+    accounts: [],
     config: null,
     cw721: null,
     token: {},
@@ -127,11 +127,15 @@ export default {
     tokenStatuses: async function () {
       if (!this.domain || !this.domainRecord) return;
       let swap = await MarketplaceQuery.Details(this.domain, this.cwClient);
+      let isMismatch = false;
+      if (this.owner) {//here
+        isMismatch = (this.domainRecord.address !== this.owner.owner);
+      }
       this.statuses[this.domain] = {
         expiration: this.domainRecord.expiration,
         isExpired: new Date().getTime() > (this.domainRecord.expiration * 1000),
         address: this.domainRecord.address,
-        isMismatch: this.domainRecord.address !== this.accounts[0].address,
+        isMismatch: isMismatch,
         isListed: (swap['error']) ? false : true
       };
     },
