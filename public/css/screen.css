@@ -60,11 +60,17 @@
         font-size: 31px !important;
     }
     .domain-banner,
-    .domain-banner-i {
+    .domain-banner-i,
+    .marketplace-banner {
         max-height: 160px;
     }
     div.domain-banner .wrapper div.title {
         padding-top: 32px;
+    }
+    .domain-banner .search,
+    .address-banner .search,
+    .marketplace-banner .search {
+        display: none;
     }
 
     /* HOME PAGE */
@@ -158,10 +164,6 @@
     }
 
     /* DOMAINS */
-    .domain-banner .search,
-    .address-banner .search {
-        display: none;
-    }
     ul.domains li {
         margin-left: 0.5em;
         margin-right: 0.5em;
@@ -210,18 +212,23 @@
         margin-bottom: 2em;
     }
 
-    /* DOMAIN LIST ITEM */
+    /* LIST ITEMS */
     .domain-item.collapsible {
         overflow: hidden;
     }
-
     .domain-item.collapsible .head {
         display: flex;
         flex-direction: row;
     }
     .domain-item.collapsible .head .left,
     .domain-item.collapsible .head .right {
-        width: 100%;
+        width: 50%;
+        display: flex;
+        flex-direction: row;
+        word-break: break-all;
+    }
+    .head .right {
+        justify-content: flex-end;
     }
     .right .status {
         top: 1em !important;
@@ -229,6 +236,22 @@
     }
     div.right .caret:not(.active) {
         top: 10px !important;
+    }
+    ul.swaps li {
+        padding: 1em !important;
+    }
+    .market-item.collapsible .head .right .caret.col {
+        max-width: fit-content;
+    }
+    .market-item.collapsible .head .right .caret.active {
+        top: -43px !important;
+    }
+    .col.parent-details {
+        display: flex;
+        flex-direction: row;
+    }
+    .finalize-swap.parent-details {
+        display: none !important;
     }
 
     /* MODALS */
