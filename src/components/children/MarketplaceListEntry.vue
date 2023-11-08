@@ -1,6 +1,6 @@
 <template>
   <div :class="{'market-item': true, 'domain-item': true, 'collapsible': true, 'expanded': !closed || !collapsible}">
-    <div class="head">
+    <div :class="{'head': true, 'connected': account }">
       <div :class="{'left': true, 'pointer': collapsible}" @click="swapDetails($event);">
         <div class="col">
           <router-link class="domain-name header" v-if="domain" :to="'/domains/' + domain">{{domain}}</router-link>
@@ -55,6 +55,22 @@
 
       <!-- Loading -->
       <div class="loading default" v-if="!swap"></div>
+    </div>
+    
+    <!-- Mobile Actions -->
+    <div class="mobile swap-actions">
+      <div class="purchase mobile" v-if="parentDetails">
+        <button 
+          class="btn btn-inverse" 
+          @click="executeFinishNative();" 
+          v-if="account && account !== parentDetails.creator"
+        >Buy Domain</button>
+        <button 
+          class="btn btn-primary" 
+          @click="executeCancelSwap();" 
+          v-if="account == parentDetails.creator"
+        >Cancel Listing</button>
+      </div>
     </div>
   </div>
 
@@ -451,9 +467,15 @@ span.denom-text {
   letter-spacing: -2%;
 }
 .purchase button {
-  top: -7px;
   position: relative;
+}
+.purchase:not(.mobile) button {
+  top: -7px;
   margin-left: 0.75em;
+}
+.purchase.mobile button {
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
 }
 .col.parent-details {
   display: inline;
@@ -463,5 +485,8 @@ span.denom-text {
 }
 .finalize-swap.parent-details {
   margin-right: 2em;
+}
+.mobile.swap-actions {
+  display: none;
 }
 </style>
