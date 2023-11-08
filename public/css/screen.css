@@ -42,6 +42,27 @@
 
 @media (max-width: 660px) {
     /* BANNERS / MENU */
+    .col.disconnected span {
+        position: relative;
+    }
+    .menu.default {
+        display: none !important;
+    }
+    .menu.mobile {
+        display: inline-block !important;
+    }
+    .menu.mobile svg {
+        position: relative;
+        left: 12px;
+        top: 2px;
+    }
+    .menu.mobile.connected svg {
+        top: -38px;
+    }
+    ul.navigation, 
+    .modalr {
+        top: 100px !important;
+    }
     div.middle.quick-nav,
     div.connect.user div.balance.col {
         display: none;
