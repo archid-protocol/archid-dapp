@@ -53,6 +53,9 @@
     div.user.connect {
         right: 11%;
     }
+    div.connect.disconnected {
+        top: 4.5%;
+    }
     div.title h3 {
         font-size: 31px !important;
     }

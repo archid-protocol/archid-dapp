@@ -23,12 +23,13 @@
         >Marketplace</router-link>
       </div>
     </div>
-    <div class="connect user col">
+    <div class="connect user col disconnected">
       <a id="connect_modal" class="btn btn-primary btn-show-modal pointer" @click="modal = !modal;">Connect Wallet</a>
       <div class="col disconnected">
         <span :class="{'caret-inv': true, 'active': true}" v-if="!showNav" @click="showNav = !showNav;">&caron;</span>
         <span class="close-x menu" v-if="showNav" @click="showNav = !showNav;">&times;</span>
       </div>
+      <!-- //here -->
     </div>
     <ul class="navigation" v-if="showNav">
       <li>
