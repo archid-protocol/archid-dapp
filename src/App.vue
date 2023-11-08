@@ -13,11 +13,13 @@
           to="/domains" 
           type="button" 
           :class="{'btn': true, 'btn-primary': route !== '/domains', 'btn-inverse': route == '/domains'}"
+          @click="route = '/domains';showNav = false;"
         >All Domains</router-link>
         <router-link 
           to="/marketplace" 
           type="button" 
           :class="{'btn': true, 'btn-primary': route !== '/marketplace', 'btn-inverse': route == '/marketplace'}"
+          @click="route = '/marketplace';showNav = false;"
         >Marketplace</router-link>
       </div>
     </div>

@@ -86,7 +86,7 @@ export default {
     search: null,
     searchThreshold: null,
     loaded: false,
-    title: 'Domains',
+    title: 'All Domains',
     page: 0,
     pageSize: Paging.DEFAULT_PAGE_SIZE,
     pageSizes: Paging.ALL_PAGE_SIZES,

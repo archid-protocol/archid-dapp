@@ -128,7 +128,7 @@ export default {
       if (!this.domain || !this.domainRecord) return;
       let swap = await MarketplaceQuery.Details(this.domain, this.cwClient);
       let isMismatch = false;
-      if (this.owner) {//here
+      if (this.owner) {
         isMismatch = (this.domainRecord.address !== this.owner.owner);
       }
       this.statuses[this.domain] = {
