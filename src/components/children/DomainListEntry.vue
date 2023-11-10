@@ -657,8 +657,7 @@
           <div class="left">
             <p class="modal-transfer-domain-title">Are you sure you want to transfer <span class="modal-title modal-domain-title" v-if="domain">{{domain}}</span> to a new owner?</p>
             <p class="descr warn">This action cannot be undone.</p>
-            <p class="descr warn" v-if="isNotSubdomain(domain)">Confirm the transfer by entering the domain below.</p>
-            <p class="descr warn" v-if="!isNotSubdomain(domain)">Confirm the transfer by entering the subdomain below.</p>
+            <p class="descr warn">Confirm the transfer by entering <span class="descr highlight">"{{ domain }}"</span> in the box below.</p>
           </div>
           <div class="right">
             <span class="close-x transfer-domain" @click="modals.transfer = !modals.transfer;">&times;</span>
@@ -667,28 +666,29 @@
         <div class="modal-body transfer-domain">
           <!-- Transfer Confirmation -->
           <div class="transfer-domain-input">
-            <label class="transfer-domain label" for="transfer_domain" v-if="isNotSubdomain(domain)">Domain to transfer</label>
             <label class="transfer-domain label" for="transfer_domain" v-if="!isNotSubdomain(domain)">Subdomain to transfer</label>
             <input 
               type="text" 
               class="transfer-domain form-control"
               name="transfer_domain"
+              placeholder="Domain to be transferred"
               v-model="transferConfirmation"
-              :placeholder="domain"
             />
           </div>
           <!-- Transfer Recipient -->
-          <div class="transfer-domain-input" v-if="owner">
+          <div class="transfer-domain-input" v-if="owner && transferConfirmation == domain">
             <label class="transfer-domain label" for="transfer_recipient">Recipient</label>
             <input 
               type="text" 
               class="transfer-domain form-control"
               name="transfer_recipient"
               v-model="updates.transferAddress"
-              :placeholder="owner.owner"
-              :disabled="transferConfirmation !== domain"
+              placeholder="Archway address or ArchID"
               v-if="owner.owner"
+              @keyup="verifyTransferDomain"
             />
+            <div class="resolution-msg bg-danger bg-error" v-if="updates.transferAddressErr">No address found for <span>{{ updates.transferAddress }}</span></div>
+            <div class="resolution-msg bg-success" v-if="updates.transferAddressFetched">Address found <span>{{updates.transferAddressFetched}}</span></div>
           </div>
         </div>
         <div class="modal-footer">
@@ -870,6 +870,8 @@ export default {
       expiry: 1,
       resolver: null,
       transferAddress: "",
+      transferAddressErr: false,
+      transferAddressFetched: null,
       listingAmount: 0,
       listingTokenApproved: false,
     },
@@ -1176,6 +1178,23 @@ export default {
       // List for sale
       await this.executeListForArch();
     },
+    verifyTransferDomain: async function () {
+      this.updates.transferAddressErr = false;
+      this.updates.transferAddressFetched = null;
+      if (typeof this.updates.transferAddress !== 'string') return;
+      else if (this.updates.transferAddress.length < 8) return;
+      // Resolve address of domain (as required)
+      if (this.updates.transferAddress.slice(-5) == '.arch') {
+        let addressQuery = await ResolveRecord(
+          this.updates.transferAddress,
+          this.cwClient
+        );
+        if (addressQuery['address']) {
+          this.updates.transferAddressFetched = addressQuery.address;
+        } else this.updates.transferAddressErr = true;
+        // console.log('Resolved address', addressQuery);
+      }
+    },
     closeNotification: function () {
       this.notify = {
         type: null,
@@ -1255,9 +1274,11 @@ export default {
 
       this.resetFormIters();
 
+      let transferAddress = (this.updates.transferAddress.slice(-5) == '.arch' && this.updates.transferAddress) ? this.updates.transferAddressFetched : this.updates.transferAddress;
+
       this.executeResult = await Transfer(
         this.domain,
-        this.updates.transferAddress,
+        transferAddress,
         this.cw721,
         this.cwClient
       );
@@ -1626,11 +1647,15 @@ export default {
       return img;
     },
     canTransfer: function () {
-      if (this.transferConfirmation !== this.domain) return false;
-      else if (typeof this.updates.transferAddress !== 'string') return false;
-      else if (this.updates.transferAddress.length !== 46 && this.updates.transferAddress.length !== 66) return false;
-      else if (this.updates.transferAddress.slice(0,7) !== "archway") return false;
-      return true;
+      if (typeof this.updates.transferAddressFetched == 'string' && this.transferConfirmation == this.domain) return true;
+      else {
+        if (this.transferConfirmation !== this.domain) return false;
+        else if (this.updates.transferAddressErr) return false;
+        else if (typeof this.updates.transferAddress !== 'string') return false;
+        else if (this.updates.transferAddress.length !== 46 && this.updates.transferAddress.length !== 66) return false;
+        else if (this.updates.transferAddress.slice(0,7) !== "archway") return false;
+        return true;
+      }
     },
     statusOkay: function () {
       if (typeof this.status !== 'object') return false;
@@ -1881,8 +1906,23 @@ div.transfer-domain .descr {
   font-size: 16px;
   line-height: 150%;
   letter-spacing: -0.01em;
-  color: #000000;
   margin-bottom: 2px;
+}
+div.remove-subdomain .descr,
+div.transfer-domain .descr:not(.highlight) {
+  color: #000000;
+}
+.descr.highlight {
+  color: #FF4D00;
+}
+.modal-body.transfer-domain {
+  padding-top: 0;
+}
+.transfer-domain .left {
+  width: 90%;
+}
+.transfer-domain .right {
+  width: 10%;
 }
 label.remove-subdomain,
 label.transfer-domain,
@@ -1900,7 +1940,6 @@ div.remove-subdomain-input {
 }
 div.transfer-domain-input {
   padding-bottom: 1.25em;
-  padding-top: 1em;
 }
 .metadata-token-img.form-control {
   margin-bottom: 1em;
@@ -1992,5 +2031,15 @@ span.denom-text {
 .icon-info.domain-resolver-mismatch {
   cursor: pointer;
   top: 8px;
+}
+.resolution-msg {
+  margin-top: 1em;
+  padding: 1em;
+  border-radius: 10px;
+  color: #fff;
+}
+
+.resolution-msg span {
+  font-style: italic;
 }
 </style>
