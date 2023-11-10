@@ -10,11 +10,12 @@
       </DomainBanner>
     </div>
 
-    <div class="swap-data" v-if="domain">
+    <div class="swap-data" v-if="domain && swap">
       <ul>
         <li>
           <MarketplaceListEntry
             v-bind:domain="domain"
+            v-bind:parentDetails="swap"
             v-bind:accounts="accounts"
             v-bind:cw721="cw721"
             v-bind:cwClient="cwClient"
@@ -50,9 +51,10 @@ export default {
     swap: null,
     renderBanner: 0,
   }),
-  mounted: function () {
+  mounted: async function () {
     if (window) this.resumeConnectedState();
     this.domain = this.$route.params.id;
+    await this.swapData();
   },
   methods: {
     resumeConnectedState: async function (attempts = 0) {
