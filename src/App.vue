@@ -26,8 +26,8 @@
     <div class="connect user col disconnected">
       <a id="connect_modal" class="btn btn-primary btn-show-modal pointer" @click="modal = !modal;">Connect Wallet</a>
       <div class="col disconnected">
-        <span :class="{'caret-inv': true, 'active': true, 'menu': true, 'default': true}" v-if="!showNav" @click="showNav = !showNav;">&caron;</span>
-        <span class="menu mobile" v-if="!showNav" @click="showNav = !showNav;">
+        <!-- <span :class="{'caret-inv': true, 'active': true, 'menu': true, 'default': true}" v-if="!showNav" @click="showNav = !showNav;">&caron;</span> -->
+        <span class="menu mobile caret-inv" v-if="!showNav" @click="showNav = !showNav;">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M2 8H14" stroke="white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M2 4H14" stroke="white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
@@ -90,8 +90,8 @@
           </div>
         </div>
         <div class="col">
-          <span :class="{'caret-inv': true, 'active': true, 'menu': true, 'default': true}" v-if="!showNav" @click="showNav = !showNav;">&caron;</span>
-          <span class="menu mobile connected" v-if="!showNav" @click="showNav = !showNav;">
+          <!-- <span :class="{'caret-inv': true, 'active': true, 'menu': true, 'default': true}" v-if="!showNav" @click="showNav = !showNav;">&caron;</span> -->
+          <span class="menu mobile connected caret-inv" v-if="!showNav" @click="showNav = !showNav;">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M2 8H14" stroke="white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M2 4H14" stroke="white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
@@ -449,11 +449,14 @@ span.address {
 }
 .caret-inv {
   float: right;
-  top: -38px;
+  top: -50px;
   position: relative;
   left: 10px;
   font-weight: 200;
   font-size: 40px;
+}
+.disconnected .caret-inv {
+  top: -45px;
 }
 .close-x.menu {
   top: -40px;
@@ -464,6 +467,8 @@ span.address {
 }
 .col.disconnected span {
   color: #FFFFFF;
+}
+.disconnected .close-x {
   top: -34px;
 }
 .icon-denom {
@@ -568,6 +573,6 @@ a.btn-inverse:focus {
   color: #FF4D00
 }
 .menu.mobile {
-  display: none;
+  display: inline-block;
 }
 </style>

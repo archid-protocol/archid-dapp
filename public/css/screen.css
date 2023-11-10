@@ -48,14 +48,6 @@
     .menu.default {
         display: none !important;
     }
-    .menu.mobile {
-        display: inline-block !important;
-    }
-    .menu.mobile svg {
-        position: relative;
-        left: 12px;
-        top: 2px;
-    }
     .menu.mobile.connected svg {
         top: -38px;
     }
