@@ -98,6 +98,8 @@
     :key="'resolver-mismatch-my-domains-' + domain"
   >
   </ResolverMismatch>
+
+  <!-- Manage Listing (Cancel / Update Swap) -->
 </template>
 
 <script>
