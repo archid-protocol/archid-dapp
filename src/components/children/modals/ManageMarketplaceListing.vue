@@ -5,7 +5,7 @@
         <div class="modal-header manage-listing">
           <div class="left">
             <p class="modal-manage-listing-title">Manage Listing</p>
-            <p class="modal-manage-listing-subtitle" v-if="domain">{{domain}}</p>
+            <p class="modal-manage-listing-subtitle" v-if="domain">{{ ucFirst(domain) }}</p>
           </div>
           <div class="right">
             <span class="close-x manage-listing" @click="emitClose();">&times;</span>
@@ -40,20 +40,23 @@
             />
         </div>
         <div class="modal-footer manage-listing">
-          <!-- Exit -->
-          <button class="btn btn-inverse" @click="emitClose();">Cancel</button>
+          <!-- Exit / Left flex pane -->
+          <a class="pointer float-left footer close-modal" @click="emitClose();">Cancel</a>
           
-          <!-- Cancel Swap -->
-          <button 
-            class="btn btn-inverse btn-cancel-swap"
-            @click="executeCancelSwap();"
-          >Remove Listing</button>
-          <!-- Update Swap -->
-          <button 
-            class="btn btn-primary btn-update-swap"
-            @click="executeUpdateSwap();"
-            :disabled="!updates.price && !updates.expiry"
-          >Update</button>
+          <!-- Right flex pane -->
+          <div class="manage-swap-actions">
+            <!-- Cancel Swap -->
+            <button 
+              class="btn btn-inverse btn-cancel-swap"
+              @click="executeCancelSwap();"
+            >Remove Listing</button>
+            <!-- Update Swap -->
+            <button 
+              class="btn btn-primary btn-update-swap"
+              @click="executeUpdateSwap();"
+              :disabled="!updates.price && !updates.expiry"
+            >Update</button>
+          </div>
         </div>
       </div>
     </div>
@@ -286,18 +289,40 @@ export default {
     emitClose: function () {
       this.$emit('close', this.showModal);
     },
+    ucFirst: function (string) {
+      if (typeof string !== 'string') return '';
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    },
   }
 }
 </script>
 
 <style>
-.modal-manage-listing-title {
+.modal-header.manage-listing {
+  padding-bottom: 0;
+}
+.modal-footer {
+  justify-content: space-between;
+}
+.modal-manage-listing-title,
+.modal-manage-listing-subtitle {
   font-style: normal;
   font-weight: 500;
   font-size: 24px;
   line-height: 150%;
   letter-spacing: -0.03em;
+}
+.modal-manage-listing-title {
   color: #000000;
+}
+.modal-manage-listing-subtitle {
+  color: #FF4D00;
+}
+.btn-cancel-swap {
+  margin-right: 0.75em;
+}
+label.list.label {
+  margin-bottom: 0.5em;
 }
 div.value {
   margin-bottom: 1.25em;
@@ -311,6 +336,12 @@ div.value {
 }
 input.list-price {
   text-align: right;
+}
+input.list-expiry {
+  margin-bottom: 1em;
+}
+input.list-price,
+input.list-expiry {
   padding-top: 2em;
   padding-bottom: 2em;
 }
@@ -327,5 +358,8 @@ span.denom-text {
   font-weight: 400;
   font-size: 14px;
   line-height: 16.8px;
+}
+a.footer.close-modal {
+  color: #FF4D00;
 }
 </style>
