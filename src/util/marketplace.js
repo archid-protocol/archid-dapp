@@ -602,7 +602,7 @@ async function Cancel(id, client = null) {
  * @returns 
  */
 async function Update(id, expiration, price, client = null) {
-  if (!price || !expiry) return;
+  if (!id || !price || !expiration) return { error: "Invalid Update parameters" };
   if (!client) client = await Client();
 
   let cost = coin(String(price), client.chainInfo.currencies[0].coinMinimalDenom);

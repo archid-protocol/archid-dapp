@@ -201,7 +201,7 @@ export default {
       this.modals.manageListing = true;
     },
     closeManageListingModal: function () {
-      this.modals.manageListing = true;
+      this.modals.manageListing = false;
     },
     resolverMismatchHandler: function () {
       if (!this.collapsible) {

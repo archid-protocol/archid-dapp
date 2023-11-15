@@ -19,10 +19,9 @@
               type="number"
               step="any"
               min="0" 
-              class="list-domain form-control"
-              name="list"
+              class="list-price form-control"
+              name="price"
               v-model="updates.price"
-              :value="swap.price"
             />
             <div class="denom list-denom">
               <span class="icon icon-denom-alt"></span>&nbsp;<span class="denom denom-text">ARCH</span>
@@ -34,10 +33,9 @@
           <!-- XXX TODO: Add datepicker library -->
           <input 
               type="text"
-              class="list-domain form-control"
-              name="list"
+              class="list-expiry form-control"
+              name="expiration"
               v-model="updates.expiry"
-              :value="swap.expires"
               readonly
             />
         </div>
@@ -53,7 +51,7 @@
           <!-- Update Swap -->
           <button 
             class="btn btn-primary btn-update-swap"
-            @click="executeCancelSwap();"
+            @click="executeUpdateSwap();"
             :disabled="!updates.price && !updates.expiry"
           >Update</button>
         </div>
@@ -77,7 +75,9 @@
 <script>
 import { Accounts } from '../../../util/client';
 import { ApprovalsCw721, ApproveCw721 } from '../../../util/approvals';
-import { Query as MarketplaceQuery, Execute as MarketplaceExecute } from '../../../util/marketplace';
+import { Execute as MarketplaceExecute } from '../../../util/marketplace';
+import { DateFormat, NanoToSeconds } from '../../../util/datetime';
+import { FromAtto, ToAtto } from '../../../util/denom';
 
 import Notification from '../Notification.vue';
 
@@ -108,9 +108,16 @@ export default {
       msg: null,
       img: null,
     },
+    niceDate: DateFormat,
+    formatFromAtto: FromAtto,
   }),
   mounted: async function () {
     this.account = await this.getAccount();
+    if (this.swap) {
+      let dateAsSeconds = NanoToSeconds(Number(this.swap.expires.at_time));
+      this.updates.price = FromAtto(this.swap.price);
+      this.updates.expiry = DateFormat(dateAsSeconds);
+    }
     this.loaded = true;
   },
   methods: {
@@ -193,8 +200,8 @@ export default {
 
     executeUpdateSwap: async function () {
       if (!this.updates.price && !this.updates.expiry) return;
-      let price = (this.updates.price) ? this.updates.price : this.swap.price;
-      let expiry = (this.updates.expiry) ? this.updates.expiry : this.swap.expires;
+      let price = (this.updates.price) ? ToAtto(this.updates.price) : this.swap.price;
+      let expiry = (this.updates.expiry) ? new Date(this.updates.expiry.replace(" at ", ",")).getTime() : Number(this.swap.expires);
 
       // Check if token already approved for listing
       let approved;
@@ -213,7 +220,7 @@ export default {
       // Request approval for marketplace to spend cw721 (if required)
       let approvalUpdate;
       if (!approved) approvalUpdate = await this.executeApproveSpendCw721();
-      console.log('Approvals updated?', approvalUpdate);
+      // console.log('Approvals updated?', approvalUpdate);
 
       // Waiting notification
       this.notify = {
@@ -228,7 +235,7 @@ export default {
       let swapId = (this.swap['id']) ? this.swap.id : this.domain;
       this.executeResult = await MarketplaceExecute.Update(
         swapId,
-        expiry.getTime(),
+        expiry,
         price,
         this.cwClient
       );
@@ -287,5 +294,31 @@ export default {
 }
 div.value {
   margin-bottom: 1.25em;
+}
+.list-price.form-control,
+.list-expiry.form-control {
+  background: #F2EFED;
+  border-radius: 8px;
+  height: 56px;
+  border: none;
+}
+input.list-price {
+  text-align: right;
+  padding-top: 2em;
+  padding-bottom: 2em;
+}
+div.denom.list-denom {
+  position: relative;
+  top: -52px;
+  margin-left: 20px;
+  display: inline-block;
+}
+span.denom-text {
+  position: relative;
+  top: -7px;
+  color: #666666;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 16.8px;
 }
 </style>
