@@ -102,7 +102,7 @@
   <!-- Manage Listing (Cancel / Update Swap) -->
   <ManageMarketplaceListing
     v-bind:domain="domain"
-    v-bind:swap="swap"
+    v-bind:swapDetails="swap"
     v-bind:cw721="cw721"
     v-bind:cwClient="cwClient"
     v-bind:showModal="modals.manageListing"

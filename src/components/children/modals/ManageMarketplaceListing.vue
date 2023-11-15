@@ -75,7 +75,7 @@
 <script>
 import { Accounts } from '../../../util/client';
 import { ApprovalsCw721, ApproveCw721 } from '../../../util/approvals';
-import { Execute as MarketplaceExecute } from '../../../util/marketplace';
+import { Query as MarketplaceQuery, Execute as MarketplaceExecute } from '../../../util/marketplace';
 import { DateFormat, NanoToSeconds } from '../../../util/datetime';
 import { FromAtto, ToAtto } from '../../../util/denom';
 
@@ -87,7 +87,7 @@ const DEFAULT_TOKEN_IMG = "token.svg";
 export default {
   props: {
     domain: String,
-    swap: Object,
+    swapDetails: Object,
     cw721: String,
     cwClient: Object,
     showModal: Boolean,
@@ -97,6 +97,7 @@ export default {
   data: () => ({
     account: null,
     executeResult: null,
+    swap: null,
     loaded: false,
     updates: {
         price: null,
@@ -112,15 +113,21 @@ export default {
     formatFromAtto: FromAtto,
   }),
   mounted: async function () {
+    if (this.swapDetails) this.swap = this.swapDetails;
+    else this.swap = await this.getSwapDetails();
     this.account = await this.getAccount();
-    if (this.swap) {
-      let dateAsSeconds = NanoToSeconds(Number(this.swap.expires.at_time));
-      this.updates.price = FromAtto(this.swap.price);
-      this.updates.expiry = DateFormat(dateAsSeconds);
-    }
+    let dateAsSeconds = NanoToSeconds(Number(this.swap.expires.at_time));
+    this.updates.price = FromAtto(this.swap.price);
+    this.updates.expiry = DateFormat(dateAsSeconds);
     this.loaded = true;
   },
   methods: {
+    // Queries
+    getSwapDetails: async function () {
+      if (!this.domain || !this.cwClient) return;
+      let swapQuery = await MarketplaceQuery.Details(this.domain, this.cwClient);
+      return swapQuery;
+    },
     // Txs
     executeCancelSwap: async function () {
       if (typeof this.domain !== 'string' && typeof this.swap['id'] !== 'string') return;
@@ -200,7 +207,7 @@ export default {
 
     executeUpdateSwap: async function () {
       if (!this.updates.price && !this.updates.expiry) return;
-      let price = (this.updates.price) ? ToAtto(this.updates.price) : this.swap.price;
+      let price = (this.updates.price) ? ToAtto(this.updates.price, true) : this.swap.price;
       let expiry = (this.updates.expiry) ? new Date(this.updates.expiry.replace(" at ", ",")).getTime() : Number(this.swap.expires);
 
       // Check if token already approved for listing
