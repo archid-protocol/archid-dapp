@@ -76,10 +76,12 @@
 
 <script>
 import { Accounts } from '../../../util/client';
+import { ApprovalsCw721, ApproveCw721 } from '../../../util/approvals';
 import { Query as MarketplaceQuery, Execute as MarketplaceExecute } from '../../../util/marketplace';
 
 import Notification from '../Notification.vue';
 
+const MARKETPLACE_CONTRACT = process.env.VUE_APP_MARKETPLACE_CONTRACT;
 const DEFAULT_TOKEN_IMG = "token.svg";
 
 export default {
@@ -153,10 +155,65 @@ export default {
       }
     },
 
+    // Marketplace needs approval to transfer the user's cw721 to the buyer
+    executeApproveSpendCw721: async function () {
+      if (typeof this.domain !== 'string') return;
+
+      this.emitClose();
+
+      // Waiting notification
+      this.notify = {
+        type: "loading",
+        title: "Marketplace needs approval",
+        msg: "Approve marketplace to transfer " + this.domain + " to a buyer",
+        img: null,
+      };
+
+      this.executeResult = await ApproveCw721(
+        this.domain,
+        this.cwClient
+      );
+      // console.log('cw721 approval', this.executeResult);
+
+      let approved;
+      if (!this.executeResult['error']) {
+        approved = false;
+      } else {
+        // Error notification
+        this.notify = {
+          type: "error",
+          title: "Something went wrong",
+          msg: this.executeResult.error,
+          img: null,
+        };
+        approved = true;
+      }
+      return approved;
+    },
+
     executeUpdateSwap: async function () {
       if (!this.updates.price && !this.updates.expiry) return;
       let price = (this.updates.price) ? this.updates.price : this.swap.price;
       let expiry = (this.updates.expiry) ? this.updates.expiry : this.swap.expires;
+
+      // Check if token already approved for listing
+      let approved;
+      let query = await ApprovalsCw721(this.domain, false, this.cwClient);
+      if (!query['approvals']) approved = false;
+      else if (!Array.isArray(query.approvals)) approved = false;
+      else if (!query.approvals.length) approved = false;
+      else {
+        query.approvals.forEach((approval) => {
+          if (approval['spender']) {
+            if (approval.spender == MARKETPLACE_CONTRACT) approved = true;
+          }
+        });
+      }
+
+      // Request approval for marketplace to spend cw721 (if required)
+      let approvalUpdate;
+      if (!approved) approvalUpdate = await this.executeApproveSpendCw721();
+      console.log('Approvals updated?', approvalUpdate);
 
       // Waiting notification
       this.notify = {
@@ -166,7 +223,7 @@ export default {
         img: null,
       };
 
-      this.emitClose();
+      if (!approvalUpdate) this.emitClose();
 
       let swapId = (this.swap['id']) ? this.swap.id : this.domain;
       this.executeResult = await MarketplaceExecute.Update(
