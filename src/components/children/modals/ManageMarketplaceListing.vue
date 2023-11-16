@@ -160,7 +160,7 @@ export default {
           img: DEFAULT_TOKEN_IMG,
         };
         // Refresh domain
-        this.$emit('dataResolution', this.domain);
+        // this.$emit('dataResolution', this.domain);
       } else {
         // Error notification
         this.notify = {
@@ -259,7 +259,7 @@ export default {
           img: DEFAULT_TOKEN_IMG,
         };
         // Refresh domain
-        this.$emit('dataResolution', this.domain);
+        // this.$emit('dataResolution', this.domain);
       } else {
         // Error notification
         this.notify = {
@@ -279,6 +279,7 @@ export default {
       return accounts[0].address;
     },
     closeNotification: function () {
+      if (this.notify.title.toLowerCase() == "listing updated" || this.notify.title.toLowerCase() == "listing removed") this.$emit('dataResolution', this.domain);
       this.notify = {
         type: null,
         title: null,
