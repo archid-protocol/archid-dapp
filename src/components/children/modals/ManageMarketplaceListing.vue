@@ -159,8 +159,6 @@ export default {
           msg: this.domain + " has been successfully removed from the marketplace",
           img: DEFAULT_TOKEN_IMG,
         };
-        // Refresh domain
-        // this.$emit('dataResolution', this.domain);
       } else {
         // Error notification
         this.notify = {
@@ -230,7 +228,6 @@ export default {
       // Request approval for marketplace to spend cw721 (if required)
       let approvalUpdate;
       if (!approved) approvalUpdate = await this.executeApproveSpendCw721();
-      // console.log('Approvals updated?', approvalUpdate);
 
       // Waiting notification
       this.notify = {
@@ -258,8 +255,6 @@ export default {
           msg: this.domain + " has been successfully updated in the marketplace",
           img: DEFAULT_TOKEN_IMG,
         };
-        // Refresh domain
-        // this.$emit('dataResolution', this.domain);
       } else {
         // Error notification
         this.notify = {
