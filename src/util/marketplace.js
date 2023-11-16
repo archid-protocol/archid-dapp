@@ -593,12 +593,58 @@ async function Cancel(id, client = null) {
   }
 }
 
+/**
+ * 
+ * @param {String} id 
+ * @param {Number} expires 
+ * @param {*} price 
+ * @param {*} client 
+ * @returns 
+ */
+async function Update(id, expiration, price, client = null) {
+  if (!id || !price || !expiration) return { error: "Invalid Update parameters" };
+  if (!client) client = await Client();
+
+  let cost = coin(String(price), client.chainInfo.currencies[0].coinMinimalDenom);
+
+  try {
+    // Msg.
+    let entrypoint = {
+      update: {
+        id: id,
+        expires: {
+          at_time: String(expiration)
+        },
+        price: cost.amount,
+      }
+    };
+    // Sender
+    let accounts = await client.offlineSigner.getAccounts();
+    // Broadcast tx
+    let tx = await client.wasmClient.execute(
+      accounts[0].address,
+      MARKETPLACE_CONTRACT,
+      entrypoint,
+      client.fees,
+      "Update swap"
+    );
+    // Tx result
+    return tx;
+  } catch (e) {
+    console.error(e);
+    return {
+      error: String(e)
+    };
+  }
+}
+
 const Execute = {
   CreateNative,
   CreateCw20,
   FinishNative,
   FinishCw20,
-  Cancel
+  Cancel,
+  Update,
 };
 
 // Export

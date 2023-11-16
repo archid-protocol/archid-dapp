@@ -137,13 +137,26 @@
               
               <div class="wrapper advanced-ctrl" v-if="statusOkay">
                 <!-- Transfer -->
-                <button class="btn btn-inverse" @click="modals.transfer = !modals.transfer" v-if="owner.owner == viewer" :disabled="status.isListed">Transfer</button>
+                <button 
+                  class="btn btn-inverse" 
+                  @click="modals.transfer = !modals.transfer" 
+                  v-if="owner.owner == viewer" 
+                  :disabled="status.isListed"
+                >Transfer</button>
 
                 <!-- List for Sale -->
-                <button class="btn btn-inverse" @click="modals.marketListing = !modals.marketListing" v-if="owner.owner == viewer && !status.isListed && !isExpired && isNotSubdomain(domain)">List for Sale</button>
+                <button 
+                  class="btn btn-inverse" 
+                  @click="modals.marketListing = !modals.marketListing" 
+                  v-if="owner.owner == viewer && !status.isListed && !isExpired && isNotSubdomain(domain)"
+                >List for Sale</button>
 
-                <!-- Cancel Sale Listing -->
-                <button class="btn btn-primary" @click="executeCancelSwap();" v-if="owner.owner == viewer && status.isListed">Cancel Listing</button>
+                <!-- Manage Sale Listing -->
+                <button 
+                  class="btn btn-primary" 
+                  @click="modals.manageListing = !modals.manageListing"
+                  v-if="owner.owner == viewer && status.isListed"
+                >Manage Listing</button>
 
                 <!-- Buy Domain -->
                 <router-link 
@@ -748,6 +761,19 @@
     :key="'resolver-mismatch-my-domains-' + domain"
   >
   </ResolverMismatch>
+
+  <!-- Manage Listing (Cancel / Update Swap) //here -->
+  <ManageMarketplaceListing
+    v-bind:domain="domain"
+    v-bind:cw721="cw721"
+    v-bind:cwClient="cwClient"
+    v-bind:showModal="modals.manageListing"
+    v-if="domain && cw721 && cwClient && isListed"
+    @dataResolution="manageListingHandler"
+    @close="closeManageListingModal"
+    :key="'manage-listing-my-domains-' + domain"
+  >
+  </ManageMarketplaceListing>
 </template>
 
 <script>
@@ -769,6 +795,7 @@ import { DateFormat, SecondsToNano } from '../../util/datetime';
 import { FromAtto, ToAtto } from '../../util/denom';
 
 import ResolverMismatch from './modals/ResolverMismatch.vue';
+import ManageMarketplaceListing from './modals/ManageMarketplaceListing.vue';
 import Notification from './Notification.vue';
 
 const MARKETPLACE_CONTRACT = process.env.VUE_APP_MARKETPLACE_CONTRACT;
@@ -800,7 +827,11 @@ export default {
     collapsible: Boolean,
   },
   emits: ['dataResolution', 'ownershipTransfer', 'listing'],
-  components: { ResolverMismatch, Notification },
+  components: { 
+    ResolverMismatch, 
+    Notification, 
+    ManageMarketplaceListing 
+  },
   data: () => ({
     token: null,
     owner: null,
@@ -884,6 +915,7 @@ export default {
       marketListing: false,
       cancelListing: false,
       resolverMismatch: false,
+      manageListing: false,
     },
     notify: {
       type: null,
@@ -947,6 +979,15 @@ export default {
       this.dataResolutionHandler(true);
       this.$emit('dataResolution', this.domain);
       this.$root.resolveUpdates();
+    },
+    manageListingHandler: function () {
+      this.modals.manageListing = false;
+      this.dataResolutionHandler(true);
+      this.$emit('dataResolution', this.domain);
+      this.$root.resolveUpdates();
+    },
+    closeManageListingModal: function () {
+      this.modals.manageListing = false;
     },
     tokenData: async function () {
       if (!this.domain || typeof this.domain !== 'string') return;
@@ -1661,7 +1702,12 @@ export default {
       if (typeof this.status !== 'object') return false;
       if (typeof this.status['isListed'] !== 'undefined') return true;
       else return false;
-    }
+    },
+    isListed: function () {
+      if (typeof this.status !== 'object') return false;
+      if (this.status['isListed']) return true;
+      else return false;
+    },
   }
 }
 </script>

@@ -19,9 +19,9 @@
             >Buy Domain</button>
             <button 
               class="btn btn-primary" 
-              @click="executeCancelSwap();" 
+              @click="showManageListingModal();"
               v-if="account == parentDetails.creator"
-            >Cancel Listing</button>
+            >Manage Listing</button>
           </div>
         </div>
         <div :class="{'caret': true, 'col': true, 'active': !closed}" v-if="collapsible">&caron;</div>
@@ -67,9 +67,9 @@
         >Buy Domain</button>
         <button 
           class="btn btn-primary" 
-          @click="executeCancelSwap();" 
+          @click="showManageListingModal();"
           v-if="account == parentDetails.creator"
-        >Cancel Listing</button>
+        >Manage Listing</button>
       </div>
     </div>
   </div>
@@ -98,6 +98,20 @@
     :key="'resolver-mismatch-my-domains-' + domain"
   >
   </ResolverMismatch>
+
+  <!-- Manage Listing (Cancel / Update Swap) -->
+  <ManageMarketplaceListing
+    v-bind:domain="domain"
+    v-bind:swapDetails="swap"
+    v-bind:cw721="cw721"
+    v-bind:cwClient="cwClient"
+    v-bind:showModal="modals.manageListing"
+    v-if="domain && cw721 && cwClient && swap"
+    @dataResolution="manageListingHandler"
+    @close="closeManageListingModal"
+    :key="'manage-listing-my-domains-' + domain"
+  >
+  </ManageMarketplaceListing>
 </template>
 
 <script>
@@ -108,6 +122,7 @@ import { Token } from '../../util/token';
 import { Query as MarketplaceQuery, Execute as MarketplaceExecute } from '../../util/marketplace';
 
 import ResolverMismatch from './modals/ResolverMismatch.vue';
+import ManageMarketplaceListing from './modals/ManageMarketplaceListing.vue';
 import Notification from './Notification.vue';
 
 const DEFAULT_TOKEN_IMG = "token.svg";
@@ -125,7 +140,11 @@ export default {
     parentDetails: Object,
   },
   emits: ['dataResolution'],
-  components: { Notification, ResolverMismatch },
+  components: { 
+    Notification, 
+    ResolverMismatch, 
+    ManageMarketplaceListing 
+  },
   data: () => ({
     token: null,
     swap: null,
@@ -136,6 +155,7 @@ export default {
     modals: {
       enlargeTokenImg: false,
       resolverMismatch: false,
+      manageListing: false,
     },
     notify: {
       type: null,
@@ -177,6 +197,12 @@ export default {
     showResolverModal: function () {
       this.modals.resolverMismatch = true;
     },
+    showManageListingModal: function () {
+      this.modals.manageListing = true;
+    },
+    closeManageListingModal: function () {
+      this.modals.manageListing = false;
+    },
     resolverMismatchHandler: function () {
       if (!this.collapsible) {
         this.notify = {
@@ -187,6 +213,10 @@ export default {
         };
       }
       this.modals.resolverMismatch = false;
+      this.dataResolutionHandler(true);
+    },
+    manageListingHandler: function () {
+      this.modals.manageListing = false;
       this.dataResolutionHandler(true);
     },
     tokenData: async function () {
