@@ -11,10 +11,10 @@
           <h4 class="category">ArchID</h4>
           <ul class="about">
             <li>
-              <a href="#">About ArchID</a>
+              <a :href="links.about" target="_blank">About ArchID<span class="icon icon-external-link">↗</span></a>
             </li>
             <li>
-              <a href="#">Your Domains</a>
+              <a :href="links.mydomains">Your Domains</a>
             </li>
           </ul>
         </div>
@@ -24,10 +24,10 @@
           <h4 class="category">Developers</h4>
           <ul class="developers">
             <li>
-              <a href="#">Integrating with ArchID</a>
+              <a class="integrate-archid" :href="links.integrate" target="_blank">Integrating with ArchID<span class="icon icon-external-link">↗</span></a>
             </li>
             <li>
-              <a :href="links.github" target="_blank">GitHub <span class="icon icon-external-link">↗</span></a>
+              <a :href="links.github" target="_blank"><span class="icon icon-github"></span>GitHub <span class="icon icon-external-link">↗</span></a>
             </li>
           </ul>
         </div>
@@ -37,7 +37,7 @@
           <h4 class="category">Support</h4>
           <ul class="support">
             <li>
-              <a :href="links.mailto">Reach Out <span class="icon icon-external-link">↗</span></a>
+              <a :href="links.mailto"><span class="icon icon-mail"></span>Reach Out <span class="icon icon-external-link">↗</span></a>
             </li>
           </ul>
         </div>
@@ -47,10 +47,10 @@
           <h4 class="category">Social</h4>
           <ul class="social">
             <li>
-              <a href="https://discord.gg/ghCCDu3dPB" target="_blank"><span class="icon icon-discord"></span>Discord</a>
+              <a :href="links.discord" target="_blank"><span class="icon icon-discord"></span>Discord<span class="icon icon-external-link">↗</span></a>
             </li>
             <li>
-              <a :href="links.twitter" target="_blank"><span class="icon icon-twitter"></span>Twitter <span class="icon icon-external-link">↗</span></a>
+              <a :href="links.twitter" target="_blank"><span class="icon icon-twitter"></span>X (Twitter) <span class="icon icon-external-link">↗</span></a>
             </li>
           </ul>
         </div>
@@ -79,8 +79,12 @@ export default {
   data: () => ({
     year: null,
     links: {
+      about: "https://medium.com/@archid.protocol/archid-a-name-service-for-archway-network-c221193fa989",
+      discord: "https://discord.gg/ghCCDu3dPB",
       github: "https://github.com/archid-protocol",
-      mailto: "archid.protocol@gmail.com",
+      integrate: "https://docs.archid.app",
+      mailto: "mailto:archid.protocol@gmail.com",
+      mydomains: "https://archid.app/my-domains",
       twitter: "https://twitter.com/archidapp",
     },
   }),
@@ -98,7 +102,6 @@ ul, li {
 li {
   font-style: normal;
   font-weight: 400;
-  /* font-size: 14px; */
   font-size: 16px;
   line-height: 120%;
   letter-spacing: -0.01em;
@@ -107,7 +110,6 @@ li {
 h4 {
   font-style: normal;
   font-weight: 600;
-  /* font-size: 14px; */
   font-size: 16px;
   line-height: 120%;
   color: #000000;
@@ -147,5 +149,9 @@ a:link, a:hover,
 }
 .col {
   padding-left: 1em;
+}
+a.integrate-archid {
+  min-width: 197px;
+  display: inline-block;
 }
 </style>

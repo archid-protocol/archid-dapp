@@ -1,8 +1,8 @@
-import { keplrClient, cosmostationClient, offlineClient } from './cosmwasm';
+import { leapClient, keplrClient, cosmostationClient, offlineClient } from './cosmwasm';
 
 /**
  * Gets signing client instance
- * @param {String} wallet : Supported wallet values are; 'keplr', 'falcon'
+ * @param {String} wallet : Supported wallet values are; 'keplr', 'leap', 'cosmostation', 'offline'
  * @returns {SigningCosmWasmClient}
  */
  async function Client(wallet = 'keplr') {
@@ -10,17 +10,22 @@ import { keplrClient, cosmostationClient, offlineClient } from './cosmwasm';
   switch (wallet) {
     case 'cosmostation': {
       client = await cosmostationClient();
-      return client;
+      break;
     }
     case 'keplr': {
       client = await keplrClient();
-      return client;
+      break;
+    }
+    case 'leap': {
+      client = await leapClient();
+      break;
     }
     case 'offline': {
       client = await offlineClient();
-      return client;
+      break;
     }
   }
+  return client;
 }
 
 async function Accounts(client = null) {

@@ -11,7 +11,7 @@
     </div>
 
     <!-- Domains -->
-    <div v-if="tokens.length">
+    <div v-if="tokens.length && searchThreshold !== false && !disconnected">
       <ul class="domains">
         <li v-for="(domain, i) in domainsList" :key="i">
           <DomainListEntry
@@ -22,6 +22,10 @@
             v-bind:isReadOnly="false"
             v-bind:baseCost="parseInt(config.base_cost)"
             v-bind:collapsible="true"
+            v-bind:status="statuses[domain]"
+            @ownershipTransfer="newOwnerHandler"
+            @listing="newListingHandler"
+            @dataResolution="newOwnerHandler"
             :key="'item-'+i"
           >
           </DomainListEntry>
@@ -30,7 +34,7 @@
       <div class="paging row">
         <div class="paging-items row">
           <div class="col left">
-            <button :class="{'chevron-left': true, 'pointer': page > 0, 'disabled': page <= 0}" @click="page = page - 1;" :disabled="page <= 0"></button>
+            <button :class="{'chevron-left': true, 'pointer': page > 0, 'disabled': page <= 0}" @click="pageHandler((page - 1));" :disabled="page <= 0"></button>
           </div>
           <div class="col mid">
             <div class="paging-display">
@@ -42,28 +46,39 @@
             </div>
           </div>
           <div class="col right">
-            <button :class="{'chevron-right': true, 'pointer': page < (totalPages - 1), 'disabled': page >= (totalPages - 1)}" @click="page = page + 1" :disabled="page >= (totalPages - 1)"></button>
+            <button :class="{'chevron-right': true, 'pointer': page < (totalPages - 1), 'disabled': page >= (totalPages - 1)}" @click="pageHandler((page + 1));" :disabled="page >= (totalPages - 1)"></button>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- No search results found -->
+    <div v-if="tokens.length && searchThreshold == false && !disconnected"></div>
+
     <!-- No Domains were found -->
-    <div v-if="!tokens.length">
+    <div class="warn-helper" v-if="!tokens.length && !disconnected">
       <p v-if="loaded">No domains found for account {{ accounts[0].address }}</p>
+    </div>
+
+    <!-- Disconnected -->
+    <div class="warn-helper" v-if="disconnected">
+      <p v-if="loaded"><a class="connect" @click="connectHandler();">Login</a> to view your domains</p>
     </div>
   </div>
 </template>
 
 <script>
 import { Client, Accounts } from '../util/client';
-import { Config, ResolveAddress } from '../util/query';
-import { NumTokens, TokensOf } from '../util/token';
+import { Config, ResolveAddress, ResolveRecord } from '../util/query';
+import { TokensOf } from '../util/token';
 import * as Paging from '../util/pagination';
+import  { Query as MarketplaceQuery } from '../util/marketplace';
 
 import DomainsBanner from './children/DomainsBanner.vue';
 import DomainListEntry from './children/DomainListEntry.vue';
 
+const ACTIVE = 1;
+const EXPIRED = 2;
 const LIMIT = 100;
 
 export default {
@@ -76,9 +91,12 @@ export default {
     accounts: [],
     tokens: [],
     filteredTokens: [],
+    statuses: {},
     search: null,
+    searchThreshold: null,
     loaded: false,
     title: 'My Domains',
+    disconnected: null,
     page: 0,
     pageSize: Paging.DEFAULT_PAGE_SIZE,
     pageSizes: Paging.ALL_PAGE_SIZES,
@@ -102,6 +120,7 @@ export default {
 
           // Load tokens
           await this.tokenIds();
+          await this.tokenStatuses();
           this.loaded = true;
         }, 100);
       } catch (e) {
@@ -116,36 +135,76 @@ export default {
       return;
     },
     tokenIds: async function () {
+      if (!Array.isArray(this.accounts)) return;
+      if (!this.accounts.length) return this.disconnected = true;
       if (!this.cw721) await this.setTokenContract();
-      // Total tokens
-      let total = await NumTokens(this.cw721, this.cwClient);
-      total = (total['count']) ? total.count : 0;
-      if (!total || typeof total !== 'number') return;
       // Load tokens
-      if (total > LIMIT) {
-        let pages = Math.ceil(total / LIMIT);
-        for (let i = 0; i < pages; i++) {
-          let start = (i > 0) ? this.tokens[this.tokens.length - 1] : null;
-          let query = await TokensOf(this.cw721, this.accounts[0].address, this.cwClient, LIMIT, start);
-          if (query['tokens']) this.tokens = [...this.tokens, ...query.tokens];
+      let finished = false, i = 0;
+      do {
+        let start = (i > 0) ? this.tokens[this.tokens.length - 1] : null;
+        let query = await TokensOf(this.cw721, this.accounts[0].address, this.cwClient, LIMIT, start);
+        i++;
+        if (!Array.isArray(query['tokens'])) return;
+        else if (!query.tokens.length) return finished = true;
+        else this.tokens = [...this.tokens, ...query.tokens];
+      } while (!finished);
+    },
+    tokenStatuses: async function () {
+      let domains, start, end;
+      if (this.search) domains = this.filteredTokens;
+      else domains = this.tokens;
+      if (!this.tokens.length) return;
+      start = (this.page * this.pageSize);
+      end = (this.page * this.pageSize) + this.pageSize;
+      domains.slice(start, end).forEach(async (domain) => {
+        if (!this.statuses[domain]) {
+          setTimeout(async () => {
+            let query = await ResolveRecord(domain, this.cwClient);
+            let swap = await MarketplaceQuery.Details(domain, this.cwClient);
+            this.statuses[domain] = {
+              expiration: query.expiration,
+              isExpired: new Date().getTime() > (query.expiration * 1000),
+              address: query.address,
+              isMismatch: query.address !== this.accounts[0].address,
+              isListed: (swap['error']) ? false : true
+            };
+          }, 500);
         }
-      } else {
-        let query = await TokensOf(this.cw721, this.accounts[0].address, this.cwClient);
-        this.tokens = (query['tokens']) ? query.tokens : [];
-      }
-      // console.log('TokensOf query', this.tokens);
+      });
+    },
+    newOwnerHandler: async function (domain) {
+      if (!this.tokens) return;
+      if (!this.tokens.length) return;
+      if (this.tokens.indexOf(domain) < 0) return;
+      // Reload all token data
+      this.loaded = false;
+      this.tokens = [];
+      this.filteredTokens = [];
+      this.statuses = {};
+      await this.tokenIds();
+      await this.tokenStatuses();
+      this.loaded = true;
+    },
+    newListingHandler: async function (domain) {
+      if (!this.tokens) return;
+      if (!this.tokens.length) return;
+      if (this.tokens.indexOf(domain) < 0) return;
+      // Reload statuses
+      this.statuses = {};
+      await this.tokenStatuses();
     },
 
     // Filter
     filter: function (filters) {
       if (!this.tokens.length) return;
-      // console.log('Update filters', filters);
+      this.searchThreshold = null;
+      this._collapseDomainListItems();
       if (filters.text) {
+        this.searchThreshold = (filters.text.length >= 3) ? true : false;
         switch (filters.text.length) {
           case 0:
           case 1:
-          case 2:
-          case 3: {
+          case 2: {
             if (this.search) this.search = null;
             break;
           }
@@ -160,8 +219,39 @@ export default {
             break;
           }
         }
+      } else if (typeof filters.type == 'number') {
+        switch (filters.type) {
+          case 0: {
+            this.search = null;
+            break;
+          }
+          case 1:
+          case 2: {
+            this._statusSearch(filters);
+            break;
+          }
+          default: {
+            this.search = null;
+            break;
+          }
+        }
       } else {
         this.search = null;
+      }
+      this.tokenStatuses();
+    },
+    pageHandler: function (page) {
+      if (typeof page !== 'number') return;
+      this._collapseDomainListItems();
+      this.page = page;
+      this.tokenStatuses();
+    },
+    _collapseDomainListItems: function () {
+      if (!document) return;
+      let htmlCollection = document.getElementsByClassName("caret active");
+      if (!htmlCollection.length) return;
+      for (let i = 0; i < htmlCollection.length; i++) {
+        htmlCollection[0].click();
       }
     },
     _domainSearch: function (filters) {
@@ -195,8 +285,53 @@ export default {
       else this.search = true;
       // console.log('Address search query', query, this.filteredTokens);
     },
+    _statusSearch: async function (filters) {
+      this.page = 0;
+      let filteredTokens = [];
+      switch (filters.type) {
+        case ACTIVE: {
+          this.tokens.forEach(async (domain) => {
+            if (!this.statuses[domain]) {
+              let query = await ResolveRecord(domain, this.cwClient);
+              this.statuses[domain] = {
+                expiration: query.expiration,
+                isExpired: new Date().getTime() > (query.expiration * 1000)
+              };
+            }
+            if (this.statuses[domain].isExpired == false) filteredTokens.push(domain);
+          });
+          break;
+        }
+        case EXPIRED: {
+          this.tokens.forEach(async (domain) => {
+            if (!this.statuses[domain]) {
+              let query = await ResolveRecord(domain, this.cwClient);
+              this.statuses[domain] = {
+                expiration: query.expiration,
+                isExpired: new Date().getTime() > (query.expiration * 1000)
+              };
+            }
+            if (this.statuses[domain].isExpired == true) filteredTokens.push(domain);
+          });
+          break;
+        }
+        default: {
+          this.search = null;
+          break;
+        }
+      }
+      this.filteredTokens = filteredTokens;
+      this.search = true;
+    },
     onChange(event) {
+      this._collapseDomainListItems();
       this.page = parseInt(event.target.value);
+      this.tokenStatuses();
+    },
+    connectHandler: function () {
+      window.scrollTo(0, 0);
+      const connectEl = document.getElementById('connect_modal');
+      connectEl.click();
     },
 
     // Util
@@ -239,5 +374,12 @@ ul li {
   margin-bottom: 1em;
   background: rgba(255, 255, 255, 0.6);
   border-radius: 16px;
+}
+a.connect {
+  cursor: pointer;
+  color: #FF4D00;
+}
+div.warn-helper {
+  padding: 0.2em;
 }
 </style>

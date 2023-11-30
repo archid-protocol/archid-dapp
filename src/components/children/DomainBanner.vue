@@ -1,8 +1,9 @@
 <template>
   <div class="wrapper">
-    <!-- <div :class="{'domain-banner': true, 'bg-img': (tokenImg) ? true : false}" v-if="domain" :style="'background-image: url(' + tokenImg + ');'"></div> -->
     <div class="domain-banner-i"></div>
-    <h3>{{ domainDisplayFormat(domain) }}</h3>
+    <div class="title domains" v-if="domain">
+      <h3>{{ domainDisplayFormat(domain) }}</h3>
+    </div>
   </div>
 </template>
 
@@ -59,28 +60,6 @@ export default {
   margin-bottom: 1em;
   height: 325px;
 }
-/*.wrapper {
-  max-height: 325px;
-  border-radius: 8px;
-  overflow: hidden;
-}
-div.domain-banner {
-  padding: 1.25em;
-  background-color: rgba(255,77,0,0.9);
-  color: #fff;
-  border-radius: 8px;
-  height: 325px;
-}
-div.domain-banner div.bg-img {
-  background-repeat: no-repeat;
-  background-position: right;
-  background-size: contain;
-  
-  background-position: center;
-  background-size: cover;
-  filter: blur(24px);
-  -webkit-filter: blur(24px);
-} */
 h3 {
   font-style: normal;
   font-weight: 600;

@@ -1,7 +1,17 @@
 <template>
   <div class="history history-item row" v-if="events.length">
     <div class="col type">
-      <p v-if="history.type"><span :class="{'icon': true, 'icon-domain-history-plus': (history.type == 'mint' || history.type == 'mint_subdomain' || history.type == 'renew_domain'), 'icon-domain-history-metadata': history.type == 'update_metadata', 'icon-domain-history-minus': history.type == 'remove_subdomain'}"></span>{{ formatTypeLabel(history.type) }}</p>
+      <p v-if="history.type">
+        <span 
+          :class="{
+            'icon': true, 
+            'icon-domain-history-plus': (history.type == 'mint' || history.type == 'mint_subdomain' || history.type == 'renew_domain'),
+            'icon-domain-history-transfer': history.type == 'transfer_nft', 
+            'icon-domain-history-metadata': (history.type == 'update_metadata'), 
+            'icon-domain-history-minus': (history.type == 'remove_subdomain'),
+            'icon-domain-history-approvals-updated': history.type == 'approve'
+          }"
+        ></span>{{ formatTypeLabel(history.type) }}</p>
     </div>
     <div class="col height">
       <p v-if="history.block">
@@ -17,17 +27,21 @@
 </template>
 
 <script>
+import { IsTestnet } from '../../util/cosmwasm';
+
 const TYPE_LABELS = {
-  mint: "Domain registered.",
-  mint_subdomain: "Subdomain registered.",
-  burn: "Subdomain removed.",
-  remove_subdomain: "Subdomain removed.",
-  update_metadata: "Metadata updated.",
-  renew_domain: "Registration renewed"
+  mint: "Domain registered",
+  mint_subdomain: "Subdomain registered",
+  burn: "Subdomain removed",
+  remove_subdomain: "Subdomain removed",
+  update_metadata: "Metadata updated",
+  renew_domain: "Registration renewed",
+  transfer_nft: "Ownership transferred",
+  approve: "Approvals updated"
 };
 
-const TX_EXPLORER_PREFIX = "https://testnet.mintscan.io/archway-testnet/txs/";
-const HEIGHT_EXPLORER_PREFIX = "https://testnet.mintscan.io/archway-testnet/blocks/";
+const TX_EXPLORER_PREFIX = (IsTestnet) ? "https://testnet.mintscan.io/archway-testnet/txs/" : "https://mintscan.io/archway/txs/";
+const HEIGHT_EXPLORER_PREFIX = (IsTestnet) ? "https://testnet.mintscan.io/archway-testnet/blocks/" : "https://mintscan.io/archway/blocks/";
 
 export default {
   props: {
@@ -99,9 +113,13 @@ export default {
                   }
                 }
 
-                // XXX: Extensions are logged as metadata update events
-                // Extend domain registration
-                // else if () historyEntry.type = "extend";
+                if (types.indexOf('transfer_nft') !== -1) {
+                  historyEntry.type = "transfer_nft";
+                }
+
+                if (types.indexOf('approve') !== -1) {
+                  historyEntry.type = "approve";
+                }
               }
             }
           }

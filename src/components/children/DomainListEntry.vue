@@ -1,12 +1,18 @@
 <template>
   <div :class="{'domain-item': true, 'collapsible': true, 'expanded': !closed || !collapsible}">
     <div class="head">
-      <div class="left">
+      <div :class="{'left': true, 'pointer': collapsible}" @click="domainDetails($event);">
         <router-link class="domain-name header" v-if="domain" :to="'/domains/' + domain">{{domain}}</router-link>
         <span class="badge badge-warning badge-unsaved-changes" v-if="editing || editingDescr || updatingImg">Unsaved Changes</span>
       </div>
-      <div class="right">
-        <div :class="{'caret': true, 'active': !closed}" @click="domainDetails();" v-if="collapsible">&caron;</div>
+      <div :class="{'right': true, 'pointer': collapsible}" @click="domainDetails($event);">
+        <div class="status" v-if="status">
+          <span class="icon icon-info domain-resolver-mismatch" @click="modals.resolverMismatch = !modals.resolverMismatch" alt="Domain owner and record differ" title="Domain owner and record differ" v-if="!status.isExpired && status.isMismatch && !status.isListed"></span>
+          <span class="badge badge-listed" v-if="!status.isExpired && status.isListed">Listed for Sale</span>
+          <span class="badge badge-active" v-if="!status.isExpired && !status.isListed">Active</span>
+          <span class="badge badge-expired" v-if="status.isExpired">Expired</span>
+        </div>
+        <div :class="{'caret': true, 'active': !closed}" v-if="collapsible">&caron;</div>
       </div>
     </div>
     <div class="body" v-if="!closed || !collapsible">
@@ -124,9 +130,41 @@
               <p class="value" v-if="domainRecord.expiration">{{ niceDate(domainRecord.expiration) }}</p>
             </div>
             <!-- Btn. Extend -->
-            <div class="ctrl" v-if="!isSubdomain && owner">
-              <button class="btn btn-inverse" @click="modals.renew = !modals.renew" v-if="owner.owner == viewer && !isExpired">Extend</button>
-              <button class="btn btn-inverse" @click="modals.renew = !modals.renew" v-if="owner.owner == viewer && isExpired">Renew</button>
+            <div class="ctrl" v-if="owner">
+              <!-- Extend / Renew Expired -->
+              <button class="btn btn-inverse" @click="modals.renew = !modals.renew" v-if="!isSubdomain && owner.owner == viewer && !isExpired">Extend</button>
+              <button class="btn btn-inverse" @click="modals.renew = !modals.renew" v-if="!isSubdomain && owner.owner == viewer && isExpired">Renew</button>
+              
+              <div class="wrapper advanced-ctrl" v-if="statusOkay">
+                <!-- Transfer -->
+                <button 
+                  class="btn btn-inverse" 
+                  @click="modals.transfer = !modals.transfer" 
+                  v-if="owner.owner == viewer" 
+                  :disabled="status.isListed"
+                >Transfer</button>
+
+                <!-- List for Sale -->
+                <button 
+                  class="btn btn-inverse" 
+                  @click="modals.marketListing = !modals.marketListing" 
+                  v-if="owner.owner == viewer && !status.isListed && !isExpired && isNotSubdomain(domain)"
+                >List for Sale</button>
+
+                <!-- Manage Sale Listing -->
+                <button 
+                  class="btn btn-primary" 
+                  @click="modals.manageListing = !modals.manageListing"
+                  v-if="owner.owner == viewer && status.isListed"
+                >Manage Listing</button>
+
+                <!-- Buy Domain -->
+                <router-link 
+                  :to="'/marketplace/' + domain" 
+                  class="btn btn-inverse" 
+                  v-if="domain && owner.owner !== viewer && status.isListed"
+                >Buy Domain</router-link>
+              </div>
             </div>
           </div>
           <!-- Col 3; Owner, Domain Record -->
@@ -135,7 +173,9 @@
             <div class="domain-owner-record">
               <div class="owner" v-if="owner">
                 <p class="descr">Owner</p>
-                <div class="domain-owner value">{{ owner.owner }}</div>
+                <div class="domain-owner value">
+                  <a class="flat-link" :href="'/address/'+owner.owner">{{ owner.owner }}</a>
+                </div>
               </div>
             </div>
             <!-- Domain Record -->
@@ -146,7 +186,13 @@
                   :class="{'domain-resolver': true, 'value': true, 'configurable': owner.owner == viewer}"
                   @click="editDomainRecordHandler();"
                   v-if="!editingResolver || (owner.owner !== viewer)"
-                >{{(domainRecord.address) ? domainRecord.address : 'Expired'}}</div>
+                >
+                  <span v-if="owner.owner == viewer">{{(domainRecord.address) ? domainRecord.address : 'Expired'}}</span>
+                  <span v-if="owner.owner !== viewer">
+                    <a class="flat-link" :href="'/address/'+owner.owner" v-if="domainRecord.address">{{domainRecord.address}}</a>
+                    <span v-if="!domainRecord.address">Expired</span>
+                  </span>
+                </div>
                 <div class="input-group domain-record" v-if="editingResolver && owner.owner == viewer">
                   <input 
                     type="text" 
@@ -615,12 +661,125 @@
       </div>
     </div>
   </transition>
+
+  <!-- Transfer Modal -->
+  <transition name="modal">
+    <div v-if="modals.transfer && domain" class="modal-wrapper">
+      <div class="modalt">
+        <div class="modal-header transfer-domain">
+          <div class="left">
+            <p class="modal-transfer-domain-title">Are you sure you want to transfer <span class="modal-title modal-domain-title" v-if="domain">{{domain}}</span> to a new owner?</p>
+            <p class="descr warn">This action cannot be undone.</p>
+            <p class="descr warn">Confirm the transfer by entering <span class="descr highlight">"{{ domain }}"</span> in the box below.</p>
+          </div>
+          <div class="right">
+            <span class="close-x transfer-domain" @click="modals.transfer = !modals.transfer;">&times;</span>
+          </div>
+        </div>
+        <div class="modal-body transfer-domain">
+          <!-- Transfer Confirmation -->
+          <div class="transfer-domain-input">
+            <label class="transfer-domain label" for="transfer_domain" v-if="!isNotSubdomain(domain)">Subdomain to transfer</label>
+            <input 
+              type="text" 
+              class="transfer-domain form-control"
+              name="transfer_domain"
+              placeholder="Domain to be transferred"
+              v-model="transferConfirmation"
+            />
+          </div>
+          <!-- Transfer Recipient -->
+          <div class="transfer-domain-input" v-if="owner && transferConfirmation == domain">
+            <label class="transfer-domain label" for="transfer_recipient">Recipient</label>
+            <input 
+              type="text" 
+              class="transfer-domain form-control"
+              name="transfer_recipient"
+              v-model="updates.transferAddress"
+              placeholder="Archway address or ArchID"
+              v-if="owner.owner"
+              @keyup="verifyTransferDomain"
+            />
+            <div class="resolution-msg bg-danger bg-error" v-if="updates.transferAddressErr">No address found for <span>{{ updates.transferAddress }}</span></div>
+            <div class="resolution-msg bg-success" v-if="updates.transferAddressFetched">Address found <span>{{updates.transferAddressFetched}}</span></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-inverse" @click="modals.transfer = !modals.transfer;">Cancel</button>
+          <button class="btn btn-primary" @click="executeTransfer();" :disabled="!canTransfer">Continue</button>
+        </div>
+      </div>
+    </div>
+  </transition>
+
+  <!-- List in Marketplace Modal -->
+  <transition name="modal">
+    <div v-if="modals.marketListing && domain" class="modal-wrapper">
+      <div class="modalt">
+        <div class="modal-header list-domain">
+          <div class="left">
+            <p class="modal-list-domain-title">List <span class="modal-title modal-domain-title" v-if="domain">{{domain}}</span> for sale</p>
+          </div>
+          <div class="right">
+            <span class="close-x list-domain" @click="modals.marketListing = !modals.marketListing;">&times;</span>
+          </div>
+        </div>
+        <div class="modal-body list-domain">
+          <!-- Listing Amount -->
+          <label class="list label" for="list">Listing Amount</label>
+          <div class="list-input">
+            <input 
+              type="number"
+              step="any"
+              min="0" 
+              class="list-domain form-control"
+              name="list"
+              v-model="updates.listingAmount"
+            />
+            <div class="denom list-denom">
+              <span class="icon icon-denom-alt"></span>&nbsp;<span class="denom denom-text">ARCH</span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-inverse" @click="modals.marketListing = !modals.marketListing;">Cancel</button>
+          <button class="btn btn-primary" @click="marketListingHandler();" :disabled="updates.listingAmount <= 0">Continue</button>
+        </div>
+      </div>
+    </div>
+  </transition>
+
+  <!-- Domain Record / Resolver Mismatched Modal -->
+  <ResolverMismatch
+    v-bind:domain="domain"
+    v-bind:cw721="cw721"
+    v-bind:cwClient="cwClient"
+    v-bind:showModal="modals.resolverMismatch"
+    @dataResolution="resolverMismatchHandler"
+    @close="modals.resolverMismatch = false"
+    v-if="status && cwClient"
+    :key="'resolver-mismatch-my-domains-' + domain"
+  >
+  </ResolverMismatch>
+
+  <!-- Manage Listing (Cancel / Update Swap) //here -->
+  <ManageMarketplaceListing
+    v-bind:domain="domain"
+    v-bind:cw721="cw721"
+    v-bind:cwClient="cwClient"
+    v-bind:showModal="modals.manageListing"
+    v-if="domain && cw721 && cwClient && isListed"
+    @dataResolution="manageListingHandler"
+    @close="closeManageListingModal"
+    :key="'manage-listing-my-domains-' + domain"
+  >
+  </ManageMarketplaceListing>
 </template>
 
 <script>
 import { Accounts } from '../../util/client';
 import { ResolveRecord } from '../../util/query';
-import { Token, OwnerOf } from '../../util/token';
+import { Token, OwnerOf, Transfer } from '../../util/token';
 import {
   Register,
   RenewRegistration,
@@ -629,11 +788,17 @@ import {
   UpdateUserDomainData,
   RemoveSubdomain,
 } from '../../util/execute';
+import { Execute as MarketplaceExecute } from '../../util/marketplace';
+import { ApprovalsCw721, ApproveCw721 } from '../../util/approvals';
 
-import { DateFormat } from '../../util/datetime';
-import { FromAtto } from '../../util/denom';
+import { DateFormat, SecondsToNano } from '../../util/datetime';
+import { FromAtto, ToAtto } from '../../util/denom';
 
-import Notification from './Notification.vue'
+import ResolverMismatch from './modals/ResolverMismatch.vue';
+import ManageMarketplaceListing from './modals/ManageMarketplaceListing.vue';
+import Notification from './Notification.vue';
+
+const MARKETPLACE_CONTRACT = process.env.VUE_APP_MARKETPLACE_CONTRACT;
 
 const ACCOUNT_TYPES = ['twitter', 'github', 'email'];
 const TWITTER = ACCOUNT_TYPES[0];
@@ -644,23 +809,29 @@ const IPFS_GATEWAY_PREFIX = 'https://ipfs.io/ipfs/';
 const IPFS_CID_PREFIX = 'ipfs://';
 const URL_PREFIXES = ['http://', 'https://'];
 
-const EXTEND_IMG = 'extend.svg';
-const REMOVED_IMG = 'token-burned.svg';
-const DEFAULT_TOKEN_IMG = 'token.svg';
-const METADATA_UPDATE_IMAGE = 'token-update.svg';
+const EXTEND_IMG = "extend.svg";
+const REMOVED_IMG = "token-burned.svg";
+const DEFAULT_TOKEN_IMG = "token.svg";
+const METADATA_UPDATE_IMAGE = "token-update.svg";
+const TRANSFER_IMG = "transfer.svg";
 
 export default {
   props: {
     domain: String,
     cw721: String,
     cwClient: Object,
+    status: Object,
     isSubdomain: Boolean,
     isReadOnly: Boolean,
     baseCost: Number,
     collapsible: Boolean,
   },
-  emits: ['dataResolution'],
-  components: { Notification },
+  emits: ['dataResolution', 'ownershipTransfer', 'listing'],
+  components: { 
+    ResolverMismatch, 
+    Notification, 
+    ManageMarketplaceListing 
+  },
   data: () => ({
     token: null,
     owner: null,
@@ -675,6 +846,7 @@ export default {
     registering: false,
     domainRecord: null,
     burnConfirmation: null,
+    transferConfirmation: null,
     executeResult: null,
     ui: {
       accounts: [],
@@ -727,13 +899,23 @@ export default {
     updates: {
       metadata: null,
       expiry: 1,
-      resolver: null
+      resolver: null,
+      transferAddress: "",
+      transferAddressErr: false,
+      transferAddressFetched: null,
+      listingAmount: 0,
+      listingTokenApproved: false,
     },
     modals: {
       renew: false,
       removeSubdomain: false,
       enlargeTokenImg: false,
       editingImg: false,
+      transfer: false,
+      marketListing: false,
+      cancelListing: false,
+      resolverMismatch: false,
+      manageListing: false,
     },
     notify: {
       type: null,
@@ -750,9 +932,19 @@ export default {
     if (!this.collapsible) await this.domainDetails();
   },
   methods: {
-    domainDetails: async function () {
+    domainDetails: async function (evt = null) {
+      if (evt) {
+        if (!this.collapsible 
+          || evt.target.tagName == 'A' 
+          || evt.target.className.indexOf('domain-resolver-mismatch') > -1
+        ) return;
+      }
       if (!this.token || !this.owner || !this.domainRecord) {
         await this.dataResolutionHandler();
+      } else {
+        if (this.domain && this.token['extension']) {
+          if (this.domain !== this.token.extension.domain) await this.dataResolutionHandler(true);
+        }
       }
       this.closed = !this.closed;
     },
@@ -782,6 +974,20 @@ export default {
         this.$emit('dataResolution', true);
         this.$root.resolveUpdates();
       }
+    },
+    resolverMismatchHandler: function () {
+      this.dataResolutionHandler(true);
+      this.$emit('dataResolution', this.domain);
+      this.$root.resolveUpdates();
+    },
+    manageListingHandler: function () {
+      this.modals.manageListing = false;
+      this.dataResolutionHandler(true);
+      this.$emit('dataResolution', this.domain);
+      this.$root.resolveUpdates();
+    },
+    closeManageListingModal: function () {
+      this.modals.manageListing = false;
     },
     tokenData: async function () {
       if (!this.domain || typeof this.domain !== 'string') return;
@@ -990,6 +1196,46 @@ export default {
     cancelUpdateHandler: async function () {
       await this.dataResolutionHandler(true);
     },
+    marketListingHandler: async function () {
+      // Check if token already approved for listing
+      let approved;
+      let query = await ApprovalsCw721(this.domain, false, this.cwClient);
+      if (!query['approvals']) approved = false;
+      else if (!Array.isArray(query.approvals)) approved = false;
+      else if (!query.approvals.length) approved = false;
+      else {
+        query.approvals.forEach((approval) => {
+          if (approval['spender']) {
+            if (approval.spender == MARKETPLACE_CONTRACT) approved = true;
+          }
+        });
+      }
+      // Request approval for marketplace to spend cw721 (if required)
+      if (!approved) await this.executeApproveSpendCw721();
+      else {
+        this.updates.listingTokenApproved = true;
+        this.modals.marketListing = false;
+      }
+      // List for sale
+      await this.executeListForArch();
+    },
+    verifyTransferDomain: async function () {
+      this.updates.transferAddressErr = false;
+      this.updates.transferAddressFetched = null;
+      if (typeof this.updates.transferAddress !== 'string') return;
+      else if (this.updates.transferAddress.length < 8) return;
+      // Resolve address of domain (as required)
+      if (this.updates.transferAddress.slice(-5) == '.arch') {
+        let addressQuery = await ResolveRecord(
+          this.updates.transferAddress,
+          this.cwClient
+        );
+        if (addressQuery['address']) {
+          this.updates.transferAddressFetched = addressQuery.address;
+        } else this.updates.transferAddressErr = true;
+        // console.log('Resolved address', addressQuery);
+      }
+    },
     closeNotification: function () {
       this.notify = {
         type: null,
@@ -1046,6 +1292,51 @@ export default {
         };
         // Resolve new expiration in UI
         await this.dataResolutionHandler(true);
+      } else {
+        // Error notification
+        this.notify = {
+          type: "error",
+          title: "Something went wrong",
+          msg: this.executeResult.error,
+          img: null,
+        };
+      }
+    },
+    executeTransfer: async function () {
+      if (typeof this.domain !== 'string' || !this.updates.transferAddress) return;
+
+      // Waiting notification
+      this.notify = {
+        type: "loading",
+        title: "Saying goodbye is never easy",
+        msg: "Preparing to transfer " + this.domain + " to a new owner",
+        img: null,
+      };
+
+      this.resetFormIters();
+
+      let transferAddress = (this.updates.transferAddress.slice(-5) == '.arch' && this.updates.transferAddress) ? this.updates.transferAddressFetched : this.updates.transferAddress;
+
+      this.executeResult = await Transfer(
+        this.domain,
+        transferAddress,
+        this.cw721,
+        this.cwClient
+      );
+
+      this.modals.transfer = false;
+
+      if (!this.executeResult['error']) {
+        this.notify = {
+          type: "success",
+          title: "Domain transferred",
+          msg: this.domain + " has been successfully transferred to a new owner",
+          img: TRANSFER_IMG,
+        };
+        // Resolve owner update and remove from list if
+        // viewing domain list from "My Domains" context
+        await this.dataResolutionHandler(true);
+        this.$emit('ownershipTransfer', this.domain);
       } else {
         // Error notification
         this.notify = {
@@ -1131,6 +1422,7 @@ export default {
         };
         // Refresh domain
         await this.dataResolutionHandler(true);
+        this.$emit('listing', this.domain);
       } else {
         // Error notification
         this.notify = {
@@ -1226,6 +1518,136 @@ export default {
         };
       }
     },
+    // Marketplace needs approval to transfer the user's cw721 to the buyer
+    executeApproveSpendCw721: async function () {
+      if (typeof this.domain !== 'string' || typeof this.updates.listingAmount !== 'number' ) return;
+
+      // Close modal
+      this.modals.marketListing = false;
+
+      // Waiting notification
+      this.notify = {
+        type: "loading",
+        title: "Marketplace needs approval",
+        msg: "Approve marketplace to transfer " + this.domain + " to a buyer",
+        img: null,
+      };
+
+      this.executeResult = await ApproveCw721(
+        this.domain,
+        this.cwClient
+      );
+      // console.log('cw721 approval', this.executeResult);
+
+      if (!this.executeResult['error']) {
+        this.updates.listingTokenApproved = true;
+      } else {
+        // Error notification
+        this.notify = {
+          type: "error",
+          title: "Something went wrong",
+          msg: this.executeResult.error,
+          img: null,
+        };
+      }
+    },
+    executeListForArch: async function () {
+      if (
+        typeof this.domain !== 'string' 
+        || typeof this.updates.listingAmount !== 'number' 
+        || !this.updates.listingTokenApproved
+        || !this.domainRecord
+      ) return;
+      // Waiting notification
+      this.notify = {
+        type: "loading",
+        title: "Creating your swap",
+        msg: "Preparing to list " + this.domain + " in the marketplace",
+        img: null,
+      };
+
+      this.resetFormIters();
+      
+      // Swap will expire when domain expires
+      // XXX TODO: allow user defined swap expirations?
+      let swapExpiration = SecondsToNano(this.domainRecord.expiration);
+      // XXX TMP: temporary BigNum fix; 
+      // TODO: use BigNum lib for ToAtto math
+      let listingAmount = (this.updates.listingAmount >= 1000) ? parseInt(this.updates.listingAmount) : this.updates.listingAmount;
+      let useBigInt = Number.isInteger(listingAmount);
+      let price = ToAtto(listingAmount, useBigInt);
+
+      this.executeResult = await MarketplaceExecute.CreateNative(
+        this.domain,    // Swap ID
+        this.domain,    // Token ID
+        swapExpiration, // Listing expiration
+        price,          // Listing price
+        this.cwClient
+      );
+      // console.log('Listing result', this.executeResult);
+
+      if (!this.executeResult['error']) {
+        this.notify = {
+          type: "success",
+          title: "Domain listed",
+          msg: this.domain + " has been successfully added to the marketplace",
+          img: DEFAULT_TOKEN_IMG,
+        };
+        // Resolve token data and status updates
+        await this.dataResolutionHandler(true);
+        this.$emit('listing', this.domain);
+      } else {
+        // Error notification
+        this.notify = {
+          type: "error",
+          title: "Something went wrong",
+          msg: this.executeResult.error,
+          img: null,
+        };
+      }
+    },
+    // executeListForCw20: async function (contract) {
+    //   console.log("XXX TODO: this", contract);
+    //   return;
+    // },
+    executeCancelSwap: async function () {
+      if (typeof this.domain !== 'string') return;
+
+      // Waiting notification
+      this.notify = {
+        type: "loading",
+        title: "Cancelling your swap",
+        msg: "Preparing to remove " + this.domain + " from the marketplace",
+        img: null,
+      };
+
+      this.resetFormIters();
+
+      this.executeResult = await MarketplaceExecute.Cancel(
+        this.domain,
+        this.cwClient
+      );
+
+      if (!this.executeResult['error']) {
+        this.notify = {
+          type: "success",
+          title: "Listing removed",
+          msg: this.domain + " has been successfully removed from the marketplace",
+          img: DEFAULT_TOKEN_IMG,
+        };
+        // Resolve token data and status updates
+        await this.dataResolutionHandler(true);
+        this.$emit('listing', this.domain);
+      } else {
+        // Error notification
+        this.notify = {
+          type: "error",
+          title: "Something went wrong",
+          msg: this.executeResult.error,
+          img: null,
+        };
+      }
+    },
 
     // Util
     validEmailChars: function (email) {
@@ -1251,6 +1673,11 @@ export default {
           this.ui.websites.push({open: false});
         }
       }
+    },
+    isNotSubdomain: function (domain) {
+      if (typeof domain !== 'string') return null;
+      else if (domain.slice(0,-5).indexOf(".") < 0) return true;
+      else return false;
     }
   },
   computed: {
@@ -1259,6 +1686,27 @@ export default {
       else if (!this.updates.metadata['image']) return this.defaultTokenImg;
       let img = (this.updates.metadata.image.substr(0,7) == IPFS_CID_PREFIX) ? this.updates.metadata.image.replace(IPFS_CID_PREFIX, IPFS_GATEWAY_PREFIX) : this.updates.metadata.image;
       return img;
+    },
+    canTransfer: function () {
+      if (typeof this.updates.transferAddressFetched == 'string' && this.transferConfirmation == this.domain) return true;
+      else {
+        if (this.transferConfirmation !== this.domain) return false;
+        else if (this.updates.transferAddressErr) return false;
+        else if (typeof this.updates.transferAddress !== 'string') return false;
+        else if (this.updates.transferAddress.length !== 46 && this.updates.transferAddress.length !== 66) return false;
+        else if (this.updates.transferAddress.slice(0,7) !== "archway") return false;
+        return true;
+      }
+    },
+    statusOkay: function () {
+      if (typeof this.status !== 'object') return false;
+      if (typeof this.status['isListed'] !== 'undefined') return true;
+      else return false;
+    },
+    isListed: function () {
+      if (typeof this.status !== 'object') return false;
+      if (this.status['isListed']) return true;
+      else return false;
     },
   }
 }
@@ -1286,8 +1734,22 @@ div.right {
   width: 30%;
   text-align: right;
 }
+div.right .status,
+div.right .caret,
 div.expiry {
   display: inline-block;
+}
+div.right .status {
+  margin-right: 1em;
+  position: relative;
+  top: -4px;
+}
+div.right .caret {
+  position: relative;
+  top: 12px;
+}
+div.right .caret.active {
+  top: -12px;
 }
 label {
   margin-bottom: 0.25em;
@@ -1381,7 +1843,10 @@ input.metadata-subdomain-name {
   top: -48px;
   position: relative;
 }
-.modal-extend-title, .modal-subdomain-remove-title {
+.modal-extend-title, 
+.modal-subdomain-remove-title,
+.modal-transfer-domain-title,
+.modal-list-domain-title {
   font-style: normal;
   font-weight: 500;
   font-size: 24px;
@@ -1389,8 +1854,7 @@ input.metadata-subdomain-name {
   letter-spacing: -0.03em;
   color: #000000;
 }
-.modal-extend-title .modal-domain-title,
-.modal-subdomain-remove-title .modal-domain-title {
+.modal-domain-title {
   font-style: normal;
   font-weight: 500;
   font-size: 24px;
@@ -1473,22 +1937,42 @@ div.upload.btn-upload {
 .modal-footer.subdomain {
   justify-content: space-between;
 }
-.remove-subdomain.form-control {
+.remove-subdomain.form-control,
+.transfer-domain.form-control,
+.list-domain.form-control {
   background: #F2EFED;
   border-radius: 8px;
   height: 56px;
   border: none;
 }
-div.remove-subdomain .descr {
+div.remove-subdomain .descr,
+div.transfer-domain .descr {
   font-style: normal;
   font-weight: 400;
   font-size: 16px;
   line-height: 150%;
   letter-spacing: -0.01em;
-  color: #000000;
   margin-bottom: 2px;
 }
-label.remove-subdomain {
+div.remove-subdomain .descr,
+div.transfer-domain .descr:not(.highlight) {
+  color: #000000;
+}
+.descr.highlight {
+  color: #FF4D00;
+}
+.modal-body.transfer-domain {
+  padding-top: 0;
+}
+.transfer-domain .left {
+  width: 90%;
+}
+.transfer-domain .right {
+  width: 10%;
+}
+label.remove-subdomain,
+label.transfer-domain,
+label.list {
   font-style: normal;
   font-weight: 400;
   font-size: 16px;
@@ -1499,6 +1983,9 @@ label.remove-subdomain {
 }
 div.remove-subdomain-input {
   padding-top: 2em;
+}
+div.transfer-domain-input {
+  padding-bottom: 1.25em;
 }
 .metadata-token-img.form-control {
   margin-bottom: 1em;
@@ -1560,5 +2047,45 @@ label.img-edit {
   padding: 0px;
   gap: 16px;
   border-radius: 8px;
+}
+.ctrl .btn-inverse {
+  margin-right: 0.25em;
+  margin-bottom: 0.25em;
+}
+div.advanced-ctrl {
+  display: inline;
+}
+input.list-domain {
+  text-align: right;
+  padding-top: 2em;
+  padding-bottom: 2em;
+}
+div.denom.list-denom {
+  position: relative;
+  top: -52px;
+  margin-left: 20px;
+  display: inline-block;
+}
+span.denom-text {
+  position: relative;
+  top: -7px;
+  color: #666666;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 16.8px;
+}
+.icon-info.domain-resolver-mismatch {
+  cursor: pointer;
+  top: 8px;
+}
+.resolution-msg {
+  margin-top: 1em;
+  padding: 1em;
+  border-radius: 10px;
+  color: #fff;
+}
+
+.resolution-msg span {
+  font-style: italic;
 }
 </style>

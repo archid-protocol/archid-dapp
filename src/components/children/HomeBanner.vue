@@ -1,13 +1,13 @@
 <template>
   <div :class="{'welcome': true, 'banner': true, 'sm': search.result}" v-if="account" :style="'background-image: url(' + computedBanner + ');'">
     <div class="details" v-if="!search.result">
-      <div class="title">
+      <div class="title home">
         <div class="ln-1">Hello, <span class="your-name">{{ account.slice(0,12) }}</span></div>
         <div class="ln-2">This is who you are</div>
         <div class="ln-3">in Archway</div>
       </div>
       <div class="subtitle">
-        <p>A social social security number is how official sources identify you, but not how you introduce yourself. You do it with your name. Start using your ArchID instead of an unmemorable string to identify yourself in Archway.</p>
+        <p>A social security number is how official sources identify you, but not how you introduce yourself. You do that with your name. Start using your ArchID instead of an unmemorable string to identify yourself in Archway.</p>
       </div>
     </div>
     <div class="search" v-if="!isReadOnlyClient(cwClient)">
@@ -42,12 +42,12 @@
       <p class="focus">This domain is who you are in Archway.</p>
       <p class="descr">.arch domains can be registered for 1, 2 or 3 years.</p>
       <p class="descr">Unlimited subdomains can be created for your applications and addresses.</p>
-      <p class="descr">You can add and verify the ownership of applications as well as social profiles to this domain.</p>
+      <p class="descr">You can add and verify the ownership of applications as well as add your social profiles to this domain.</p>
     </div>
     <div class="taken-domain-data" v-if="registration.taken">
       <div class="left">
         <p>Registration Date</p>
-        <p v-if="registration.taken.extension.created">{{ niceDate(registration.taken.extension.created) }}</p>
+        <p v-if="registration.taken.extension.created">{{ niceDate(registration.taken.extension.created, true) }}</p>
       </div>
       <div class="right">
         <p>Expiration Date</p>
@@ -90,11 +90,9 @@
 
 <script>
 import { Config } from '../../util/query';
-import { Token, Tokens, NumTokens } from '../../util/token';
+import { Token } from '../../util/token';
 import { DateFormat, IsExpired } from '../../util/datetime';
 import { FromAtto } from '../../util/denom';
-
-const LIMIT = 100;
 
 export default {
   props: {
@@ -120,9 +118,7 @@ export default {
     formatFromAtto: FromAtto,
     welcomeBannerBg: '/img/homebanner.svg',
   }),
-  mounted: async function () {
-    if (this.cwClient) await this.tokenIds();
-  },
+  mounted: async function () {},
   methods: {
     connectHandler: function () {
       const connectEl = document.getElementById('connect_modal');
@@ -133,26 +129,6 @@ export default {
       this.cw721 = this.config.cw721;
       return;
     },
-    tokenIds: async function () {
-      if (!this.cw721) await this.setTokenContract();
-      // Total tokens
-      let total = await NumTokens(this.cw721, this.cwClient);
-      total = (total['count']) ? total.count : 0;
-      if (!total || typeof total !== 'number') return;
-      // Load tokens
-      if (total > LIMIT) {
-        let pages = Math.ceil(total / LIMIT);
-        for (let i = 0; i < pages; i++) {
-          let start = (i > 0) ? this.tokens[this.tokens.length - 1] : null;
-          let query = await Tokens(this.cw721, this.cwClient, LIMIT, start);
-          if (query['tokens']) this.tokens = [...this.tokens, ...query.tokens];
-        }
-      } else {
-        let query = await Tokens(this.cw721, this.cwClient);
-        this.tokens = (query['tokens']) ? query.tokens : [];
-      }
-      // console.log('Tokens query', this.tokens);
-    },
     tokenData: async function (id = null) {
       if (!id || typeof id !== 'string') return;
       if (!this.cw721) await this.setTokenContract();
@@ -161,15 +137,26 @@ export default {
       // console.log('Token query', this.token);
     },
     searchWorker: async function (text = null) {
-      this.registration.taken = false;
       if (!this.tokens) return '';
       if (!text) return '';
       if (typeof text !== 'string') return '';
+      this.registration.taken = false;
       let rawText = text.toLowerCase().replace(/[^a-z0-9-]/g,'');
       let searchText = rawText + '.arch';
-      if (this.tokens.indexOf(searchText) >= 0) {
+      let tokenSearch = null;
+      let isTaken = null;
+      try {
+        if (!this.cw721) await this.setTokenContract();
+        tokenSearch = await Token(searchText, this.cw721, this.cwClient);
+        isTaken = (tokenSearch['extension']) ? true : false;
+        // console.log('tokenSearch?', tokenSearch, isTaken);
+      } catch(e) {
+        console.error(`Token search for ${searchText} failed`, e);
+        return;
+      }
+      if (isTaken) {
         // Check validity of expiration
-        let token = await this.updateSelectedDomain(this.tokens[this.tokens.indexOf(searchText)]);
+        let token = tokenSearch;
         // Expired domain available
         if (IsExpired(token.extension.expiry)) {
           this.registration.domain = rawText;
@@ -186,10 +173,16 @@ export default {
       }
     },
     searchHandler: async function () {
-      this.search.result = null;
-      if (!this.search.input || typeof this.search.input !== 'string') return;
-      if (this.search.input.length < 3) return;
-      this.search.result = await this.searchWorker(this.search.input);
+      if (!this.search.input || typeof this.search.input !== 'string') return this._delayedSearchReset();
+      if (this.search.input.length < 3) return this._delayedSearchReset();
+      else this.search.result = await this.searchWorker(this.search.input);
+    },
+    _delayedSearchReset: function () {
+      setTimeout(() => {
+        if (!this.search.input) this.search.result = null;
+        else if (typeof this.search.input !== 'string') this.search.result = null;
+        else if (this.search.input.length < 3) this.search.result = null;
+      }, 300);
     },
     updateSelectedDomain: async function (id = null) {
       if (typeof id !== 'string') return;

@@ -11,13 +11,19 @@ html, body {
 div.logo {
     position: absolute;
     top: 58px;
-    left: 8%;
+    left: 9%;
     z-index: 100;
+}
+div.quick-nav {
+    position: absolute;
+    top: 58px;
+    left: 42%;
+    z-index: 105;
 }
 div.user.connect {
     position: absolute;
     top: 58px;
-    right: 8%;
+    right: 9%;
     min-width: 500px;
     text-align: right;
     z-index: 110;
@@ -174,13 +180,14 @@ div.value {
     background-image: url('/img/chevron-right.svg');
 }
 .paging-items.row {
-    justify-content: flex-end;
+    justify-content: space-between;
     margin-top: 1em;
 }
 .paging-items .col.left, .paging-items .col.right {
     max-width: 25px;
 }
 .paging-items  .col.mid {
+    text-align: center;
     max-width: 110px;
 }
 .paging-display .page-select-wrapper {
@@ -209,6 +216,9 @@ div.value {
     border: none;
     outline: 0px;
 }
+a.flat-link {
+    text-decoration: none;
+}
 
 /* Badges */
 .badge {
@@ -220,10 +230,27 @@ div.value {
     font-size: 12px;
     line-height: 120%;
     letter-spacing: -0.01em;
+    margin-right: 1em;
 }
 .badge-warning {
     background: rgba(255, 77, 0, 0.16);
     color: #FF4D00;
+}
+.badge-active {
+    background: rgba(0, 130, 35, 0.14);
+    color: #008223;
+}
+.badge-mismatch {
+    background: rgba(255, 77, 0, 0.16);
+    color: #FF4D00;
+}
+.badge-listed {
+    background: #F2EFED;
+    color: #666666;
+}
+.badge-expired {
+    background: rgba(216, 2, 40, 0.16);
+    color: #D80228;
 }
 /* Icons */
 .caret, .caret-inv {
@@ -298,6 +325,8 @@ div.value {
     background-image: url('/img/icon-denom.svg');
     width: 22px;
     height: 22px;
+}
+.icon-denom.menu-icon {
     top: 5px;
 }
 .icon-denom-alt {
@@ -336,6 +365,12 @@ div.value {
     height: 24px;
     top: 6px;
 }
+.icon-leap {
+    background-image: url('/img/icon-leap.svg');
+    width: 24px;
+    height: 24px;
+    top: 6px;
+}
 .icon-upload {
     background-image: url('/img/icon-upload.svg');
     width: 16px;
@@ -343,6 +378,11 @@ div.value {
 }
 .icon-warning {
     background-image: url('/img/icon-warning.svg');
+    width: 24px;
+    height: 24px;
+}
+.icon-warning-alt {
+    background-image: url('/img/icon-warning-alt.svg');
     width: 24px;
     height: 24px;
 }
@@ -354,10 +394,11 @@ div.value {
 .icon-domain-history-plus, 
 .icon-domain-history-minus, 
 .icon-domain-history-metadata, 
-.icon-domain-history-transfer {
+.icon-domain-history-transfer,
+.icon-domain-history-approvals-updated {
     width: 16px;
     height: 16px;
-    top: 1px;
+    top: 2px;
 }
 .icon-domain-history-plus {
     background-image: url('/img/icon-domain-history-plus.svg');
@@ -371,7 +412,9 @@ div.value {
 .icon-domain-history-transfer {
     background-image: url('/img/icon-domain-history-transfer.svg');
 }
-
+.icon-domain-history-approvals-updated {
+    background-image: url('/img/icon-domain-history-approvals-updated.svg');
+}
 /* Modals */
 .modal-wrapper {
     position: fixed;
@@ -406,11 +449,17 @@ div.value {
     right: 8%;
     top: 118px;
 }
+.modal-header {
+    border-bottom: none;
+}
 .modal-header .right .close-x {
     position: relative;
     top: -40px;
     font-size: 32px;
     font-weight: 300;
+}
+.modal-header .right .close-x.transfer-domain {
+    top: -75px;
 }
 .modali .modal-header {
     border: none;

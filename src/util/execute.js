@@ -2,7 +2,7 @@ import { coin } from "@cosmjs/stargate";
 import { Client } from './client';
 
 const REGISTRY_CONTRACT = process.env.VUE_APP_REGISTRY_CONTRACT;
-const BASE_DOMAIN_COST = 50;
+const BASE_DOMAIN_COST = 1000000000000000000; // 1 ARCH in `aarch`
 
 /**
  * Register a new domain tx
@@ -109,6 +109,7 @@ async function UpdateResolver(name, new_resolver, client = null) {
         new_resolver: new_resolver
       }
     };
+
     // Sender
     let accounts = await client.offlineSigner.getAccounts();
     // Broadcast tx
@@ -271,7 +272,7 @@ async function UpdateConfig(update_config, client = null) {
  * @returns {ExecuteResult}
  */
 async function Withdraw(amount, client = null) {
-  if (typeof amount !== 'number') return;
+  if (typeof amount !== 'number' && typeof amount !== 'bigint') return;
   if (amount <= 0) return;
   if (!client) client = await Client();
 

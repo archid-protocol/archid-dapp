@@ -1,16 +1,39 @@
 <template>
   <div class="loggedout" v-if="!connected">
-    <div class="logo">
+    <div class="logo col">
       <router-link to="/" @click="route = '/'; showNav = false;">
         <span class="icon icon-archid"></span>
         <span class="brand-a">Arch</span>
         <span class="brand-b">ID</span>
       </router-link>
     </div>
-    <div class="connect user">
+    <div class="middle nav quick-nav col">
+      <div>
+        <router-link 
+          to="/domains" 
+          type="button" 
+          :class="{'btn': true, 'btn-primary': route !== '/domains', 'btn-inverse': route == '/domains'}"
+          @click="route = '/domains';showNav = false;"
+        >All Domains</router-link>
+        <router-link 
+          to="/marketplace" 
+          type="button" 
+          :class="{'btn': true, 'btn-primary': route !== '/marketplace', 'btn-inverse': route == '/marketplace'}"
+          @click="route = '/marketplace';showNav = false;"
+        >Marketplace</router-link>
+      </div>
+    </div>
+    <div class="connect user col disconnected">
       <a id="connect_modal" class="btn btn-primary btn-show-modal pointer" @click="modal = !modal;">Connect Wallet</a>
       <div class="col disconnected">
-        <span :class="{'caret-inv': true, 'active': true}" v-if="!showNav" @click="showNav = !showNav;">&caron;</span>
+        <!-- <span :class="{'caret-inv': true, 'active': true, 'menu': true, 'default': true}" v-if="!showNav" @click="showNav = !showNav;">&caron;</span> -->
+        <span class="menu mobile caret-inv" v-if="!showNav" @click="showNav = !showNav;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M2 8H14" stroke="white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 4H14" stroke="white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 12H14" stroke="white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
         <span class="close-x menu" v-if="showNav" @click="showNav = !showNav;">&times;</span>
       </div>
     </div>
@@ -19,33 +42,64 @@
         <router-link to="/" @click="route = '/';showNav = false;">Home</router-link>
       </li>
       <li>
-        <router-link to="/domains" @click="route = '/domains';showNav = false;">Domains</router-link>
+        <router-link to="/domains" @click="route = '/domains';showNav = false;">All Domains</router-link>
+      </li>
+      <li>
+        <router-link to="/marketplace" @click="route = '/marketplace';showNav = false;">Marketplace</router-link>
       </li>
     </ul>
   </div>
   <div class="loggedin" v-else>
-    <div class="logo">
+    <div class="logo col">
       <router-link to="/" @click="route = '/'; showNav = false;">
         <span class="icon icon-archid"></span>
         <span class="brand-a">Arch</span>
         <span class="brand-b">ID</span>
       </router-link>
     </div>
-    <div class="connect user" v-if="accounts.length">
-      <a id="user_account">
-        <div class="menu-target main row">
-          <div class="col">
-            <span class="balance">{{ formatFromAtto(accounts[0].balance.amount) }}</span>
-            <span class="icon icon-denom"></span>
+    <div class="middle nav quick-nav col">
+      <div>
+        <router-link 
+          to="/domains" 
+          type="button" 
+          :class="{'btn': true, 'btn-primary': route !== '/domains', 'btn-inverse': route == '/domains'}"
+          @click="route = '/domains';showNav = false;"
+        >All Domains</router-link>
+        <router-link 
+          to="/marketplace" 
+          type="button" 
+          :class="{'btn': true, 'btn-primary': route !== '/marketplace', 'btn-inverse': route == '/marketplace'}"
+          @click="route = '/marketplace';showNav = false;"
+        >Marketplace</router-link>
+      </div>
+    </div>
+    <div class="connect user col" v-if="accounts.length">
+      <div class="balance col">
+        <div class="wallet-balance" :alt="formatFromAtto(accounts[0].balance.amount) + ' ARCH'" :title="formatFromAtto(accounts[0].balance.amount) + ' ARCH'">
+          <span class="balance">{{ balanceDisplayFormat(accounts[0].balance.amount) }}</span>
+          <span class="icon icon-denom menu-icon"></span>
+        </div>
+      </div>
+      <a id="user_account" class="col">
+        <div class="menu-target main">
+          <div class="account-name">
+            <span class="account-name">{{ accountName }}</span>
           </div>
-          <div class="col">
+          <div class="account-address">
             <span class="address">{{ accountDisplayFormat(accounts[0].address) }}</span>
           </div>
-          <div class="col">
-            <span :class="{'caret-inv': true, 'active': true}" v-if="!showNav" @click="showNav = !showNav;">&caron;</span>
-            <span class="close-x menu" v-if="showNav" @click="showNav = !showNav;">&times;</span>
-          </div>
-        </div>  
+        </div>
+        <div class="col">
+          <!-- <span :class="{'caret-inv': true, 'active': true, 'menu': true, 'default': true}" v-if="!showNav" @click="showNav = !showNav;">&caron;</span> -->
+          <span class="menu mobile connected caret-inv" v-if="!showNav" @click="showNav = !showNav;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M2 8H14" stroke="white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M2 4H14" stroke="white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M2 12H14" stroke="white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="close-x menu" v-if="showNav" @click="showNav = !showNav;">&times;</span>
+        </div>
       </a>
     </div>
     <ul class="navigation" v-if="showNav">
@@ -53,10 +107,13 @@
         <router-link to="/" @click="route = '/';showNav = false;">Home</router-link>
       </li>
       <li>
-        <router-link to="/domains" @click="route = '/domains';showNav = false;">Domains</router-link>
+        <router-link to="/domains" @click="route = '/domains';showNav = false;">All Domains</router-link>
       </li>
       <li>
         <router-link to="/my-domains" @click="route = '/my-domains';showNav = false;">My Domains</router-link>
+      </li>
+      <li>
+        <router-link to="/marketplace" @click="route = '/marketplace';showNav = false;">Marketplace</router-link>
       </li>
       <li>
         <div class="pointer disconnect" @click="disconnectWallet();">Logout</div>
@@ -100,6 +157,11 @@
                 class="btn-connect btn-cosmostation" 
                 @click="connectWallet('cosmostation');"
               ><span class="icon icon-cosmostation"></span>Cosmostation</li>
+              <li 
+                id="connect_leap" 
+                class="btn-connect btn-leap" 
+                @click="connectWallet('leap');"
+              ><span class="icon icon-leap"></span>Leap</li>
             </ul>
           </div>
           <div v-if="connecting">
@@ -119,12 +181,29 @@
                 class="btn-connect btn-cosmostation" 
                 v-if="walletType == walletTypes[1]"
               ><span class="icon icon-cosmostation"></span>Cosmostation</li>
+              <li 
+                id="connect_leap" 
+                class="btn-connect btn-leap" 
+                v-if="walletType == walletTypes[2]"
+              ><span class="icon icon-leap"></span>Leap</li>
             </ul>
             <div class="loading default"></div>
             <div class="cancel reset">
               <p class="cancel" @click="connectCancel();">Cancel</p>
             </div>
           </div>
+
+          <!-- Ledger PSA -->
+          <div class="warning warning-msg row" v-if="warning.display">
+            <div class="col left">
+              <span class="icon icon-warning-alt"></span>
+            </div>
+            <div class="col right">
+              <p class="warning title" v-if="warning.title">{{ warning.title }}</p>
+              <p class="warning msg" v-if="warning.body">{{ warning.body }}</p>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -152,6 +231,7 @@ import Footer from './components/children/Footer.vue';
 const WALLET_DOWNLOADS = {
   keplr: 'https://www.keplr.app/download',
   cosmostation: 'https://cosmostation.io/wallet',
+  leap: 'https://www.leapwallet.io/cosmos'
 };
 
 export default {
@@ -160,9 +240,10 @@ export default {
   data: () => ({
     cwClient: null,
     accounts: [],
+    accountName: null,
     connected: false,
     connecting: false,
-    walletTypes: ['keplr', 'cosmostation'],
+    walletTypes: ['keplr', 'cosmostation', 'leap'],
     walletType: null,
     archx: false,
     modal: false,
@@ -174,6 +255,11 @@ export default {
       title: null,
       msg: null,
       img: null,
+    },
+    warning: {
+      title: null,
+      body: null,
+      display: false,
     },
     formatFromAtto: FromAtto,
   }),
@@ -198,6 +284,7 @@ export default {
       try {
         this.cwClient = await Client(this.walletType);
         this.accounts = await Accounts(this.cwClient);
+        if (this.cwClient.accountData['name']) this.accountName = this.cwClient.accountData.name;
         if (!this.accounts[0].address) return;
         this.connected = true;
         this.connecting = false;
@@ -228,6 +315,7 @@ export default {
           let walletType = sessionStorage.getItem("connected");
           this.cwClient = await Client(walletType);
           this.accounts = await Accounts(this.cwClient);
+          if (this.cwClient.accountData['name']) this.accountName = this.cwClient.accountData.name;
           // console.log('App', {cwClient: this.cwClient, accounts: this.accounts, walletType: walletType});
         }, 100);
       } catch (e) {
@@ -264,6 +352,12 @@ export default {
         console.error('Error resolving wallet balance', e);
       }
     },
+    balanceDisplayFormat: function (balance = null) {
+      if (!balance) return "";
+      let archBalance = FromAtto(balance);
+      if (archBalance < 1) return archBalance;
+      return archBalance.toLocaleString("en");
+    },
     accountDisplayFormat: function (account = null) {
       if (!account) return "";
       return account.slice(0,12) + "..." + account.slice(-5);
@@ -287,9 +381,6 @@ li a {
 }
 li a:hover, .wallet-connect li:hover, li .disconnect:hover {
   opacity: 0.75;
-}
-#connect_modal {
-  float: right;
 }
 .loggedout {
   clear: both;
@@ -336,7 +427,12 @@ div.logo, div.logo a {
   clear: both;
   display: inline-block;
 }
+#connect_modal {
+  margin-right: 0.5em;
+}
 #user_account {
+  top: -28px;
+  position: relative;
   color: #ffffff;
 }
 span.address {
@@ -348,16 +444,32 @@ span.address {
   color: rgba(255, 255, 255, 0.6);
   margin-right: 20px;
 }
-.caret-inv {
-  float: right;
-}
 .caret-inv, .close-x.menu {
-  top: -25px;
   position: relative;
 }
+.caret-inv {
+  float: right;
+  top: -50px;
+  position: relative;
+  left: 10px;
+  font-weight: 200;
+  font-size: 40px;
+}
+.disconnected .caret-inv {
+  top: -45px;
+}
+.close-x.menu {
+  top: -40px;
+  left: 8px;
+  position: relative;
+  font-size: 20px;
+  font-weight: 200;
+}
 .col.disconnected span {
-  color: white;
-  top: 7px;
+  color: #FFFFFF;
+}
+.disconnected .close-x {
+  top: -34px;
 }
 .icon-denom {
   margin-left: 3px;
@@ -415,5 +527,52 @@ div.cancel.reset {
   font-weight: 400;
   font-size: 16px;
   line-height: 150%;
+}
+div.warning.warning-msg {
+  display: flex;
+  padding: 16px;
+  align-items: center;
+  gap: 16px;
+  align-self: stretch;
+  border-radius: 8px;
+  border: 1px solid #FF4D00;
+  margin-left: 8px;
+  margin-right: 16px;
+}
+div.warning .col.left {
+  max-width: 30px;
+}
+p.warning {
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 120%;
+}
+p.warning.title {
+  color: #FF4D00;
+}
+div.account-name {
+  position: relative;
+  right: 20px;
+}
+div.wallet-balance {
+  color: #FFFFFF;
+  text-align: center;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 150%;
+  letter-spacing: -0.16px;
+  top: 11px;
+  position: relative;
+}
+a.btn-primary:focus {
+  color: #FFFFFF;
+}
+a.btn-inverse:focus {
+  color: #FF4D00
+}
+.menu.mobile {
+  display: inline-block;
 }
 </style>

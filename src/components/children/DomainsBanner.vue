@@ -1,15 +1,18 @@
 <template>
   <div class="domain-banner">
-    <div class="title" v-if="title">
+    <div class="title domains" v-if="title">
       <h3>{{title}}</h3>
     </div>
     <div class="search">
-      <div class="type-filter left">
+      <div class="type-filter left" v-if="context == contexts.user">
         <div class="button-group select-expiry">
           <a :class="{'active': search.type == 0, 'btn-all-domains': true}" @click="typeSearchHandler(0);">All</a>
-          <a :class="{'active': search.type == 1, 'btn-active-domains': true, 'disabled': true}" disabled>Active</a>
-          <a :class="{'active': search.type == 2, 'btn-expired-domains': true, 'disabled': true}" disabled>Expired</a>
+          <a :class="{'active': search.type == 1, 'btn-active-domains': true}" @click="typeSearchHandler(1);">Active</a>
+          <a :class="{'active': search.type == 2, 'btn-expired-domains': true}" @click="typeSearchHandler(2);">Expired</a>
         </div>
+      </div>
+      <div class="token-info left" v-if="context == contexts.all">
+        <p v-if="!search.text"><strong>Total domains:</strong><br/>{{ totalDomains }}</p>
       </div>
       <div class="text-filter right">
         <input 
@@ -32,7 +35,8 @@ const MY_DOMAINS_CONTEXT = 1;
 export default {
   props: {
     title: String,
-    context: Number
+    context: Number,
+    collectionSize: Number,
   },
   emits: ['filter'],
   data: () => ({
@@ -56,6 +60,12 @@ export default {
       this.$emit('filter', this.search);
     },
   },
+  computed: {
+    totalDomains: function () {
+      if (typeof this.collectionSize !== 'number') return '';
+      else return this.collectionSize.toLocaleString();
+    }
+  }
 }
 </script>
 
@@ -128,5 +138,8 @@ div.search {
 }
 .disabled {
   cursor: not-allowed !important;
+}
+.token-info {
+  color: rgba(0, 0, 0, 0.667);
 }
 </style>

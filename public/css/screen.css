@@ -1,9 +1,9 @@
 @media screen and (max-width: 1600px) {
     div.logo {
-        left: 10%;
+        left: 11%;
     }
     div.user.connect {
-        right: 10%;
+        right: 11%;
     }
 }
 
@@ -24,33 +24,78 @@
 
 @media screen and (max-width: 1000px) {
     div.logo {
-        left: 12%;
+        left: 13%;
     }
     div.user.connect {
-        right: 12%;
+        right: 13%;
     }
 }
 
 @media screen and (max-width: 700px) {
     div.logo {
-        left: 14%;
+        left: 15%;
     }
     div.user.connect {
-        right: 14%;
+        right: 15%;
     }
 }
 
 @media (max-width: 660px) {
+    /* BANNERS / MENU */
+    .col.disconnected span {
+        position: relative;
+    }
+    .menu.default {
+        display: none !important;
+    }
+    .menu.mobile.connected svg {
+        top: -38px;
+    }
+    ul.navigation, 
+    .modalr {
+        top: 100px !important;
+    }
+    div.middle.quick-nav,
+    div.connect.user div.balance.col {
+        display: none;
+    }
+    div.logo {
+        left: 11%;
+        top: 5%;
+    }
+    div.user.connect {
+        right: 11%;
+    }
+    div.connect.disconnected {
+        top: 4.5%;
+    }
+    div.title h3 {
+        font-size: 31px !important;
+    }
+    .domain-banner,
+    .domain-banner-i,
+    .marketplace-banner {
+        max-height: 160px;
+    }
+    div.domain-banner .wrapper div.title {
+        padding-top: 32px;
+    }
+    .domain-banner .search,
+    .address-banner .search,
+    .marketplace-banner .search {
+        display: none;
+    }
+
     /* HOME PAGE */
     div.page {
-        max-width: 100vw;
+        max-width: 95vw;
+        margin-top: 0.5em;
         padding: 0;
     }
     div.welcome.banner, .content-3-banner .bottom-banner {
         height: auto;
         padding-left: 3em;
         padding-right: 3em;
-        border-radius: unset !important;
     }
     .welcome-banner .welcome.sm {
         min-height: unset;
@@ -69,9 +114,8 @@
         font-size: 50px !important;
         word-break: break-word;
     }
-    div.title {
+    div.title.home {
         margin-top: 5em;
-        margin-bottom: 2em;
     }
     .home-badge {
         min-width: 90vw !important;
@@ -133,23 +177,15 @@
     }
 
     /* DOMAINS */
-    .domain-banner .search {
-        display: none;
-    }
-    .domain-banner .domain-banner {
-        border-radius: unset !important;
-    }
     ul.domains li {
         margin-left: 0.5em;
         margin-right: 0.5em;
     }
 
+    .domain-banner .domain-banner,
+    .domain-banner .wrapper .domain-banner-i
+
     /* DOMAIN */
-    .domain-banner .wrapper .domain-banner-i {
-        border-radius: unset !important;
-        margin-left: -1px;
-        margin-right: -1px;
-    }
     div.page .token-metadata, div.page .domain-history {
         margin-left: 0.5em;
         margin-right: 0.5em;
@@ -158,7 +194,6 @@
         width: 20px;
         height: 20px;
         padding: 27px !important;
-        top: -80px !important;
         font-size: 30px !important;
     }
     div.add span {
@@ -178,7 +213,8 @@
     .row.edit-ctrl .left, .row.edit-ctrl .right {
         width: 100% !important;
     }
-    .domain-banner .wrapper h3, .domain-item .head .left a {
+    .domain-banner .wrapper h3, 
+    .domain-item .head .left a {
         font-size: 30px;
     }
     .page .token-metadata, .domain-history {
@@ -187,6 +223,64 @@
     }
     .domain-history {
         margin-bottom: 2em;
+    }
+
+    /* LIST ITEMS */
+    .domain-item.collapsible {
+        overflow: hidden;
+    }
+    .domain-item.collapsible .head {
+        display: flex;
+        flex-direction: row;
+    }
+    .domain-item.collapsible .head .left,
+    .domain-item.collapsible .head .right {
+        display: flex;
+        flex-direction: row;
+        word-break: break-all;
+    }
+    .market-item.collapsible .head .left,
+    .market-item.collapsible .head .right {
+        width: 50%;
+    }
+    .head .right {
+        justify-content: flex-end;
+    }
+    .right .status {
+        top: 1em !important;
+        margin-bottom: 2em;
+    }
+    div.right .caret:not(.active) {
+        top: 10px !important;
+    }
+    ul.swaps li {
+        padding: 1em !important;
+    }
+    .market-item.collapsible .head .right .caret.col {
+        max-width: fit-content;
+    }
+    .market-item.collapsible .head .right .caret.active {
+        top: -43px !important;
+    }
+    .col.parent-details {
+        display: flex;
+        flex-direction: row;
+    }
+    .finalize-swap.parent-details {
+        display: none !important;
+    }
+    .chevron-left, 
+    .chevron-right {
+        top: unset !important;
+    }
+    .market-item.collapsible .head.connected,
+    .market-item.collapsible .body {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        margin-bottom: 1em;
+        padding-bottom: 1.25em;
+    }
+    .mobile.swap-actions {
+        display: flex !important;
     }
 
     /* MODALS */
@@ -201,5 +295,12 @@
     }
     .modal-body .right span.icon-denom {
         top: unset;
+    }
+
+    /* PAGINATION */
+    .paging .paging-items.row {
+        margin-left: unset;
+        margin-right: unset;
+        padding-right: 1em;
     }
 }

@@ -5,13 +5,14 @@
       <DomainsBanner
         v-bind:title="title"
         v-bind:context="0"
+        v-bind:collectionSize="tokenQuantity"
         @filter="filter"
       >
       </DomainsBanner>
     </div>
 
     <!-- Domains -->
-    <div v-if="tokens.length">
+    <div v-if="tokens.length && searchThreshold !== false">
       <ul class="domains">
         <li v-for="(domain, i) in domainsList" :key="i">
           <DomainListEntry
@@ -30,23 +31,28 @@
       <div class="paging row">
         <div class="paging-items row">
           <div class="col left">
-            <button :class="{'chevron-left': true, 'pointer': page > 0, 'disabled': page <= 0}" @click="page = page - 1;" :disabled="page <= 0"></button>
+            <button :class="{'chevron-left': true, 'pointer': page > 0, 'disabled': page <= 0}" @click="pageHandler((page - 1));" :disabled="page <= 0"></button>
           </div>
           <div class="col mid">
             <div class="paging-display">
-              <div class="page-select-wrapper">
+              <div class="page-select-wrapper" v-if="filteredTokens && search">
                 <select class="page-select"  @change="onChange($event)" v-model="page">
                   <option class="page-select-option form-control" v-for="(pageOption, i) in totalPages" :key="'page-option-'+i" :value="i">{{ String(i+1) }}</option>
                 </select>
               </div>
+              <div class="page-display-wrapper" v-if="!search">
+                <span>{{ (page + 1) }}</span>
+              </div>
             </div>
           </div>
           <div class="col right">
-            <button :class="{'chevron-right': true, 'pointer': page < (totalPages - 1), 'disabled': page >= (totalPages - 1)}" @click="page = page + 1" :disabled="page >= (totalPages - 1)"></button>
+            <button :class="{'chevron-right': true, 'pointer': page < (totalPages - 1), 'disabled': page >= (totalPages - 1)}" @click="pageHandler((page + 1));" :disabled="page >= (totalPages - 1)"></button>
           </div>
         </div>
       </div>
     </div>
+
+    <div v-if="tokens.length && searchThreshold == false"></div>
 
     <!-- No Domains were found -->
     <div v-if="!tokens.length">
@@ -58,13 +64,13 @@
 <script>
 import { Client, Accounts } from '../util/client';
 import { Config, ResolveAddress } from '../util/query';
-import { NumTokens, Tokens } from '../util/token';
+import { NumTokens, TokensOf, Tokens, Token } from '../util/token';
 import * as Paging from '../util/pagination';
 
 import DomainsBanner from './children/DomainsBanner.vue';
 import DomainListEntry from './children/DomainListEntry.vue';
 
-const LIMIT = 500;
+const LIMIT = 10;
 
 export default {
   name: 'Domains',
@@ -75,10 +81,12 @@ export default {
     config: null,
     cw721: null,
     tokens: [],
+    tokenQuantity: null,
     filteredTokens: [],
     search: null,
+    searchThreshold: null,
     loaded: false,
-    title: 'Domains',
+    title: 'All Domains',
     page: 0,
     pageSize: Paging.DEFAULT_PAGE_SIZE,
     pageSizes: Paging.ALL_PAGE_SIZES,
@@ -116,36 +124,38 @@ export default {
       return;
     },
     tokenIds: async function () {
+      if (typeof this.page !== 'number') return;
       if (!this.cw721) await this.setTokenContract();
       // Total tokens
       let total = await NumTokens(this.cw721, this.cwClient);
       total = (total['count']) ? total.count : 0;
       if (!total || typeof total !== 'number') return;
-      // Load tokens
-      if (total > LIMIT) {
-        let pages = Math.ceil(total / LIMIT);
-        for (let i = 0; i < pages; i++) {
-          let start = (i > 0) ? this.tokens[this.tokens.length - 1] : null;
-          let query = await Tokens(this.cw721, this.cwClient, LIMIT, start);
-          if (query['tokens']) this.tokens = [...this.tokens, ...query.tokens];
-        }
-      } else {
-        let query = await Tokens(this.cw721, this.cwClient);
-        this.tokens = (query['tokens']) ? query.tokens : [];
-      }
-      // console.log('Tokens query', this.tokens);
+      this.tokenQuantity = total;
+      // Load tokens page
+      if (this.page > (total / LIMIT)) this.page = Math.floor(total / LIMIT);
+      let start = (this.page > 0) ? this.tokens[this.tokens.length - 1] : null;
+      let query = await Tokens(this.cw721, this.cwClient, LIMIT, start);
+      this.tokens = (query['tokens']) ? query.tokens : [];
+      // console.log('Query page', {
+      //   start: start,
+      //   limit: LIMIT,
+      //   query: query,
+      //   tokens: this.tokens,
+      //   tokenQuantity: this.tokenQuantity
+      // });
     },
 
     // Filter
     filter: function (filters) {
       if (!this.tokens.length) return;
-      // console.log('Update filters', filters);
+      this.searchThreshold = null;
+      this._collapseDomainListItems();
       if (filters.text) {
+        this.searchThreshold = (filters.text.length >= 3) ? true : false;
         switch (filters.text.length) {
           case 0:
           case 1:
-          case 2:
-          case 3: {
+          case 2: {
             if (this.search) this.search = null;
             break;
           }
@@ -161,36 +171,75 @@ export default {
           }
         }
       } else {
-        this.search = null;
+        if (this.search) this.search = null;
       }
     },
-    _domainSearch: function (filters) {
-      let filteredTokens = [];
+    pageHandler: async function (page) {
+      if (typeof page !== 'number') return;
+      this._collapseDomainListItems();
+      this.page = page;
+      await this.tokenIds();
+    },
+    _collapseDomainListItems: function () {
+      if (!document) return;
+      let htmlCollection = document.getElementsByClassName("caret active");
+      if (!htmlCollection.length) return;
+      for (let i = 0; i < htmlCollection.length; i++) {
+        htmlCollection[0].click();
+      }
+    },
+    _domainSearch: async function (filters) {
+      let tokenSearch = null;
+      let textFilter = null;
+      let domainSuffix = ".arch";
       this.page = 0;
-      if (!filters.text) return this.search = null;
-      // Text filter
-      for (let i = 0; i < this.tokens.length; i++) {
-        if (this.tokens[i].includes(filters.text)) {
-          filteredTokens.push(this.tokens[i]);
-        }
-        if (i == (this.tokens.length - 1)) {
-          this.filteredTokens = filteredTokens;
-          this.search = filters.text;
-          // console.log(this.filteredTokens);
-        }
+      if (!this.cwClient || typeof filters !== 'object') return this.search = null;
+      else if (!filters.text) return this.search = null;
+      else if (filters.text.length < 5) textFilter = filters.text + domainSuffix;
+      else if (filters.text.slice(-5) !== domainSuffix) textFilter = filters.text + domainSuffix;
+      else textFilter = filters.text;
+      try {
+        if (!this.cw721) await this.setTokenContract();
+        tokenSearch = await Token(textFilter, this.cw721, this.cwClient);
+        if (tokenSearch['extension']) this.filteredTokens = [tokenSearch.extension.domain];
+        else this.filteredTokens = [];
+        this.search = true;
+      } catch(e) {
+        console.error(`Token search for ${filters.text} failed`, e);
+        return;
       }
     },
     _addressSearch: async function (filters) {
       this.page = 0;
       if (typeof filters.text !== 'string') return this.search = null;
       if (filters.text.length !== 46 && filters.text.length !== 66) return this.search = null;
+
+      // Resolved Domains
       let query = await ResolveAddress(filters.text, this.cwClient);
       this.filteredTokens = (query['names']) ? query.names : [];
-      if (!this.filteredTokens.length) this.search = null;
-      else this.search = true;
+
+      // Owned Domains
+      let finished = false, i = 0, tokens = [], limit = 100;
+      do {
+        let start = (i > 0) ? tokens[tokens.length - 1] : null;
+        let query = await TokensOf(this.cw721, filters.text, this.cwClient, limit, start);
+        i++;
+        if (!Array.isArray(query['tokens'])) finished = true;
+        else if (!query.tokens.length) finished = true;
+        else tokens = [...tokens, ...query.tokens];
+      } while (!finished);  
+      if (tokens.length) {
+        tokens.forEach((domain) => {
+          if (this.filteredTokens.indexOf(domain) == -1) this.filteredTokens.push(domain);
+        });
+      }
+      
+      this.search = true;
       // console.log('Address search query', query, this.filteredTokens);
     },
-    onChange(event) {
+    async onChange(event) {
+      if (!this.filteredTokens || !this.search) return;
+      this._collapseDomainListItems();
       this.page = parseInt(event.target.value);
     },
 
@@ -201,23 +250,25 @@ export default {
     },
   },
   computed: {
-    domainsList: function () {
-      let domains, start, end;
-      if (this.search) domains = this.filteredTokens;
-      else domains = this.tokens;
-      if (this.page == 0) {
-        start = 0;
-        end = this.pageSize;
-      } else {
-        start = (this.page * this.pageSize);
-        end = (this.page * this.pageSize) + this.pageSize;
-      }
-      return domains.slice(start, end);
-    },
     totalPages: function () {
-      if (!this.tokens.length) return 0;
-      return Math.ceil((this.tokens.length / this.pageSize));
+      // Searching
+      if (this.search && !this.filteredTokens) return 0;
+      else if (this.search && this.filteredTokens) return Math.ceil((this.filteredTokens.length / this.pageSize));
+      // Not searching / Default display
+      else if (!this.tokenQuantity) return 0;
+      else return Math.ceil((this.tokenQuantity / this.pageSize));
     },
+    domainsList: function () {
+      // Searching
+      if (this.filteredTokens && this.search) {
+        let start = (this.page == 0) ? 0 : this.page * LIMIT;
+        let end = start + LIMIT;
+        return this.filteredTokens.slice(start, end);
+      }
+      // Not searching / Default display
+      else if (this.tokens) return this.tokens;
+      else return [];
+    }
   },
 }
 </script>

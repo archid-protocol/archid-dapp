@@ -21,6 +21,7 @@
             v-bind:isReadOnly="true"
             v-bind:baseCost="parseInt(config.base_cost)"
             v-bind:collapsible="false"
+            v-bind:status="statuses[domain]"
             @dataResolution="dataResolution"
             :key="domain"
           >
@@ -50,6 +51,7 @@
 import { Client, Accounts } from '../util/client';
 import { Config, ResolveRecord } from '../util/query';
 import { Token, OwnerOf, HistoryOf } from '../util/token';
+import { Query as MarketplaceQuery } from '../util/marketplace';
 
 import DomainBanner from './children/DomainBanner.vue';
 import DomainListEntry from './children/DomainListEntry.vue';
@@ -60,12 +62,13 @@ export default {
   components: { DomainBanner, DomainListEntry, HistoryListEntry },
   data: () => ({
     cwClient: null,
-    accounts: null,
+    accounts: [],
     config: null,
     cw721: null,
     token: {},
     owner: null,
     domain: null,
+    statuses: {},
     history: [],
     domainRecord: {},
     renderBanner: 0,
@@ -88,9 +91,10 @@ export default {
           // console.log('Token client', {cwClient: this.cwClient, accounts: this.accounts, walletType: walletType});
 
           // Load token data
-          this.tokenData();
-          this.ownerData();
-          this.resolveDomainRecord();
+          await this.tokenData();
+          await this.ownerData();
+          await this.resolveDomainRecord();
+          await this.tokenStatuses();
           this.historyData();
         }, 100);
       } catch (e) {
@@ -119,6 +123,21 @@ export default {
       if (!this.cw721) await this.setTokenContract();
       this.owner = await OwnerOf(this.$route.params.id, this.cw721, this.cwClient);
       // console.log('Token owner query', this.owner);
+    },
+    tokenStatuses: async function () {
+      if (!this.domain || !this.domainRecord) return;
+      let swap = await MarketplaceQuery.Details(this.domain, this.cwClient);
+      let isMismatch = false;
+      if (this.owner) {
+        isMismatch = (this.domainRecord.address !== this.owner.owner);
+      }
+      this.statuses[this.domain] = {
+        expiration: this.domainRecord.expiration,
+        isExpired: new Date().getTime() > (this.domainRecord.expiration * 1000),
+        address: this.domainRecord.address,
+        isMismatch: isMismatch,
+        isListed: (swap['error']) ? false : true
+      };
     },
     historyData: async function () {
       if (!this.$route.params.id || typeof this.$route.params.id !== 'string') return;

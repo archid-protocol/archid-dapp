@@ -648,7 +648,7 @@ export default {
     },
     executeWithdraw: async function () {
       if (!this.params.execute.Withdraw.amount) return;
-      let withdrawAmount = ToAtto(Number(this.params.execute.Withdraw.amount));
+      let withdrawAmount = ToAtto(Number(this.params.execute.Withdraw.amount), true);
       this.result.execute = await Withdraw(
         withdrawAmount,
         this.cwClient
