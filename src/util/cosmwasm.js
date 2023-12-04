@@ -105,6 +105,7 @@ async function leapClient() {
   return client;
 }
 
+// Nomos
 const NomosConfig = {
   chainId: Blockchain.chainId,
   rpcEndpoint: Blockchain.rpc,
@@ -112,17 +113,25 @@ const NomosConfig = {
   gasPrice: GasPrice.fromString("900000000000aconst"),
   gasAdjustment: 1.4,
 };
+const getNomosWasmClient = async function () {
+  if (!window) return {};
+  let clientInstance = await setupWebKeplr(NomosConfig);
+  const nomosClient = new Nomos();
+  await nomosClient.init(clientInstance);
+  let offlineSigner = nomosClient.provider.signer;
+  const isIframe = window !== window.parent;
+  const client = isIframe
+    ? await SigningArchwayNomosClient.connectWithSigner(Blockchain.rpc, offlineSigner,{ gasAdjustment: 1.4 })
+    : await SigningArchwayClient.connectWithSigner(Blockchain.rpc, offlineSigner);
+  return client;
+}
 async function nomosClient () {
   let clientInstance = await setupWebKeplr(NomosConfig);
   const nomosClient = new Nomos();
   await nomosClient.init(clientInstance);
   client.offlineSigner = nomosClient.provider.signer;
   // client.wasmClient = nomosClient.provider;
-  client.wasmClient = await SigningArchwayNomosClient.connectWithSigner(
-    Blockchain.rpc, 
-    client.offlineSigner,
-    { gasAdjustment: 1.4 }
-  );
+  client.wasmClient = getNomosWasmClient;
   // Account display name
   client.accountData = await window.keplr.getKey(Blockchain.chainId);
   if (client.accountData['name']) client.accountData.name += " (msig)";
