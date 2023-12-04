@@ -1,6 +1,7 @@
 import { SigningArchwayClient } from '@archwayhq/arch3.js';
 import { MainnetInfo } from '../chains/mainnet';
 import { ConstantineInfo } from '../chains/testnet.constantine';
+import { Nomos } from 'nomosjs';
 
 const Testnet = ConstantineInfo;
 const Mainnet = MainnetInfo;
@@ -103,6 +104,71 @@ async function leapClient() {
   return client;
 }
 
+async function nomosClient (parentProvider) {
+  if (!window) return {};
+  switch (parentProvider) {
+    case 'keplr': {
+      if (!window['keplr']) return {};
+      await window.keplr.experimentalSuggestChain(Blockchain);
+      await window.keplr.enable(Blockchain.chainId);
+      window.keplr.defaultOptions = {
+        sign: {
+          preferNoSetFee: true,
+        }
+      };
+      client.offlineSigner = await window.getOfflineSignerAuto(Blockchain.chainId);
+      client.accountData = await window.keplr.getKey(Blockchain.chainId);
+      break;
+    }
+    case 'leap': {
+      if (!window['leap']) return {};
+      let chainData = Blockchain;
+      chainData.coinType = 118;
+      chainData.bip44 = {
+        coinType: 118
+      };
+      await window.leap.experimentalSuggestChain(chainData);
+      await window.leap.enable(Blockchain.chainId);
+      window.leap.defaultOptions = {
+        sign: {
+          preferNoSetFee: true,
+        }
+      };
+      client.offlineSigner = await window.leap.getOfflineSignerAuto(Blockchain.chainId);
+      client.accountData = await window.leap.getKey(Blockchain.chainId);
+      break;
+    }
+    case 'cosmostation': {
+      if (!window['cosmostation']) return {};
+      // User must authorize "experimental" chain
+      await window.cosmostation.providers.keplr.experimentalSuggestChain(Blockchain);
+      await window.cosmostation.providers.keplr.enable(Blockchain.chainId);
+
+      // Default options
+      window.cosmostation.providers.keplr.defaultOptions = {
+        sign: {
+          preferNoSetFee: true,
+        }
+      };
+      client.offlineSigner = await window.cosmostation.providers.keplr.getOfflineSignerAuto(Blockchain.chainId);
+      client.accountData = await window.cosmostation.providers.keplr.getKey(Blockchain.chainId);
+      break;
+    }
+    default: {
+      return { error: "Invalid prov"};
+    }
+  }
+  // Bootstrap client
+  let signingClient = await SigningArchwayClient.connectWithSigner(
+    Blockchain.rpc,
+    client.offlineSigner,
+    { gasAdjustment: 1.4 }
+  );
+  const nomos = new Nomos();
+  client.wasmClient = await nomos.init(signingClient);
+  return client;
+}
+
 async function offlineClient() {
   const Blockchain = (IsTestnet) ? Testnet : Mainnet;
   let cwClient = await SigningArchwayClient.connectWithSigner(Blockchain.rpc, null);
@@ -120,6 +186,7 @@ export {
   cosmostationClient,
   keplrClient,
   leapClient,
+  nomosClient,
   offlineClient,
   IsTestnet
 };

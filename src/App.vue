@@ -162,6 +162,14 @@
                 class="btn-connect btn-leap" 
                 @click="connectWallet('leap');"
               ><span class="icon icon-leap"></span>Leap</li>
+
+              <!-- //here -->
+              <li 
+                id="connect_nomos" 
+                class="btn-connect btn-nomos" 
+                @click="connectWallet('nomos');"
+              ><span class="icon icon-nomos"></span>Nomos</li>
+
             </ul>
           </div>
           <div v-if="connecting">
@@ -186,6 +194,14 @@
                 class="btn-connect btn-leap" 
                 v-if="walletType == walletTypes[2]"
               ><span class="icon icon-leap"></span>Leap</li>
+
+              <!-- //here -->
+              <li 
+                id="connect_nomos" 
+                class="btn-connect btn-nomos" 
+                 v-if="walletType == walletTypes[3]"
+              ><span class="icon icon-nomos"></span>Nomos</li>
+
             </ul>
             <div class="loading default"></div>
             <div class="cancel reset">
@@ -231,7 +247,8 @@ import Footer from './components/children/Footer.vue';
 const WALLET_DOWNLOADS = {
   keplr: 'https://www.keplr.app/download',
   cosmostation: 'https://cosmostation.io/wallet',
-  leap: 'https://www.leapwallet.io/cosmos'
+  leap: 'https://www.leapwallet.io/cosmos',
+  nomos: 'https://nomos.ms',
 };
 
 export default {
@@ -243,7 +260,8 @@ export default {
     accountName: null,
     connected: false,
     connecting: false,
-    walletTypes: ['keplr', 'cosmostation', 'leap'],
+    walletTypes: ['keplr', 'cosmostation', 'leap', 'nomos'],
+    nomosTypes: ['keplr', 'cosmostation', 'leap'],
     walletType: null,
     archx: false,
     modal: false,
@@ -283,6 +301,9 @@ export default {
 
       try {
         this.cwClient = await Client(this.walletType);
+
+        console.log(this.cwClient);
+
         this.accounts = await Accounts(this.cwClient);
         if (this.cwClient.accountData['name']) this.accountName = this.cwClient.accountData.name;
         if (!this.accounts[0].address) return;
