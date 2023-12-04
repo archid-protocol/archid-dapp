@@ -11,7 +11,7 @@ import {
  * @param {String} wallet : Supported wallet values are; 'keplr', 'leap', 'cosmostation', 'offline'
  * @returns {SigningCosmWasmClient}
  */
- async function Client(wallet = 'keplr', nomosProvider = 'keplr') {
+ async function Client(wallet = 'keplr') {
   let client;
   switch (wallet) {
     case 'cosmostation': {
@@ -27,7 +27,7 @@ import {
       break;
     }
     case 'nomos': {
-      client = await nomosClient(nomosProvider);
+      client = await nomosClient();
       break;
     }
     case 'offline': {
