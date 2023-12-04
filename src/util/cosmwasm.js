@@ -1,7 +1,7 @@
 import { SigningArchwayClient } from '@archwayhq/arch3.js';
 import { MainnetInfo } from '../chains/mainnet';
 import { ConstantineInfo } from '../chains/testnet.constantine';
-import { setupWebKeplr } from "cosmwasm";
+import { setupWebKeplr, GasPrice } from "cosmwasm";
 import { Nomos } from 'nomosjs';
 
 const Testnet = ConstantineInfo;
@@ -109,6 +109,8 @@ const NomosConfig = {
   chainId: Blockchain.chainId,
   rpcEndpoint: Blockchain.rpc,
   prefix: "archway",
+  gasPrice: GasPrice.fromString("900000000000aconst"),
+  gasAdjustment: 1.4,
 };
 async function nomosClient () {
   let clientInstance = await setupWebKeplr(NomosConfig);
