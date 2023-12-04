@@ -2,7 +2,7 @@ import { SigningArchwayClient } from '@archwayhq/arch3.js';
 import { MainnetInfo } from '../chains/mainnet';
 import { ConstantineInfo } from '../chains/testnet.constantine';
 import { setupWebKeplr, GasPrice } from "cosmwasm";
-import { Nomos } from 'nomosjs';
+import { Nomos, SigningArchwayNomosClient } from 'nomosjs';
 
 const Testnet = ConstantineInfo;
 const Mainnet = MainnetInfo;
@@ -116,8 +116,13 @@ async function nomosClient () {
   let clientInstance = await setupWebKeplr(NomosConfig);
   const nomosClient = new Nomos();
   await nomosClient.init(clientInstance);
-  client.wasmClient = nomosClient.provider;
   client.offlineSigner = nomosClient.provider.signer;
+  // client.wasmClient = nomosClient.provider;
+  client.wasmClient = await SigningArchwayNomosClient.connectWithSigner(
+    Blockchain.rpc, 
+    client.offlineSigner,
+    { gasAdjustment: 1.4 }
+  );
   // Account display name
   client.accountData = await window.keplr.getKey(Blockchain.chainId);
   if (client.accountData['name']) client.accountData.name += " (msig)";
