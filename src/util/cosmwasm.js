@@ -113,25 +113,25 @@ const NomosConfig = {
   gasPrice: GasPrice.fromString("900000000000aconst"),
   gasAdjustment: 1.4,
 };
-const getNomosWasmClient = async function () {
-  if (!window) return {};
-  let clientInstance = await setupWebKeplr(NomosConfig);
-  const nomosClient = new Nomos();
-  await nomosClient.init(clientInstance);
-  let offlineSigner = nomosClient.provider.signer;
-  const isIframe = window !== window.parent;
-  const client = isIframe
-    ? await SigningArchwayNomosClient.connectWithSigner(Blockchain.rpc, offlineSigner,{ gasAdjustment: 1.4 })
-    : await SigningArchwayClient.connectWithSigner(Blockchain.rpc, offlineSigner);
-  return client;
-}
+// const getNomosWasmClient = async function () {
+//   if (!window) return {};
+//   let clientInstance = await setupWebKeplr(NomosConfig);
+//   const nomosClient = new Nomos();
+//   await nomosClient.init(clientInstance);
+//   let offlineSigner = nomosClient.provider.signer;
+//   const isIframe = window !== window.parent;
+//   const client = isIframe
+//     ? await SigningArchwayNomosClient.connectWithSigner(Blockchain.rpc, offlineSigner,{ gasAdjustment: 1.4 })
+//     : await SigningArchwayClient.connectWithSigner(Blockchain.rpc, offlineSigner);
+//   return client;
+// }
 async function nomosClient () {
   let clientInstance = await setupWebKeplr(NomosConfig);
   const nomosClient = new Nomos();
   await nomosClient.init(clientInstance);
   client.offlineSigner = nomosClient.provider.signer;
   // client.wasmClient = nomosClient.provider;
-  client.wasmClient = getNomosWasmClient;
+  client.wasmClient = (window !== window.parent) ? await SigningArchwayNomosClient.connectWithSigner(Blockchain.rpc, client.offlineSigner, { gasAdjustment: 1.4 }) : await SigningArchwayClient.connectWithSigner(Blockchain.rpc, client.offlineSigner, { gasAdjustment: 1.4 });
   // Account display name
   client.accountData = await window.keplr.getKey(Blockchain.chainId);
   if (client.accountData['name']) client.accountData.name += " (msig)";
