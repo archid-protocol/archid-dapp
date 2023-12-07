@@ -162,13 +162,17 @@
                 class="btn-connect btn-leap" 
                 @click="connectWallet('leap');"
               ><span class="icon icon-leap"></span>Leap</li>
-
-              <!-- //here -->
               <li 
                 id="connect_nomos" 
                 class="btn-connect btn-nomos" 
                 @click="connectWallet('nomos');"
+                v-if="isIframe"
               ><span class="icon icon-nomos"></span>Nomos</li>
+              <li 
+                id="connect_metamask" 
+                class="btn-connect btn-metamask" 
+                @click="connectWallet('metamask');"
+              ><span class="icon icon-metamask"></span>Metamask</li>
 
             </ul>
           </div>
@@ -194,14 +198,16 @@
                 class="btn-connect btn-leap" 
                 v-if="walletType == walletTypes[2]"
               ><span class="icon icon-leap"></span>Leap</li>
-
-              <!-- //here -->
               <li 
                 id="connect_nomos" 
                 class="btn-connect btn-nomos" 
                  v-if="walletType == walletTypes[3]"
               ><span class="icon icon-nomos"></span>Nomos</li>
-
+              <li 
+                id="connect_metamask" 
+                class="btn-connect btn-metamask" 
+                 v-if="walletType == walletTypes[4]"
+              ><span class="icon icon-metamask"></span>Metamask</li>
             </ul>
             <div class="loading default"></div>
             <div class="cancel reset">
@@ -260,7 +266,7 @@ export default {
     accountName: null,
     connected: false,
     connecting: false,
-    walletTypes: ['keplr', 'cosmostation', 'leap', 'nomos'],
+    walletTypes: ['keplr', 'cosmostation', 'leap', 'nomos', 'metamask'],
     nomosTypes: ['keplr', 'cosmostation', 'leap'],
     walletType: null,
     archx: false,
@@ -305,6 +311,7 @@ export default {
         // console.log('?',this.cwClient.wasmClient);
 
         this.accounts = await Accounts(this.cwClient);
+        console.log(this.accounts);
         if (this.cwClient.accountData['name']) this.accountName = this.cwClient.accountData.name;
         if (!this.accounts[0].address) return;
         this.connected = true;
@@ -386,7 +393,14 @@ export default {
     ucFirst(string) {
       return string.charAt(0).toUpperCase() + string.slice(1);
     }
-  }
+  },
+  computed: {
+    isIframe: function () {
+      if (!window) return null;
+      else if (!window.parent) return null;
+      return window !== window.parent;
+    }
+  },
 }
 </script>
 

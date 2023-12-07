@@ -3,7 +3,8 @@ import {
   keplrClient, 
   cosmostationClient, 
   offlineClient, 
-  nomosClient 
+  nomosClient,
+  metamaskClient
 } from './cosmwasm';
 
 /**
@@ -28,6 +29,10 @@ import {
     }
     case 'nomos': {
       client = await nomosClient();
+      break;
+    }
+    case 'metamask': {
+      client = await metamaskClient();
       break;
     }
     case 'offline': {

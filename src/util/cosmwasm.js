@@ -3,6 +3,9 @@ import { MainnetInfo } from '../chains/mainnet';
 import { ConstantineInfo } from '../chains/testnet.constantine';
 import { setupWebKeplr, GasPrice } from "cosmwasm";
 import { Nomos, SigningArchwayNomosClient } from 'nomosjs';
+import { 
+  suggestChain, getKey, getSnap, connectSnap, getOfflineSigner 
+} from '@leapwallet/cosmos-snap-provider';
 
 const Testnet = ConstantineInfo;
 const Mainnet = MainnetInfo;
@@ -135,6 +138,34 @@ async function nomosClient () {
   return client;
 }
 
+async function metamaskClient() {
+  if (!window) return {};
+  if (!window['ethereum']) return {};
+
+  let chainData = Blockchain;
+  chainData.coinType = 118;
+  chainData.bip44 = {
+    coinType: 118
+  };
+
+  const snapInstalled = await getSnap();
+  if (!snapInstalled) connectSnap();
+
+  // User must authorize "experimental" chain
+  await suggestChain(chainData);
+
+  client.offlineSigner = getOfflineSigner(Blockchain.chainId);
+  client.wasmClient = await SigningArchwayClient.connectWithSigner(
+    Blockchain.rpc, 
+    client.offlineSigner,
+    { gasAdjustment: 1.4 }
+  );
+  client.accountData = await getKey(Blockchain.chainId);
+  if (client.accountData['name']) client.accountData.name += " (snap)";
+
+  return client;
+}
+
 async function offlineClient() {
   const Blockchain = (IsTestnet) ? Testnet : Mainnet;
   let cwClient = await SigningArchwayClient.connectWithSigner(Blockchain.rpc, null);
@@ -152,6 +183,7 @@ export {
   cosmostationClient,
   keplrClient,
   leapClient,
+  metamaskClient,
   nomosClient,
   offlineClient,
   IsTestnet
