@@ -311,7 +311,6 @@ export default {
         // console.log('?',this.cwClient.wasmClient);
 
         this.accounts = await Accounts(this.cwClient);
-        console.log(this.accounts);
         if (this.cwClient.accountData['name']) this.accountName = this.cwClient.accountData.name;
         if (!this.accounts[0].address) return;
         this.connected = true;
