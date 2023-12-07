@@ -1,8 +1,7 @@
 import { SigningArchwayClient } from '@archwayhq/arch3.js';
 import { MainnetInfo } from '../chains/mainnet';
 import { ConstantineInfo } from '../chains/testnet.constantine';
-import { setupWebKeplr, GasPrice } from "cosmwasm";
-import { Nomos, SigningArchwayNomosClient } from 'nomosjs';
+import { SigningArchwayNomosClient } from 'nomosjs';
 import { 
   suggestChain, getKey, getSnap, connectSnap, getOfflineSigner 
 } from '@leapwallet/cosmos-snap-provider';
@@ -109,24 +108,13 @@ async function leapClient() {
   return client;
 }
 
-// Nomos
-const NomosConfig = {
-  chainId: Blockchain.chainId,
-  rpcEndpoint: Blockchain.rpc,
-  prefix: "archway",
-  gasPrice: GasPrice.fromString("900000000000aconst"),
-  gasAdjustment: 1.4,
-};
-
 async function nomosClient() {
   if (window === window.parent) return {};
 
   const nomosProvider = await SigningArchwayNomosClient.connectWithSigner(
     Blockchain.rpc,
-    client.offlineSigner,
-    {
-      gasAdjustment: 1.4,
-    }
+    null,
+    { gasAdjustment: 1.4 }
   );
   nomosProvider.getAccounts = async () => [await nomosProvider.getAccount("")];
 

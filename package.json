@@ -14,7 +14,6 @@
     "@cosmjs/stargate": "^0.30.1",
     "@leapwallet/cosmos-snap-provider": "^0.1.25",
     "core-js": "^3.8.3",
-    "cosmwasm": "^1.1.1",
     "node-polyfill-webpack-plugin": "^2.0.1",
     "nomosjs": "^0.3.32",
     "vue": "^3.2.13",
