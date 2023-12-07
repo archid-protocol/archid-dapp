@@ -302,7 +302,7 @@ export default {
       try {
         this.cwClient = await Client(this.walletType);
 
-        console.log(this.cwClient);
+        // console.log('?',this.cwClient.wasmClient);
 
         this.accounts = await Accounts(this.cwClient);
         if (this.cwClient.accountData['name']) this.accountName = this.cwClient.accountData.name;

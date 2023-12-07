@@ -50,7 +50,18 @@ async function Accounts(client = null) {
     );
   }
 
-  return accounts;
+  // Regular accounts
+  if (!client.nomosClient) return accounts;
+
+  // Nomos accounts
+  let account = await client.nomosClient.provider.getAccount(accounts[0].address);
+  let balance = await client.wasmClient.getBalance(
+    account.address,
+    client.chainInfo.currencies[0].coinMinimalDenom
+  );
+  account.balance = balance;
+  let nomosAccounts = [account];
+  return nomosAccounts;
 }
 
 export { Client, Accounts };
