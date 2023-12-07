@@ -145,7 +145,7 @@ async function metamaskClient() {
   };
 
   const snapInstalled = await getSnap();
-  if (!snapInstalled) connectSnap();
+  if (!snapInstalled) await connectSnap();
 
   // User must authorize "experimental" chain
   await suggestChain(chainData);
