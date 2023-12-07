@@ -59,7 +59,7 @@ async function Accounts(client = null) {
   if (!client.nomosClient) return accounts;
 
   // Nomos accounts
-  let account = await client.nomosClient.provider.getAccount(accounts[0].address);
+  let account = await client.offlineSigner.getAccount("");
   let balance = await client.wasmClient.getBalance(
     account.address,
     client.chainInfo.currencies[0].coinMinimalDenom

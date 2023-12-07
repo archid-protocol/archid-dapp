@@ -118,23 +118,31 @@ const NomosConfig = {
   gasAdjustment: 1.4,
 };
 
-async function nomosClient () {
-  let clientInstance = await setupWebKeplr(NomosConfig);
-  const nomosClient = new Nomos();
-  await nomosClient.init(clientInstance);
-  client.offlineSigner = nomosClient.provider.signer;
-  client.wasmClient = (window !== window.parent) ? await SigningArchwayNomosClient.connectWithSigner(
-    Blockchain.rpc, client.offlineSigner, { gasAdjustment: 1.4 }
-  ) : await SigningArchwayClient.connectWithSigner(
-    Blockchain.rpc, client.offlineSigner, { gasAdjustment: 1.4 }
+async function nomosClient() {
+  if (window === window.parent) return {};
+
+  const nomosProvider = await SigningArchwayNomosClient.connectWithSigner(
+    Blockchain.rpc,
+    client.offlineSigner,
+    {
+      gasAdjustment: 1.4,
+    }
   );
-  // client.wasmClient = await SigningArchwayNomosClient.connectWithSigner(
-  //   Blockchain.rpc, client.offlineSigner, { gasAdjustment: 1.4 }
-  // );
-  // Account display name
-  client.accountData = await window.keplr.getKey(Blockchain.chainId);
-  if (client.accountData['name']) client.accountData.name += " (msig)";
-  client.nomosClient = nomosClient;
+  nomosProvider.getAccounts = async () => [await nomosProvider.getAccount("")];
+
+  client.offlineSigner = nomosProvider;
+  client.wasmClient = nomosProvider;
+  client.nomosClient = nomosProvider;
+
+  const multisigAccount = await client.wasmClient.getAccount("");
+  client.accountData = {
+    ...multisigAccount,
+    isKeystone: false,
+    isNanoLedger: false,
+    bench32Address: multisigAccount.address,
+    name: "Nomos (msig)",
+  };
+
   return client;
 }
 
