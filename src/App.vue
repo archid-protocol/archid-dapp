@@ -144,7 +144,7 @@
                 id="connect_keplr" 
                 class="btn-connect btn-keplr" 
                 @click="connectWallet('keplr');"
-                v-if="!archx"
+                v-if="!archx && !isIframe"
               ><span class="icon icon-keplr"></span>Keplr</li>
               <li 
                 id="connect_keplr" 
@@ -156,11 +156,13 @@
                 id="connect_cosmostation" 
                 class="btn-connect btn-cosmostation" 
                 @click="connectWallet('cosmostation');"
+                v-if="!isIframe"
               ><span class="icon icon-cosmostation"></span>Cosmostation</li>
               <li 
                 id="connect_leap" 
                 class="btn-connect btn-leap" 
                 @click="connectWallet('leap');"
+                v-if="!isIframe"
               ><span class="icon icon-leap"></span>Leap</li>
               <li 
                 id="connect_nomos" 
@@ -172,6 +174,7 @@
                 id="connect_metamask" 
                 class="btn-connect btn-metamask" 
                 @click="connectWallet('metamask');"
+                v-if="!isIframe"
               ><span class="icon icon-metamask"></span>Metamask</li>
 
             </ul>
