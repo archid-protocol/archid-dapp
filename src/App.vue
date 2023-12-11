@@ -144,7 +144,7 @@
                 id="connect_keplr" 
                 class="btn-connect btn-keplr" 
                 @click="connectWallet('keplr');"
-                v-if="!archx"
+                v-if="!archx && !isIframe"
               ><span class="icon icon-keplr"></span>Keplr</li>
               <li 
                 id="connect_keplr" 
@@ -156,12 +156,27 @@
                 id="connect_cosmostation" 
                 class="btn-connect btn-cosmostation" 
                 @click="connectWallet('cosmostation');"
+                v-if="!isIframe"
               ><span class="icon icon-cosmostation"></span>Cosmostation</li>
               <li 
                 id="connect_leap" 
                 class="btn-connect btn-leap" 
                 @click="connectWallet('leap');"
+                v-if="!isIframe"
               ><span class="icon icon-leap"></span>Leap</li>
+              <li 
+                id="connect_nomos" 
+                class="btn-connect btn-nomos" 
+                @click="connectWallet('nomos');"
+                v-if="isIframe"
+              ><span class="icon icon-nomos"></span>Nomos</li>
+              <li 
+                id="connect_metamask" 
+                class="btn-connect btn-metamask" 
+                @click="connectWallet('metamask');"
+                v-if="!isIframe"
+              ><span class="icon icon-metamask"></span>Metamask</li>
+
             </ul>
           </div>
           <div v-if="connecting">
@@ -186,6 +201,16 @@
                 class="btn-connect btn-leap" 
                 v-if="walletType == walletTypes[2]"
               ><span class="icon icon-leap"></span>Leap</li>
+              <li 
+                id="connect_nomos" 
+                class="btn-connect btn-nomos" 
+                 v-if="walletType == walletTypes[3]"
+              ><span class="icon icon-nomos"></span>Nomos</li>
+              <li 
+                id="connect_metamask" 
+                class="btn-connect btn-metamask" 
+                 v-if="walletType == walletTypes[4]"
+              ><span class="icon icon-metamask"></span>Metamask</li>
             </ul>
             <div class="loading default"></div>
             <div class="cancel reset">
@@ -231,7 +256,8 @@ import Footer from './components/children/Footer.vue';
 const WALLET_DOWNLOADS = {
   keplr: 'https://www.keplr.app/download',
   cosmostation: 'https://cosmostation.io/wallet',
-  leap: 'https://www.leapwallet.io/cosmos'
+  leap: 'https://www.leapwallet.io/cosmos',
+  nomos: 'https://nomos.ms',
 };
 
 export default {
@@ -243,7 +269,8 @@ export default {
     accountName: null,
     connected: false,
     connecting: false,
-    walletTypes: ['keplr', 'cosmostation', 'leap'],
+    walletTypes: ['keplr', 'cosmostation', 'leap', 'nomos', 'metamask'],
+    nomosTypes: ['keplr', 'cosmostation', 'leap'],
     walletType: null,
     archx: false,
     modal: false,
@@ -283,6 +310,9 @@ export default {
 
       try {
         this.cwClient = await Client(this.walletType);
+
+        // console.log('?',this.cwClient.wasmClient);
+
         this.accounts = await Accounts(this.cwClient);
         if (this.cwClient.accountData['name']) this.accountName = this.cwClient.accountData.name;
         if (!this.accounts[0].address) return;
@@ -365,7 +395,14 @@ export default {
     ucFirst(string) {
       return string.charAt(0).toUpperCase() + string.slice(1);
     }
-  }
+  },
+  computed: {
+    isIframe: function () {
+      if (!window) return null;
+      else if (!window.parent) return null;
+      return window !== window.parent;
+    }
+  },
 }
 </script>
 

@@ -1,4 +1,11 @@
-import { leapClient, keplrClient, cosmostationClient, offlineClient } from './cosmwasm';
+import { 
+  leapClient, 
+  keplrClient, 
+  cosmostationClient, 
+  offlineClient, 
+  nomosClient,
+  metamaskClient
+} from './cosmwasm';
 
 /**
  * Gets signing client instance
@@ -18,6 +25,14 @@ import { leapClient, keplrClient, cosmostationClient, offlineClient } from './co
     }
     case 'leap': {
       client = await leapClient();
+      break;
+    }
+    case 'nomos': {
+      client = await nomosClient();
+      break;
+    }
+    case 'metamask': {
+      client = await metamaskClient();
       break;
     }
     case 'offline': {
@@ -40,7 +55,18 @@ async function Accounts(client = null) {
     );
   }
 
-  return accounts;
+  // Regular accounts
+  if (!client.nomosClient) return accounts;
+
+  // Nomos accounts
+  let account = await client.offlineSigner.getAccount("");
+  let balance = await client.wasmClient.getBalance(
+    account.address,
+    client.chainInfo.currencies[0].coinMinimalDenom
+  );
+  account.balance = balance;
+  let nomosAccounts = [account];
+  return nomosAccounts;
 }
 
 export { Client, Accounts };

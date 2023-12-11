@@ -1,6 +1,10 @@
 import { SigningArchwayClient } from '@archwayhq/arch3.js';
 import { MainnetInfo } from '../chains/mainnet';
 import { ConstantineInfo } from '../chains/testnet.constantine';
+import { SigningArchwayNomosClient } from 'nomosjs';
+import { 
+  suggestChain, getKey, getSnap, connectSnap, getOfflineSigner 
+} from '@leapwallet/cosmos-snap-provider';
 
 const Testnet = ConstantineInfo;
 const Mainnet = MainnetInfo;
@@ -13,6 +17,7 @@ let client = {
   wasmClient: null,
   accountData: null,
   chainInfo: Blockchain,
+  nomosClient: null,
   fees: "auto"
 };
 
@@ -103,6 +108,60 @@ async function leapClient() {
   return client;
 }
 
+async function nomosClient() {
+  if (window === window.parent) return {};
+
+  const nomosProvider = await SigningArchwayNomosClient.connectWithSigner(
+    Blockchain.rpc,
+    null,
+    { gasAdjustment: 1.4 }
+  );
+  nomosProvider.getAccounts = async () => [await nomosProvider.getAccount("")];
+
+  client.offlineSigner = nomosProvider;
+  client.wasmClient = nomosProvider;
+  client.nomosClient = nomosProvider;
+
+  const multisigAccount = await client.wasmClient.getAccount("");
+  client.accountData = {
+    ...multisigAccount,
+    isKeystone: false,
+    isNanoLedger: false,
+    bench32Address: multisigAccount.address,
+    name: "Nomos (msig)",
+  };
+
+  return client;
+}
+
+async function metamaskClient() {
+  if (!window) return {};
+  if (!window['ethereum']) return {};
+
+  let chainData = Blockchain;
+  chainData.coinType = 118;
+  chainData.bip44 = {
+    coinType: 118
+  };
+
+  const snapInstalled = await getSnap();
+  if (!snapInstalled) await connectSnap();
+
+  // User must authorize "experimental" chain
+  await suggestChain(chainData);
+
+  client.offlineSigner = getOfflineSigner(Blockchain.chainId);
+  client.wasmClient = await SigningArchwayClient.connectWithSigner(
+    Blockchain.rpc, 
+    client.offlineSigner,
+    { gasAdjustment: 1.4 }
+  );
+  client.accountData = await getKey(Blockchain.chainId);
+  if (client.accountData['name']) client.accountData.name += " (snap)";
+
+  return client;
+}
+
 async function offlineClient() {
   const Blockchain = (IsTestnet) ? Testnet : Mainnet;
   let cwClient = await SigningArchwayClient.connectWithSigner(Blockchain.rpc, null);
@@ -120,6 +179,8 @@ export {
   cosmostationClient,
   keplrClient,
   leapClient,
+  metamaskClient,
+  nomosClient,
   offlineClient,
   IsTestnet
 };

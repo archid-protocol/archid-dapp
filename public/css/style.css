@@ -371,6 +371,20 @@ a.flat-link {
     height: 24px;
     top: 6px;
 }
+.icon-nomos {
+    background-image: url('/img/icon-nomos.svg');
+    width: 24px;
+    height: 24px;
+    top: 5px;
+    filter: grayscale(1);
+}
+.icon-metamask {
+    background-image: url('/img/icon-metamask.svg');
+    width: 24px;
+    height: 24px;
+    top: 7px;
+    filter: grayscale(1);
+}
 .icon-upload {
     background-image: url('/img/icon-upload.svg');
     width: 16px;

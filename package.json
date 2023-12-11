@@ -12,8 +12,10 @@
     "@archwayhq/arch3.js": "^0.4.0",
     "@cosmjs/cosmwasm-stargate": "^0.30.1",
     "@cosmjs/stargate": "^0.30.1",
+    "@leapwallet/cosmos-snap-provider": "^0.1.25",
     "core-js": "^3.8.3",
     "node-polyfill-webpack-plugin": "^2.0.1",
+    "nomosjs": "^0.3.32",
     "vue": "^3.2.13",
     "vue-router": "^4.1.6"
   },
