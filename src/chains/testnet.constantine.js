@@ -37,6 +37,9 @@ export const ConstantineInfo = {
     bech32PrefixConsAddr: "archwayvalcons",
     bech32PrefixConsPub: "archwayvalconspub"
   },
+  bip44: {
+    coinType: 118,
+  },
   // List of all coin/tokens used in this chain.
   currencies: [{
     // Coin denomination to be displayed to the user.
