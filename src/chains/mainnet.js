@@ -4,7 +4,9 @@ export const MainnetInfo = {
     // The name of the chain to be displayed to the user.
     chainName: "Archway",
     // RPC endpoint of the chain.
-    rpc: "https://rpc.mainnet.archway.io",
+    // rpc: "https://rpc.mainnet.archway.io",
+    // rpc: "https://rpc-archway.whispernode.com",
+    rpc: "https://rpc-1.archway.nodes.guru",
     // REST endpoint of the chain.
     rest: "https://api.mainnet.archway.io",
     // Staking coin information
