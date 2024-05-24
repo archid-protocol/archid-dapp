@@ -355,35 +355,35 @@ a.flat-link {
 }
 .icon-cosmostation {
     background-image: url('/img/icon-cosmostation.svg');
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
     top: 6px;
-}
-.icon-archx {
-    background-image: url('/img/icon-archx.svg');
-    width: 24px;
-    height: 24px;
-    top: 6px;
+    left: -3px;
 }
 .icon-leap {
     background-image: url('/img/icon-leap.svg');
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
     top: 6px;
 }
 .icon-nomos {
     background-image: url('/img/icon-nomos.svg');
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
     top: 5px;
     filter: grayscale(1);
 }
 .icon-metamask {
     background-image: url('/img/icon-metamask.svg');
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
     top: 7px;
-    filter: grayscale(1);
+}
+span.label.label-cosmostation, 
+span.label.label-leap, 
+span.label.label-metamask {
+    top: -5px;
+    position: relative;
 }
 .icon-upload {
     background-image: url('/img/icon-upload.svg');
