@@ -98,6 +98,9 @@ div.loading.default {
     margin-right: 1em;
     cursor: pointer;
 }
+.button-group a.disabled {
+    cursor: not-allowed;
+}
 .button-group a.active {
     color: #FF4D00;
 }
