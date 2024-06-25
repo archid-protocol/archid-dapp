@@ -1258,7 +1258,6 @@ export default {
       };
 
       this.resetFormIters();
-      let cost = this.baseCost * this.updates.expiry;
       let domain = this.domain.slice(0,-5);
 
       let title;
@@ -1266,7 +1265,7 @@ export default {
         this.executeResult = await RenewRegistration(
           domain,
           this.updates.expiry,
-          cost,
+          this.baseCost,
           this.cwClient
         );
         title = "Your domain was extended";
