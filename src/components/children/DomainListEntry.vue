@@ -132,7 +132,16 @@
             <!-- Btn. Extend -->
             <div class="ctrl" v-if="owner">
               <!-- Extend / Renew Expired -->
-              <button class="btn btn-inverse" @click="modals.renew = !modals.renew" v-if="!isSubdomain && owner.owner == viewer && !isExpired">Extend</button>
+              <span 
+                :title="(cannotRenew) ? renewalWarning[0] : null"
+                v-if="!isSubdomain && owner.owner == viewer && !isExpired"
+              >
+                <button 
+                  class="btn btn-inverse" 
+                  @click="modals.renew = !modals.renew" 
+                  :disabled="cannotRenew"
+                >Extend</button>
+              </span>
               <button class="btn btn-inverse" @click="modals.renew = !modals.renew" v-if="!isSubdomain && owner.owner == viewer && isExpired">Renew</button>
               
               <div class="wrapper advanced-ctrl" v-if="statusOkay">
@@ -644,9 +653,35 @@
         <div class="modal-body">
           <div class="left">
             <div class="button-group select-expiry">
-              <a :class="{'active': updates.expiry == 1, 'btn-1year': true}" @click="updates.expiry = 1;">1 year</a>
-              <a :class="{'active': updates.expiry == 2, 'btn-2year': true}" @click="updates.expiry = 2;">2 years</a>
-              <a :class="{'active': updates.expiry == 3, 'btn-3year': true}" @click="updates.expiry = 3;">3 years</a>
+              <!-- Renew: 1 Year -->
+              <a 
+                :class="{'active': updates.expiry == 1, 'btn-1year': true}" 
+                @click="updates.expiry = 1;"
+              >1 year</a>
+
+              <!-- Renew: 2 Years -->
+              <a
+                :class="{'active': updates.expiry == 2, 'btn-2year': true}" 
+                @click="updates.expiry = 2;"
+                v-if="canRenewTwoYears"
+              >2 years</a>
+              <a
+                class="disabled extend-disabled btn-2year"
+                :title="renewalWarning[1]"
+                v-else
+              >2 years</a>
+
+              <!-- Renew: 3 Years -->
+              <a
+                :class="{'active': updates.expiry == 3, 'btn-3year': true}" 
+                @click="updates.expiry = 3;"
+                v-if="canRenewThreeYears"
+              >3 years</a>
+              <a
+                class="disabled extend-disabled btn-3year"
+                :title="renewalWarning[2]"
+                v-else
+              >3 years</a>
             </div>
           </div>
           <div class="right">
@@ -762,7 +797,7 @@
   >
   </ResolverMismatch>
 
-  <!-- Manage Listing (Cancel / Update Swap) //here -->
+  <!-- Manage Listing (Cancel / Update Swap) -->
   <ManageMarketplaceListing
     v-bind:domain="domain"
     v-bind:cw721="cw721"
@@ -814,6 +849,20 @@ const REMOVED_IMG = "token-burned.svg";
 const DEFAULT_TOKEN_IMG = "token.svg";
 const METADATA_UPDATE_IMAGE = "token-update.svg";
 const TRANSFER_IMG = "transfer.svg";
+
+const RENEWAL_WARNING = [
+  // 1 year warning
+  "ArchIDs can be extended up to 3 years into the future. You're already set for the next 3 years! Check back later.",
+  // 2 year warning
+  "ArchIDs can be extended up to 3 years into the future. You can't extend this one yet for 2 more. Check back later.",
+  // 3 year warning
+  "ArchIDs can be extended up to 3 years into the future. You can't extend this one yet for 3 more. Check back later.",
+];
+
+const SIX_MONTHS_SECONDS = 15768000;
+const TWO_YEARS_SECONDS = 63072000;
+const THREE_YEARS_SECONDS = 94608000;
+const MIN_RENEWAL_SECONDS = 77760000;
 
 export default {
   props: {
@@ -927,6 +976,7 @@ export default {
     defaultTokenImg: '/img/' + DEFAULT_TOKEN_IMG,
     niceDate: DateFormat,
     formatFromAtto: FromAtto,
+    renewalWarning: RENEWAL_WARNING,
   }),
   mounted: async function () {
     if (!this.collapsible) await this.domainDetails();
@@ -1706,6 +1756,32 @@ export default {
       if (typeof this.status !== 'object') return false;
       if (this.status['isListed']) return true;
       else return false;
+    },
+    // All renewals possible disabled
+    cannotRenew: function () {
+      if (typeof this.domainRecord !== 'object') return false;
+      if (!this.domainRecord.expiration) return false;
+      let currentTime = new Date().getTime() / 1000;
+      let minExtension = parseInt(currentTime.toFixed()) + MIN_RENEWAL_SECONDS;
+      return this.domainRecord.expiration >= minExtension;
+    },
+    // 2 year renewals disabled
+    canRenewTwoYears: function () {
+      if (typeof this.domainRecord !== 'object') return false;
+      if (!this.domainRecord.expiration) return false;
+      let currentTime = (new Date().getTime() / 1000);
+      let extendedTime = this.domainRecord.expiration + TWO_YEARS_SECONDS;
+      let minExtension = parseInt(currentTime.toFixed()) + THREE_YEARS_SECONDS;
+      return (extendedTime - SIX_MONTHS_SECONDS) < minExtension;
+    },
+    // 3 year renewals (max) disabled
+    canRenewThreeYears: function () {
+      if (typeof this.domainRecord !== 'object') return false;
+      if (!this.domainRecord.expiration) return false;
+      let currentTime = new Date().getTime() / 1000;
+      let extendedTime = this.domainRecord.expiration + THREE_YEARS_SECONDS;
+      let minExtension = parseInt(currentTime.toFixed()) + THREE_YEARS_SECONDS;
+      return (extendedTime - SIX_MONTHS_SECONDS) < minExtension;
     },
   }
 }
