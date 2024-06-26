@@ -174,3 +174,6 @@ const Execute = {
   Deposit,
   Withdraw
 };
+
+// Export
+export { Query, Execute }
