@@ -594,11 +594,11 @@ async function Cancel(id, client = null) {
 }
 
 /**
- * 
- * @param {String} id 
- * @param {Number} expires 
- * @param {*} price 
- * @param {*} client 
+ * Update a swap
+ * @param {String} id : ID of swap to be updated
+ * @param {Number} expires : Expiration of updated swap
+ * @param {Number} price : Price of updated swap
+ * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
  * @returns 
  */
 async function Update(id, expiration, price, client = null) {
