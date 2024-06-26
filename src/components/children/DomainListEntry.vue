@@ -2159,7 +2159,6 @@ span.denom-text {
   border-radius: 10px;
   color: #fff;
 }
-
 .resolution-msg span {
   font-style: italic;
 }
