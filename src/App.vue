@@ -74,35 +74,41 @@
       </div>
     </div>
     <div class="connect user col" v-if="accounts.length">
-      <div class="balance col">
-        <div class="wallet-balance" :alt="formatFromAtto(accounts[0].balance.amount) + ' ARCH'" :title="formatFromAtto(accounts[0].balance.amount) + ' ARCH'">
-          <span class="balance">{{ balanceDisplayFormat(accounts[0].balance.amount) }}</span>
-          <!-- <span class="icon icon-denom menu-icon"></span> -->
-          <span class="denom denom-arch">&nbsp;ARCH</span>
+      <div class="user-wrapper row">
+        <div class="balance row">
+          <div class="col wallet-balance" :alt="formatFromAtto(accounts[0].balance.amount) + ' ARCH'" :title="formatFromAtto(accounts[0].balance.amount) + ' ARCH'">
+            <span class="balance">{{ balanceDisplayFormat(accounts[0].balance.amount) }}</span>
+            <!-- <span class="icon icon-denom menu-icon"></span> -->
+            <span class="denom denom-arch">&nbsp;ARCH</span>
+          </div>
+          <div class="col warch-balance">
+            <span class="balance">{{ balanceDisplayFormat('0') }}</span>
+            <span class="denom denom-arch">&nbsp;ARCH</span>
+          </div>
         </div>
+        <a id="user_account" :class="{'col':true, 'active': showNav}">
+          <div class="menu-target main">
+            <div class="account-name">
+              <span class="account-name">{{ accountName }}</span>
+            </div>
+            <div class="account-address">
+              <span class="address">{{ accountDisplayFormat(accounts[0].address) }}</span>
+            </div>
+          </div>
+          <div class="col">
+            <span class="menu mobile connected caret-inv connected" v-if="!showNav" @click="showNav = !showNav;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M2 8H14" stroke="white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M2 4H14" stroke="white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M2 12H14" stroke="white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="close-x menu connected" v-if="showNav" @click="showNav = !showNav;">&times;</span>
+          </div>
+        </a>
       </div>
-      <a id="user_account" class="col">
-        <div class="menu-target main">
-          <div class="account-name">
-            <span class="account-name">{{ accountName }}</span>
-          </div>
-          <div class="account-address">
-            <span class="address">{{ accountDisplayFormat(accounts[0].address) }}</span>
-          </div>
-        </div>
-        <div class="col">
-          <span class="menu mobile connected caret-inv" v-if="!showNav" @click="showNav = !showNav;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M2 8H14" stroke="white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M2 4H14" stroke="white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M2 12H14" stroke="white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-          <span class="close-x menu" v-if="showNav" @click="showNav = !showNav;">&times;</span>
-        </div>
-      </a>
     </div>
-    <ul class="navigation" v-if="showNav">
+    <ul class="navigation connected" v-if="showNav">
       <li>
         <router-link to="/" @click="route = '/';showNav = false;">Home</router-link>
       </li>
@@ -480,14 +486,22 @@ div.logo, div.logo a {
 .menu-target.main {
   clear: both;
   display: inline-block;
+  margin-right: 1em;
 }
 #connect_modal {
   margin-right: 0.5em;
 }
 #user_account {
-  top: -28px;
   position: relative;
   color: #ffffff;
+  height: 70px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  margin-left: 1.25em;
+  padding-top: 5px;
+}
+#user_account.active {
+  background: rgba(255, 255, 255, 0.20);
 }
 span.address {
   font-weight: 400;
@@ -518,6 +532,9 @@ span.address {
   position: relative;
   font-size: 20px;
   font-weight: 200;
+}
+.close-x.menu.connected {
+  margin-right: 0.5em;
 }
 .col.disconnected span {
   color: #FFFFFF;
@@ -609,14 +626,23 @@ div.account-name {
   position: relative;
   right: 20px;
 }
-div.wallet-balance {
+div.balance.row {
+  max-width: fit-content;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  height: 70px;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
+div.wallet-balance,
+div.warch-balance {
   color: #FFFFFF;
   text-align: center;
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
   line-height: 120%;
-  top: 11px;
   position: relative;
 }
 a.btn-primary:focus {
@@ -629,5 +655,8 @@ a.btn-inverse:focus {
 }
 .menu.mobile {
   display: inline-block;
+}
+.menu.mobile.connected {
+  margin-right: 0.25em;
 }
 </style>

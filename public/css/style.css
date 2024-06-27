@@ -40,6 +40,9 @@ ul.navigation {
     border-radius: 16px;
     z-index: 100;
 }
+ul.navigation.connected {
+    top: 135px;
+}
 div.page {
     max-width: 90vw;
     padding: 3em;
