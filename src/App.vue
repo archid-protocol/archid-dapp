@@ -82,8 +82,8 @@
             <span class="denom denom-arch">&nbsp;ARCH</span>
           </div>
           <div class="col warch-balance">
-            <span class="balance">{{ balanceDisplayFormat('0') }}</span>
-            <span class="denom denom-arch">&nbsp;ARCH</span>
+            <span class="balance" v-if="warch.balance">{{ balanceDisplayFormat(warch.balance) }}</span>
+            <span class="denom denom-arch">&nbsp;wARCH</span>
           </div>
         </div>
         <a id="user_account" :class="{'col':true, 'active': showNav}">
@@ -273,6 +273,7 @@
 
 <script>
 import { Client, Accounts } from './util/client';
+import * as WrappedArch from './util/warch';
 import { FromAtto } from './util/denom';
 
 import Notification from './components/children/Notification.vue';
@@ -291,6 +292,7 @@ export default {
   data: () => ({
     cwClient: null,
     accounts: [],
+    warch: {},
     accountName: null,
     connected: false,
     connecting: false,
@@ -333,12 +335,13 @@ export default {
 
       try {
         this.cwClient = await Client(this.walletType);
-
-        // console.log('?',this.cwClient.wasmClient);
-
         this.accounts = await Accounts(this.cwClient);
         if (this.cwClient.accountData['name']) this.accountName = this.cwClient.accountData.name;
         if (!this.accounts[0].address) return;
+        this.warch = await WrappedArch.Query.Balance(
+          this.accounts[0].address, 
+          this.cwClient
+        );
         this.connected = true;
         this.connecting = false;
         window.sessionStorage.setItem('connected', this.walletType);
@@ -369,6 +372,10 @@ export default {
           this.cwClient = await Client(walletType);
           this.accounts = await Accounts(this.cwClient);
           if (this.cwClient.accountData['name']) this.accountName = this.cwClient.accountData.name;
+          if (this.accounts.length) this.warch = await WrappedArch.Query.Balance(
+            this.accounts[0].address, 
+            this.cwClient
+          );
           // console.log('App', {cwClient: this.cwClient, accounts: this.accounts, walletType: walletType});
         }, 100);
       } catch (e) {
@@ -634,6 +641,15 @@ div.balance.row {
   justify-content: center;
   align-items: center;
   gap: 16px;
+}
+div.balance.row .col {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+div.wallet-balance {
+  border-right: 1px solid rgba(255, 255, 255, 0.20);
 }
 div.wallet-balance,
 div.warch-balance {
