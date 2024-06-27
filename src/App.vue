@@ -77,7 +77,8 @@
       <div class="balance col">
         <div class="wallet-balance" :alt="formatFromAtto(accounts[0].balance.amount) + ' ARCH'" :title="formatFromAtto(accounts[0].balance.amount) + ' ARCH'">
           <span class="balance">{{ balanceDisplayFormat(accounts[0].balance.amount) }}</span>
-          <span class="icon icon-denom menu-icon"></span>
+          <!-- <span class="icon icon-denom menu-icon"></span> -->
+          <span class="denom denom-arch">&nbsp;ARCH</span>
         </div>
       </div>
       <a id="user_account" class="col">
@@ -90,7 +91,6 @@
           </div>
         </div>
         <div class="col">
-          <!-- <span :class="{'caret-inv': true, 'active': true, 'menu': true, 'default': true}" v-if="!showNav" @click="showNav = !showNav;">&caron;</span> -->
           <span class="menu mobile connected caret-inv" v-if="!showNav" @click="showNav = !showNav;">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M2 8H14" stroke="white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
@@ -615,8 +615,7 @@ div.wallet-balance {
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
-  line-height: 150%;
-  letter-spacing: -0.16px;
+  line-height: 120%;
   top: 11px;
   position: relative;
 }
@@ -624,7 +623,9 @@ a.btn-primary:focus {
   color: #FFFFFF;
 }
 a.btn-inverse:focus {
-  color: #FF4D00
+  color: #FF4D00;
+  position: relative;
+  z-index: 1000;
 }
 .menu.mobile {
   display: inline-block;
