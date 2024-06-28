@@ -40,8 +40,12 @@ ul.navigation {
     border-radius: 16px;
     z-index: 100;
 }
-ul.navigation.connected {
+ul.navigation.connected, ul.navigation.warch {
     top: 135px;
+}
+ul.navigation.warch {
+    width: 390px;
+    right: 20%;
 }
 div.page {
     max-width: 90vw;
@@ -337,6 +341,12 @@ a.flat-link {
 }
 .icon-denom-alt {
     background-image: url('/img/icon-denom-alt.svg');
+    width: 32px;
+    height: 32px;
+    top: 4px;
+}
+.icon-denom-warch {
+    background-image: url('/img/icon-denom-warch.svg');
     width: 32px;
     height: 32px;
     top: 4px;

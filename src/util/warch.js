@@ -137,7 +137,7 @@ async function Deposit(amount, client = null) {
 
 /**
  * Withdraw previously deposited coins from WRAP_CONTRACT
- * @param {Number} amount : Denomination of coins in `aarch` to be unwrapped
+ * @param {Number} amount : Denomination of coins in `waarch` to be unwrapped
  * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
  * @returns {ExecuteResult}
  */
@@ -148,7 +148,7 @@ async function Withdraw(amount, client = null) {
   try {
     // Msg.
     let entrypoint = {
-      withdraw: { amount }
+      withdraw: { amount: String(amount) }
     };
     // Sender
     let accounts = await client.offlineSigner.getAccounts();
