@@ -10,14 +10,14 @@ html, body {
 }
 div.logo {
     position: absolute;
-    top: 58px;
+    top: 62.5px;
     left: 9%;
     z-index: 100;
 }
 div.quick-nav {
     position: absolute;
     top: 58px;
-    left: 42%;
+    left: 17%;
     z-index: 105;
 }
 div.user.connect {
@@ -45,7 +45,7 @@ ul.navigation.connected, ul.navigation.warch {
 }
 ul.navigation.warch {
     width: 390px;
-    right: 20%;
+    right: 17%;
 }
 div.page {
     max-width: 90vw;

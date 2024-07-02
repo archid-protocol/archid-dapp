@@ -1,6 +1,18 @@
+@media screen and (max-width: 2000px) {
+    ul.navigation.warch {
+        right: 20%;
+    }
+}
+
 @media screen and (max-width: 1600px) {
     div.logo {
         left: 11%;
+    }
+    div.quick-nav {
+        left: 20%;
+    }
+    ul.navigation.warch {
+        right: 24%;
     }
     div.user.connect {
         right: 11%;
@@ -13,12 +25,28 @@
     }
 }
 
+
+@media screen and (max-width: 1350px) {
+    ul.navigation.warch {
+        right: 26%;
+    }
+}
+
 @media screen and (max-width: 1250px) {
     .welcome-banner .welcome {
         min-height: 800px;
     }
     .welcome .details {
         margin-top: 2em !important;
+    }
+    ul.navigation.warch {
+        right: 28%;
+    }
+}
+
+@media screen and (max-width: 1175px) {
+    div.quick-nav {
+        display: none;
     }
 }
 
@@ -28,6 +56,9 @@
     }
     div.user.connect {
         right: 13%;
+    }
+    ul.navigation.warch {
+        right: 34%;
     }
 }
 
