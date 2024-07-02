@@ -75,6 +75,9 @@
     div.user.connect {
         right: 15%;
     }
+    ul.navigation.warch {
+        right: 8%;
+    }
 }
 
 @media (max-width: 660px) {
@@ -85,12 +88,23 @@
     .menu.default {
         display: none !important;
     }
-    .menu.mobile.connected svg {
-        top: -38px;
+    .menu-target.main {
+        display: none !important;
+    }
+    .menu.mobile.connected {
+        top: 0;
+        padding-right: 0.2em;
     }
     ul.navigation, 
     .modalr {
         top: 100px !important;
+    }
+    ul.navigation.warch {
+        right: 4.5%;
+        max-width: 90vw;
+    }
+    div.warch-max {
+        display: none;
     }
     div.middle.quick-nav,
     div.connect.user div.balance.col {
@@ -102,9 +116,14 @@
     }
     div.user.connect {
         right: 11%;
+        top: 3%;
     }
     div.connect.disconnected {
         top: 4.5%;
+    }
+    .close-x.menu.connected {
+        top: 10px !important;
+        padding-right: 0.2em !important;
     }
     div.title h3 {
         font-size: 31px !important;
