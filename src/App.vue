@@ -73,11 +73,34 @@
       </div>
     </div>
     <div class="connect user col" v-if="accounts.length">
-      <div class="user-wrapper row">
+      <div class="user-wrapper default row">
         <div 
           :class="{
             'balance': true, 
             'row': true,
+            'mobile': true,
+            'active': warchNav,
+          }"
+        >
+          <button 
+            :class="{
+              'btn': true,
+              'btn-warch-menu': true,
+              'btn-primary': !warchNav, 
+              'btn-inverse': warchNav,
+              'active': warchNav,
+            }"
+            @click="toggleNavigation('warch');"
+          >
+            <span class="icon icon-credit-card open-elipses menu warch" v-if="!warchNav"></span>
+            <span class="close-x menu warch mobile" v-else>&times;</span>
+          </button>
+        </div>
+        <div 
+          :class="{
+            'balance': true, 
+            'row': true,
+            'default': true,
             'active': warchNav,
           }"
         >
@@ -711,6 +734,7 @@ div.logo, div.logo a {
   position: relative;
   color: #ffffff;
   height: 70px;
+  max-width: fit-content;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.20);
   margin-left: 1.25em;
@@ -767,6 +791,10 @@ span.address {
 .close-x.warch {
   top: 0px;
   left: 0px;
+}
+.close-x.warch.mobile {
+  top: -1px;
+  left: -10px;
 }
 .col.disconnected span {
   color: #FFFFFF;
@@ -951,6 +979,10 @@ div.wrap.icon-display {
 .btn-warch-menu span {
   position: relative;
   top: -5px;
+}
+.btn-warch-menu span.icon-credit-card {
+  top: 0;
+  left: -5px;
 }
 .warch-submitter button {
   width: 100%;

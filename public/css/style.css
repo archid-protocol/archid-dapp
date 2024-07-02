@@ -28,6 +28,9 @@ div.user.connect {
     text-align: right;
     z-index: 110;
 }
+div.user-wrapper {
+    justify-content: flex-end;
+}
 ul.navigation {
     position: absolute;
     right: 8%;
@@ -46,6 +49,24 @@ ul.navigation.connected, ul.navigation.warch {
 ul.navigation.warch {
     width: 390px;
     right: 17%;
+}
+div.balance.row.mobile {
+    display: none;
+}
+div.balance.row.mobile button, 
+div.balance.row.mobile button span {
+    color: #fff;
+}
+div.balance.row.mobile button,
+div.balance.row.mobile button span,
+div.balance.row.mobile button:hover, 
+div.balance.row.mobile button:active, 
+div.balance.row.mobile button:focus,
+div.balance.row.mobile button span:hover,
+div.balance.row.mobile button span:active,
+div.balance.row.mobile button span:focus {
+    background-color: transparent;
+    border: none;
 }
 div.page {
     max-width: 90vw;
@@ -444,6 +465,9 @@ span.label.label-metamask {
 }
 .icon-domain-history-approvals-updated {
     background-image: url('/img/icon-domain-history-approvals-updated.svg');
+}
+.icon-credit-card {
+    background-image: url('/img/icon-credit-card.svg');
 }
 /* Modals */
 .modal-wrapper {

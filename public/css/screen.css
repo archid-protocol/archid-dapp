@@ -57,6 +57,12 @@
     div.user.connect {
         right: 13%;
     }
+    div.balance.row.default {
+        display: none;
+    }
+    div.balance.row.mobile {
+        display: flex;
+    }
     ul.navigation.warch {
         right: 34%;
     }
