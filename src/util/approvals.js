@@ -1,7 +1,9 @@
 import { Client } from './client';
+import { FromAtto } from './denom';
 
 const MARKETPLACE_CONTRACT = process.env.VUE_APP_MARKETPLACE_CONTRACT;
 const CW721_CONTRACT = process.env.VUE_APP_CW721_CONTRACT;
+const WRAP_CONTRACT = process.env.VUE_APP_WARCH_CONTRACT;
 
 // Queries
 
@@ -36,7 +38,7 @@ async function ApprovalsCw721(token_id, include_expired = false, client = null) 
 
 /**
  * Allow swap contract admin over a specified amount of some cw20 token
- * @param {Number} amount : Amount of cw20 tokens swap contract can transfer
+ * @param {BigInt} amount : Amount of cw20 tokens swap contract can transfer
  * @param {String} cw20_contract : Contract address of the cw20 token
  * @param {String} denom? : (Optional) denom of cw20; only used for memo
  * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
@@ -57,13 +59,17 @@ async function ApproveCw20(amount, cw20_contract, denom, client = null) {
     };
     // Sender
     let accounts = await client.offlineSigner.getAccounts();
+    // Memo
+    let memo = (cw20_contract == WRAP_CONTRACT) 
+      ? "Approve ArchID to spend " + FromAtto(amount) + " " + denom 
+      : "Approve ArchID to spend " + amount + " " + denom;
     // Broadcast tx
     let tx = await client.wasmClient.execute(
       accounts[0].address,
       cw20_contract,
       entrypoint,
       client.fees,
-      "Approve ArchID to spend " + amount + denom
+      memo
     );
     // Tx result
     return tx;

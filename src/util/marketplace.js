@@ -464,29 +464,41 @@ async function FinishNative(id, swap, client = null) {
 /**
  * Create swap for a cw20 token
  * @param {String} id : An ID to be used to refer to this swap
+ * @param {String} cw20_contract : cw20 contract address to be used for payment token
  * @param {String} token_id : token_id (domain) to be sold in the swap
  * @param {Number} expiration : A timestamp (nanosecond precision) after which the swap is invalid
- * @param {Number} price : A price, in `aarch`, to be paid by the buyer
- * @param {String} denom? : (Optional) denom of payment cw20; only used for memo
+ * @param {String} swap_type : either SALE or OFFER
+ * @param {BigInt} price : A price, in `aarch`, to be paid by the buyer
+ * @param {String} memo? : (Optional) memo to be broadcast with tx
  * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
  * @returns {ExecuteResult}
  */
-async function CreateCw20(id, cw20_contract, token_id, expiration, price, denom = '', client = null) {
+async function CreateCw20(
+  id, 
+  cw20_contract, 
+  token_id, 
+  expiration, 
+  swap_type,
+  price, 
+  memo = '', 
+  client = null
+) {
   if (!id || !cw20_contract || !token_id || !expiration || !price) return;
+  if (swap_type !== SALE && swap_type !== OFFER) swap_type = SALE;
   if (!client) client = await Client();
 
   try {
     // Msg.
     let entrypoint = {
       create: {
-        id: id,
+        id,
         payment_token: cw20_contract,
-        token_id: token_id,
+        token_id,
         expires: {
-          at_time: expiration
+          at_time: String(expiration)
         },
         price: String(price),
-        swap_type: SALE
+        swap_type,
       }
     };
     // Sender
@@ -497,7 +509,7 @@ async function CreateCw20(id, cw20_contract, token_id, expiration, price, denom 
       MARKETPLACE_CONTRACT,
       entrypoint,
       client.fees,
-      "List " + token_id + " for " + FromAtto(price, true) + denom
+      (memo) ? memo : null
     );
     // Tx result
     return tx;
