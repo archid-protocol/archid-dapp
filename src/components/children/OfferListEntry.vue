@@ -63,7 +63,6 @@ export default {
   mounted: async function () {
     this.id = this.domain + "-" + this.offerItem.creator + "-offer-" + this.offerItem.expires.at_time;
     this.swap = await MarketplaceQuery.Details(this.id, this.cwClient);
-    // console.log(this.swap);
   },
   methods: {
     acceptOffer: async function () {

@@ -23,7 +23,7 @@
             v-bind:collapsible="false"
             v-bind:status="statuses[domain]"
             @dataResolution="dataResolution"
-            :key="domain"
+            :key="renderDomain"
           >
           </DomainListEntry>
         </li>
@@ -99,6 +99,7 @@ export default {
     history: [],
     domainRecord: {},
     renderBanner: 0,
+    renderDomain: 0,
   }),
   mounted: function () {
     if (window) this.resumeConnectedState();
@@ -130,6 +131,7 @@ export default {
     },
     dataResolution: async function () {
       this.renderBanner += 1;
+      this.renderDomain += 1;
       await this.tokenData();
       await this.ownerData();
       await this.resolveDomainRecord();

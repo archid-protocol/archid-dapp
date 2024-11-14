@@ -549,13 +549,25 @@ async function FinishCw20(id, swap, denom = '', client = null) {
     };
     // Sender
     let accounts = await client.offlineSigner.getAccounts();
+    // Price 
+    let price;
+    switch (denom) {
+      case 'wrapped ARCH': {
+        price = FromAtto(swap.price);
+        break;
+      }
+      default: {
+        price = swap.price;
+        break;
+      }
+    }
     // Broadcast tx
     let tx = await client.wasmClient.execute(
       accounts[0].address,
       MARKETPLACE_CONTRACT,
       entrypoint,
       client.fees,
-      "Swap " + swap.token_id + " for " + swap.price + " " + denom
+      "Swap " + swap.token_id + " for " + price + " " + denom
     );
     // Tx result
     return tx;
