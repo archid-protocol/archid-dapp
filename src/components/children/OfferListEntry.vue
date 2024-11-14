@@ -60,7 +60,7 @@ export default {
   mounted: async function () {
     this.id = this.domain + "-" + this.offerItem.creator + "-offer-" + this.offerItem.expires.at_time;
     this.swap = await MarketplaceQuery.Details(this.id, this.cwClient);
-    console.log(this.swap);
+    // console.log(this.swap);
   },
   methods: {
     acceptOffer: async function () {
@@ -73,7 +73,8 @@ export default {
         msg: "Accepting offer to swap " + this.domain + " for " + price + " wrapped ARCH",
         img: null,
       };
-      this.executeResult = await MarketplaceExecute.FinishOffer(
+
+      this.executeResult = await MarketplaceExecute.FinishCw20(
         this.id, 
         this.swap, 
         'wrapped ARCH',
