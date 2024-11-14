@@ -30,6 +30,21 @@
       </ul>
     </div>
 
+    <div class="offers" v-if="offers.length">
+      <div class="offers title">
+        <h3>Offers</h3>
+      </div>
+      <ul class="offers-ul">
+        <li v-for="(offer, i) in offers" :key="i">
+          <OfferListEntry
+            v-bind:domain="domain"
+            v-bind:offerItem="offer"
+          >
+          </OfferListEntry>
+        </li>
+      </ul>
+    </div>
+
     <div class="domain-history" v-if="domain && history.length">
       <div class="history title">
         <span class="icon icon-info"></span>&nbsp;<h3>Domain History</h3>
@@ -56,10 +71,11 @@ import { Query as MarketplaceQuery } from '../util/marketplace';
 import DomainBanner from './children/DomainBanner.vue';
 import DomainListEntry from './children/DomainListEntry.vue';
 import HistoryListEntry from './children/HistoryListEntry.vue';
+import OfferListEntry from './children/OfferListEntry.vue';
 
 export default {
   name: 'Domain',
-  components: { DomainBanner, DomainListEntry, HistoryListEntry },
+  components: { DomainBanner, DomainListEntry, HistoryListEntry, OfferListEntry },
   data: () => ({
     cwClient: null,
     accounts: [],
@@ -69,6 +85,7 @@ export default {
     owner: null,
     domain: null,
     statuses: {},
+    offers: [],
     history: [],
     domainRecord: {},
     renderBanner: 0,
@@ -128,6 +145,7 @@ export default {
       if (!this.domain || !this.domainRecord) return;
       let swap = await MarketplaceQuery.Details(this.domain, this.cwClient);
       let offers = await MarketplaceQuery.ListingsOfToken(this.domain,"Offer", 0, 100, this.cwClient);
+      this.offers = offers.swaps;
       let isMismatch = false;
       if (this.owner) {
         isMismatch = (this.domainRecord.address !== this.owner.owner);
@@ -194,32 +212,35 @@ ul li {
   background: rgba(255, 255, 255, 0.6);
   border-radius: 16px;
 }
-ul.history-ul {
+ul.history-ul, ul.offers-ul {
   margin-top: 1.75em;
   border-radius: unset;
 }
-ul.history-ul li {
+ul.history-ul li, ul.offers-ul li {
   margin-bottom: 0;
   border-radius: unset;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
-ul.history-ul li:last-of-type {
+ul.history-ul li:last-of-type, ul.offers-ul li:last-of-type {
   border: none;
 }
-div.domain-history {
+div.domain-history, div.offers {
   background: #FFFFFF;
   border-radius: 16px;
   padding: 1em;
 }
-.history.title {
+div.offers {
+  margin-bottom: 2em;
+}
+.history.title, .offers.title {
   margin-top: 2em;
   margin-left: 27px;
 }
-.history.title span {
+.history.title span, .offers.title span {
   position: relative;
   top: 3px;
 }
-.history.title h3 {
+.history.title h3, .offers.title h3 {
   font-style: normal;
   font-weight: 400;
   font-size: 24px;
