@@ -279,6 +279,10 @@ a.flat-link {
     background: #F2EFED;
     color: #666666;
 }
+.badge-offers {
+    background: #17A2B8;
+    color: #FFFFFF;
+}
 .badge-expired {
     background: rgba(216, 2, 40, 0.16);
     color: #D80228;

@@ -127,6 +127,7 @@ export default {
     tokenStatuses: async function () {
       if (!this.domain || !this.domainRecord) return;
       let swap = await MarketplaceQuery.Details(this.domain, this.cwClient);
+      let offers = await MarketplaceQuery.ListingsOfToken(this.domain,"Offer", 0, 100, this.cwClient);
       let isMismatch = false;
       if (this.owner) {
         isMismatch = (this.domainRecord.address !== this.owner.owner);
@@ -136,7 +137,8 @@ export default {
         isExpired: new Date().getTime() > (this.domainRecord.expiration * 1000),
         address: this.domainRecord.address,
         isMismatch: isMismatch,
-        isListed: (swap['error']) ? false : true
+        isListed: (swap['error']) ? false : true,
+        offers: (offers.swaps.length) ? true : false
       };
     },
     historyData: async function () {
