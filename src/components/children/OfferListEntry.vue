@@ -13,7 +13,7 @@
         <span class="icon icon-denom-warch"></span>&nbsp;<span>{{fromAtto(offerItem.price)}} wARCH</span>
       </div>
     </div>
-    <div class="col accept">
+    <div class="col accept" v-if="!readOnly">
       <button 
         class="btn btn-primary btn-accept-offer"
         @click="acceptOffer();"
@@ -42,6 +42,7 @@ export default {
   props: {
     domain: String,
     offerItem: Object,
+    readOnly: Boolean,
   },
   components: { Notification },
   data: () => ({

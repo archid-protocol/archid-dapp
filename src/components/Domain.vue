@@ -30,7 +30,7 @@
       </ul>
     </div>
 
-    <div class="offers" v-if="offers.length">
+    <div class="offers" v-if="domain && owner && offers.length">
       <div class="offers title">
         <h3>Offers</h3>
       </div>
@@ -39,6 +39,7 @@
           <OfferListEntry
             v-bind:domain="domain"
             v-bind:offerItem="offer"
+            v-bind:readOnly="accounts[0].address !== owner.owner"
           >
           </OfferListEntry>
         </li>
