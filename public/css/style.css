@@ -10,14 +10,14 @@ html, body {
 }
 div.logo {
     position: absolute;
-    top: 58px;
+    top: 62.5px;
     left: 9%;
     z-index: 100;
 }
 div.quick-nav {
     position: absolute;
     top: 58px;
-    left: 42%;
+    left: 17%;
     z-index: 105;
 }
 div.user.connect {
@@ -27,6 +27,9 @@ div.user.connect {
     min-width: 500px;
     text-align: right;
     z-index: 110;
+}
+div.user-wrapper {
+    justify-content: flex-end;
 }
 ul.navigation {
     position: absolute;
@@ -39,6 +42,31 @@ ul.navigation {
     box-shadow: -8px 0px 124px rgba(0, 0, 0, 0.16);
     border-radius: 16px;
     z-index: 100;
+}
+ul.navigation.connected, ul.navigation.warch {
+    top: 135px;
+}
+ul.navigation.warch {
+    width: 390px;
+    right: 17%;
+}
+div.balance.row.mobile {
+    display: none;
+}
+div.balance.row.mobile button, 
+div.balance.row.mobile button span {
+    color: #fff;
+}
+div.balance.row.mobile button,
+div.balance.row.mobile button span,
+div.balance.row.mobile button:hover, 
+div.balance.row.mobile button:active, 
+div.balance.row.mobile button:focus,
+div.balance.row.mobile button span:hover,
+div.balance.row.mobile button span:active,
+div.balance.row.mobile button span:focus {
+    background-color: transparent;
+    border: none;
 }
 div.page {
     max-width: 90vw;
@@ -251,6 +279,10 @@ a.flat-link {
     background: #F2EFED;
     color: #666666;
 }
+.badge-offers {
+    background: #17A2B8;
+    color: #FFFFFF;
+}
 .badge-expired {
     background: rgba(216, 2, 40, 0.16);
     color: #D80228;
@@ -334,6 +366,12 @@ a.flat-link {
 }
 .icon-denom-alt {
     background-image: url('/img/icon-denom-alt.svg');
+    width: 32px;
+    height: 32px;
+    top: 4px;
+}
+.icon-denom-warch {
+    background-image: url('/img/icon-denom-warch.svg');
     width: 32px;
     height: 32px;
     top: 4px;
@@ -431,6 +469,9 @@ span.label.label-metamask {
 }
 .icon-domain-history-approvals-updated {
     background-image: url('/img/icon-domain-history-approvals-updated.svg');
+}
+.icon-credit-card {
+    background-image: url('/img/icon-credit-card.svg');
 }
 /* Modals */
 .modal-wrapper {

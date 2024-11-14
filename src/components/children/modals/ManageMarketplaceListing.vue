@@ -119,7 +119,8 @@ export default {
     if (this.swapDetails) this.swap = this.swapDetails;
     else this.swap = await this.getSwapDetails();
     this.account = await this.getAccount();
-    let dateAsSeconds = NanoToSeconds(Number(this.swap.expires.at_time));
+    let dateSize = String(this.swap.expires.at_time).length;
+    let dateAsSeconds = (dateSize == 13) ? Number(this.swap.expires.at_time) / 1000 : NanoToSeconds(Number(this.swap.expires.at_time));
     this.updates.price = FromAtto(this.swap.price);
     this.updates.expiry = DateFormat(dateAsSeconds);
     this.loaded = true;

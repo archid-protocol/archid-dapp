@@ -10,15 +10,6 @@
       >
       </HomeBanner>
     </div>
-    <!-- Recent Domains -->
-    <!-- <div class="recent-domains-component" v-if="cwClient">
-      <RecentDomains
-        v-bind:cwClient="cwClient"
-        v-bind:size="32"
-        :key="'recent_'+updates"
-      >
-      </RecentDomains>
-    </div> -->
 
     <!-- Home Page Content -->
     <div class="home content content-1">

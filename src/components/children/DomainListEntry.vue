@@ -9,6 +9,13 @@
         <div class="status" v-if="status">
           <span class="icon icon-info domain-resolver-mismatch" @click="modals.resolverMismatch = !modals.resolverMismatch" alt="Domain owner and record differ" title="Domain owner and record differ" v-if="!status.isExpired && status.isMismatch && !status.isListed"></span>
           <span class="badge badge-listed" v-if="!status.isExpired && status.isListed">Listed for Sale</span>
+          <router-link 
+            :to="'/domains/' + domain" 
+            class="view-offer" 
+            v-if="!status.isExpired && collapsible && status.offers"
+          >
+            <span class="badge badge-offers cursor-pointer">Offer Received</span>
+          </router-link>
           <span class="badge badge-active" v-if="!status.isExpired && !status.isListed">Active</span>
           <span class="badge badge-expired" v-if="status.isExpired">Expired</span>
         </div>
@@ -143,7 +150,15 @@
                 >Extend</button>
               </span>
               <button class="btn btn-inverse" @click="modals.renew = !modals.renew" v-if="!isSubdomain && owner.owner == viewer && isExpired">Renew</button>
-              
+              <!-- Make Offer -->
+              <span class="offer-ctrl" v-if="owner && !isExpired && !isSubdomain">
+                <button 
+                  class="btn btn-inverse" 
+                  @click="modals.marketOffer = !modals.marketOffer" 
+                  v-if="owner.owner !== viewer && isNotSubdomain(domain)"
+                >Make Offer</button>
+              </span>
+
               <div class="wrapper advanced-ctrl" v-if="statusOkay">
                 <!-- Transfer -->
                 <button 
@@ -777,8 +792,59 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-inverse" @click="modals.marketListing = !modals.marketListing;">Cancel</button>
-          <button class="btn btn-primary" @click="marketListingHandler();" :disabled="updates.listingAmount <= 0">Continue</button>
+          <button 
+            class="btn btn-inverse" 
+            @click="modals.marketListing = !modals.marketListing;"
+          >Cancel</button>
+          <button 
+            class="btn btn-primary" 
+            @click="marketListingHandler();" 
+            :disabled="updates.listingAmount <= 0"
+          >Continue</button>
+        </div>
+      </div>
+    </div>
+  </transition>
+
+  <!-- Make Offer in Marketplace Modal -->
+  <transition name="modal">
+    <div v-if="modals.marketOffer && domain" class="modal-wrapper">
+      <div class="modalt">
+        <div class="modal-header make-offer">
+          <div class="left">
+            <p class="modal-make-offer-title">New Offer for <span class="modal-title modal-domain-title" v-if="domain">{{domain}}</span></p>
+          </div>
+          <div class="right">
+            <span class="close-x make-offer" @click="modals.marketOffer = !modals.marketOffer;">&times;</span>
+          </div>
+        </div>
+        <div class="modal-body make-offer">
+          <!-- Offer Amount -->
+          <label class="offer label" for="offer">Offer Amount</label>
+          <div class="offer-input">
+            <input 
+              type="number"
+              step="any"
+              min="0" 
+              class="make-offer form-control"
+              name="offer"
+              v-model="updates.offerAmount"
+            />
+            <div class="denom offer-denom">
+              <span class="icon icon-denom-warch"></span>&nbsp;<span class="denom denom-text">wARCH</span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button 
+            class="btn btn-inverse" 
+            @click="modals.marketOffer = !modals.marketOffer;"
+          >Cancel</button>
+          <button 
+            class="btn btn-primary" 
+            @click="marketOfferHandler();" 
+            :disabled="!wrappedArchBalanceOk"
+          >Continue</button>
         </div>
       </div>
     </div>
@@ -812,6 +878,8 @@
 </template>
 
 <script>
+/* global BigInt */
+
 import { Accounts } from '../../util/client';
 import { ResolveRecord } from '../../util/query';
 import { Token, OwnerOf, Transfer } from '../../util/token';
@@ -823,8 +891,8 @@ import {
   UpdateUserDomainData,
   RemoveSubdomain,
 } from '../../util/execute';
-import { Execute as MarketplaceExecute } from '../../util/marketplace';
-import { ApprovalsCw721, ApproveCw721 } from '../../util/approvals';
+import { Execute as MarketplaceExecute, Query as MarketplaceQuery } from '../../util/marketplace';
+import { ApprovalsCw721, ApproveCw721, ApproveCw20 } from '../../util/approvals';
 
 import { DateFormat, SecondsToNano } from '../../util/datetime';
 import { FromAtto, ToAtto } from '../../util/denom';
@@ -834,6 +902,7 @@ import ManageMarketplaceListing from './modals/ManageMarketplaceListing.vue';
 import Notification from './Notification.vue';
 
 const MARKETPLACE_CONTRACT = process.env.VUE_APP_MARKETPLACE_CONTRACT;
+const WRAP_CONTRACT = process.env.VUE_APP_WARCH_CONTRACT;
 
 const ACCOUNT_TYPES = ['twitter', 'github', 'email'];
 const TWITTER = ACCOUNT_TYPES[0];
@@ -953,7 +1022,9 @@ export default {
       transferAddressErr: false,
       transferAddressFetched: null,
       listingAmount: 0,
+      offerAmount: 0,
       listingTokenApproved: false,
+      offerTokenApproved: false,
     },
     modals: {
       renew: false,
@@ -962,6 +1033,7 @@ export default {
       editingImg: false,
       transfer: false,
       marketListing: false,
+      marketOffer: false,
       cancelListing: false,
       resolverMismatch: false,
       manageListing: false,
@@ -1268,6 +1340,34 @@ export default {
       }
       // List for sale
       await this.executeListForArch();
+    },
+    marketOfferHandler: async function () {
+      // Waiting notification
+      this.notify = {
+        type: "loading",
+        title: "Verifying swap details",
+        msg: "Hang in there, this will only take a moment",
+        img: null,
+      };
+      let swapExpiration = SecondsToNano(this.domainRecord.expiration);
+      let id = this.domain + "-" + this.viewer + "-offer-" + swapExpiration;
+      let query = await MarketplaceQuery.Details(id, this.cwClient);
+      let existingOffers = (query['error']) ? false : true;
+      if (existingOffers) {
+        this.notify = {
+          type: "error",
+          title: "Something went wrong",
+          msg: "You already have an open offer to buy " + this.domain,
+          img: null,
+        };
+        this.modals.marketOffer = false;
+        return false;
+      }
+      // Request approval for marketplace to spend cw20
+      // (will fail if not enough user balance)
+      await this.executeApproveSpendCw20();
+      // Make Offer
+      await this.executeMakeOfferForWarch();
     },
     verifyTransferDomain: async function () {
       this.updates.transferAddressErr = false;
@@ -1600,6 +1700,43 @@ export default {
         };
       }
     },
+    // Marketplace needs approval to transfer the user's cw20 to the seller
+    executeApproveSpendCw20: async function () {
+      if (typeof this.domain !== 'string' || typeof this.updates.offerAmount !== 'number' ) return;
+
+      // Close modal
+      this.modals.marketOffer = false;
+
+      // Waiting notification
+      this.notify = {
+        type: "loading",
+        title: "Marketplace needs approval",
+        msg: "Approve marketplace to transfer your wrapped ARCH to the seller",
+        img: null,
+      };
+
+      // wARCH approval
+      let amount = ToAtto(this.updates.offerAmount);
+      this.executeResult = await ApproveCw20(
+        amount,
+        WRAP_CONTRACT,
+        "wrapped ARCH",
+        this.cwClient
+      );
+      // console.log('cw20 approval', this.executeResult);
+
+      if (!this.executeResult['error']) {
+        this.updates.offerTokenApproved = true;
+      } else {
+        // Error notification
+        this.notify = {
+          type: "error",
+          title: "Something went wrong",
+          msg: this.executeResult.error,
+          img: null,
+        };
+      }
+    },
     executeListForArch: async function () {
       if (
         typeof this.domain !== 'string' 
@@ -1655,10 +1792,66 @@ export default {
         };
       }
     },
-    // executeListForCw20: async function (contract) {
-    //   console.log("XXX TODO: this", contract);
-    //   return;
-    // },
+    executeMakeOfferForWarch: async function () {
+      if (
+        typeof this.domain !== 'string' 
+        || typeof this.updates.offerAmount !== 'number' 
+        || !this.updates.offerTokenApproved
+        || !this.domainRecord
+      ) return;
+      // Waiting notification
+      this.notify = {
+        type: "loading",
+        title: "Creating offer",
+        msg: "Preparing your offer to buy " + this.domain + " for " + this.updates.offerAmount + " wrapped ARCH",
+        img: null,
+      };
+
+      this.resetFormIters();
+
+      // Swap expires when domain record expires
+      let swapExpiration = SecondsToNano(this.domainRecord.expiration);
+      // Parse decimal precision
+      let offerAmount = (this.updates.offerAmount >= 1000) 
+        ? parseInt(this.updates.offerAmount) 
+        : this.updates.offerAmount;
+      let useBigInt = Number.isInteger(offerAmount);
+      let price = ToAtto(offerAmount, useBigInt);
+      // ID and Memo
+      let id = this.domain + "-" + this.viewer + "-offer-" + swapExpiration;
+      let memo = "Offer to buy " + this.domain + " for " + this.updates.offerAmount + " wrapped ARCH"
+
+      this.executeResult = await MarketplaceExecute.CreateCw20(
+        id,             // Swap ID
+        WRAP_CONTRACT,  // Payment token
+        this.domain,    // Token ID
+        swapExpiration, // Listing expiration
+        "Offer",        // Swap Type
+        price,          // Listing price
+        memo,
+        this.cwClient
+      );
+
+      if (!this.executeResult['error']) {
+        this.notify = {
+          type: "success",
+          title: "Offer created",
+          msg: "Your offer to buy " + this.domain + " for " + this.updates.offerAmount + " wrapped ARCH was successfully created",
+          img: DEFAULT_TOKEN_IMG,
+        };
+        // Resolve token data and status updates
+        await this.dataResolutionHandler(true);
+        this.$emit('listing', this.domain);
+      } else {
+        // Error notification
+        this.notify = {
+          type: "error",
+          title: "Something went wrong",
+          msg: this.executeResult.error,
+          img: null,
+        };
+      }
+    },
     executeCancelSwap: async function () {
       if (typeof this.domain !== 'string') return;
 
@@ -1783,6 +1976,19 @@ export default {
       let minExtension = parseInt(currentTime.toFixed()) + THREE_YEARS_SECONDS;
       return (extendedTime - SIX_MONTHS_SECONDS) < minExtension;
     },
+    wrappedArchBalanceOk: function () {
+      if (this.updates.offerAmount <= 0) return false;
+      else if (typeof this.$root.warch !== 'object') return false;
+      else if (typeof this.$root.warch.balance !== 'string') return false;
+      
+      let offerAmount = (this.updates.offerAmount >= 1000) 
+        ? parseInt(this.updates.offerAmount) 
+        : this.updates.offerAmount;
+      let useBigInt = Number.isInteger(offerAmount);
+      const offer = ToAtto(offerAmount, useBigInt);
+      const warch = BigInt(this.$root.warch['balance']);
+      return offer <= warch;
+    }
   }
 }
 </script>
@@ -1921,7 +2127,8 @@ input.metadata-subdomain-name {
 .modal-extend-title, 
 .modal-subdomain-remove-title,
 .modal-transfer-domain-title,
-.modal-list-domain-title {
+.modal-list-domain-title,
+.modal-make-offer-title {
   font-style: normal;
   font-weight: 500;
   font-size: 24px;
@@ -2014,7 +2221,8 @@ div.upload.btn-upload {
 }
 .remove-subdomain.form-control,
 .transfer-domain.form-control,
-.list-domain.form-control {
+.list-domain.form-control,
+.make-offer.form-control {
   background: #F2EFED;
   border-radius: 8px;
   height: 56px;
@@ -2047,7 +2255,8 @@ div.transfer-domain .descr:not(.highlight) {
 }
 label.remove-subdomain,
 label.transfer-domain,
-label.list {
+label.list,
+label.offer {
   font-style: normal;
   font-weight: 400;
   font-size: 16px;
@@ -2130,12 +2339,14 @@ label.img-edit {
 div.advanced-ctrl {
   display: inline;
 }
-input.list-domain {
+input.list-domain,
+input.make-offer {
   text-align: right;
   padding-top: 2em;
   padding-bottom: 2em;
 }
-div.denom.list-denom {
+div.denom.list-denom,
+div.denom.offer-denom {
   position: relative;
   top: -52px;
   margin-left: 20px;

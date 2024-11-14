@@ -232,7 +232,7 @@ export default {
   top: 3em;
 }
 .welcome.sm .search {
-  margin-top: 1em;
+  margin-top: 2.5em;
 }
 .title div, span.your-name {
   font-style: normal;

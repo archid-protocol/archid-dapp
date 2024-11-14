@@ -26,15 +26,14 @@
     <div class="connect user col disconnected">
       <a id="connect_modal" class="btn btn-primary btn-show-modal pointer" @click="modal = !modal;">Connect Wallet</a>
       <div class="col disconnected">
-        <!-- <span :class="{'caret-inv': true, 'active': true, 'menu': true, 'default': true}" v-if="!showNav" @click="showNav = !showNav;">&caron;</span> -->
-        <span class="menu mobile caret-inv" v-if="!showNav" @click="showNav = !showNav;">
+        <span class="menu mobile caret-inv" v-if="!showNav" @click="toggleNavigation();">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M2 8H14" stroke="white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M2 4H14" stroke="white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M2 12H14" stroke="white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </span>
-        <span class="close-x menu" v-if="showNav" @click="showNav = !showNav;">&times;</span>
+        <span class="close-x menu" v-if="showNav" @click="toggleNavigation();">&times;</span>
       </div>
     </div>
     <ul class="navigation" v-if="showNav">
@@ -74,35 +73,155 @@
       </div>
     </div>
     <div class="connect user col" v-if="accounts.length">
-      <div class="balance col">
-        <div class="wallet-balance" :alt="formatFromAtto(accounts[0].balance.amount) + ' ARCH'" :title="formatFromAtto(accounts[0].balance.amount) + ' ARCH'">
-          <span class="balance">{{ balanceDisplayFormat(accounts[0].balance.amount) }}</span>
-          <span class="icon icon-denom menu-icon"></span>
+      <div class="user-wrapper default row">
+        <div 
+          :class="{
+            'balance': true, 
+            'row': true,
+            'mobile': true,
+            'active': warchNav,
+          }"
+        >
+          <button 
+            :class="{
+              'btn': true,
+              'btn-warch-menu': true,
+              'btn-primary': !warchNav, 
+              'btn-inverse': warchNav,
+              'active': warchNav,
+            }"
+            @click="toggleNavigation('warch');"
+          >
+            <span class="icon icon-credit-card open-elipses menu warch" v-if="!warchNav"></span>
+            <span class="close-x menu warch mobile" v-else>&times;</span>
+          </button>
         </div>
+        <div 
+          :class="{
+            'balance': true, 
+            'row': true,
+            'default': true,
+            'active': warchNav,
+          }"
+        >
+          <div class="col wallet-balance" :alt="formatFromAtto(accounts[0].balance.amount) + ' ARCH'" :title="formatFromAtto(accounts[0].balance.amount) + ' ARCH'">
+            <span class="balance">{{ balanceDisplayFormat(accounts[0].balance.amount) }}</span>
+            <span class="denom denom-arch">&nbsp;ARCH</span>
+          </div>
+          <div class="col warch-balance">
+            <span class="balance" v-if="warch.balance">{{ balanceDisplayFormat(warch.balance) }}</span>
+            <span class="denom denom-arch">&nbsp;wARCH</span>
+            <button 
+              :class="{
+                'btn': true,
+                'btn-warch-menu': true,
+                'btn-primary': !warchNav, 
+                'btn-inverse': warchNav,
+                'active': warchNav,
+              }"
+              @click="toggleNavigation('warch');"
+            >
+              <span class="open-elipses menu warch" v-if="!warchNav">...</span>
+              <span class="close-x menu warch" v-else>&times;</span>
+            </button>
+          </div>
+        </div>
+        <a id="user_account" :class="{'col':true, 'active': showNav}">
+          <div class="menu-target main">
+            <div class="account-name">
+              <span class="account-name">{{ accountName }}</span>
+            </div>
+            <div class="account-address">
+              <span class="address">{{ accountDisplayFormat(accounts[0].address) }}</span>
+            </div>
+          </div>
+          <div class="col">
+            <span class="menu mobile connected caret-inv connected" v-if="!showNav" @click="toggleNavigation();">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M2 8H14" stroke="white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M2 4H14" stroke="white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M2 12H14" stroke="white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="close-x menu connected" v-if="showNav" @click="toggleNavigation();">&times;</span>
+          </div>
+        </a>
       </div>
-      <a id="user_account" class="col">
-        <div class="menu-target main">
-          <div class="account-name">
-            <span class="account-name">{{ accountName }}</span>
-          </div>
-          <div class="account-address">
-            <span class="address">{{ accountDisplayFormat(accounts[0].address) }}</span>
-          </div>
-        </div>
-        <div class="col">
-          <!-- <span :class="{'caret-inv': true, 'active': true, 'menu': true, 'default': true}" v-if="!showNav" @click="showNav = !showNav;">&caron;</span> -->
-          <span class="menu mobile connected caret-inv" v-if="!showNav" @click="showNav = !showNav;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M2 8H14" stroke="white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M2 4H14" stroke="white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M2 12H14" stroke="white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-          <span class="close-x menu" v-if="showNav" @click="showNav = !showNav;">&times;</span>
-        </div>
-      </a>
     </div>
-    <ul class="navigation" v-if="showNav">
+    <!-- wARCH Menu Navigation -->
+    <ul class="navigation warch" v-if="warchNav">
+      <li>
+        <ul class="nav nav-pills wrap-unwrap">
+          <li 
+            role="presentation" 
+            :class="{'active': warch.context == warch.contexts.wrap, 'wrap-pill': true}"
+            @click="warch.context = warch.contexts.wrap"
+          >Wrap</li>
+          <li 
+            role="presentation" 
+            :class="{'active': warch.context == warch.contexts.unwrap, 'unwrap-pill': true}"
+            @click="warch.context = warch.contexts.unwrap"
+          >Unwrap</li>
+        </ul>
+      </li>
+      <li class="warch-input-li">
+        <div class="wrap-unwrap amount" v-if="accounts.length">
+          <div class="wrap-input" v-if="accounts[0].balance.amount">
+            <input 
+              type="number"
+              step="any"
+              min="0"
+              class="wrap-denom form-control"
+              name="wrap"
+              v-model="warch.txAmount"
+            />
+            <div class="denom wrap icon-display" v-if="warch.context == warch.contexts.wrap">
+              <span class="icon icon-denom-alt"></span>&nbsp;<span class="denom denom-text">ARCH</span>
+            </div>
+            <div class="denom wrap icon-display" v-else>
+              <span class="icon icon-denom-warch"></span>&nbsp;<span class="denom denom-text">wARCH</span>
+            </div>
+            <div class="warch-max">
+              <button class="btn btn-inverse btn-max" @click="maxWarch();">Max</button>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li class="warch-explainer">
+        <div class="drawer">
+          <div class="head">
+            <div class="left pointer" @click="warch.details = !warch.details">
+              <p class="descr warch-descr">What is Wrapped ARCH?</p>
+            </div>
+            <div class="right pointer" @click="warch.details = !warch.details">
+              <div :class="{'caret': true, 'caret-warch': true, 'active': warch.details}">&caron;</div>
+            </div>
+          </div>
+          <div class="body" v-if="warch.details">
+            <p class="descr warch-descr">wARCH is a tokenized version of ARCH, required for certain application uses.</p>
+            <p class="descr warch-descr">You can wrap and unwrap ARCH at any time, and they have a 1:1 relation.</p>
+            <p class="descr warch-descr">On ArchID, it is the token you will use to make offers on domains.</p>
+          </div>
+        </div>
+      </li>
+      <li class="warch-submitter">
+        <button 
+          :class="{
+            'btn': true, 
+            'btn-primary': true, 
+            'wrap': warch.context == warch.contexts.wrap,
+            'unwrap': warch.context == warch.contexts.unwrap
+          }"
+          :disabled="!validWarchParams"
+          @click="executeWrapOrUnwrap();"
+        >
+          <span v-if="warch.context == warch.contexts.wrap">Wrap</span>
+          <span v-else>Unwrap</span>
+        </button>
+      </li>
+    </ul>
+    <!-- Main Menu navigation -->
+    <ul class="navigation connected" v-if="showNav">
       <li>
         <router-link to="/" @click="route = '/';showNav = false;">Home</router-link>
       </li>
@@ -267,7 +386,8 @@
 
 <script>
 import { Client, Accounts } from './util/client';
-import { FromAtto } from './util/denom';
+import * as WrappedArch from './util/warch';
+import { FromAtto, ToAtto } from './util/denom';
 
 import Notification from './components/children/Notification.vue';
 import Footer from './components/children/Footer.vue';
@@ -279,12 +399,26 @@ const WALLET_DOWNLOADS = {
   nomos: 'https://nomos.ms',
 };
 
+const WRAP_CONTEXT = 0;
+const UNWRAP_CONTEXT = 1;
+
 export default {
   name: 'ArchID',
   components: { Notification, Footer },
   data: () => ({
     cwClient: null,
     accounts: [],
+    warch: {
+      balance: null,
+      txAmount: 0,
+      context: WRAP_CONTEXT,
+      contexts: {
+        wrap: WRAP_CONTEXT, 
+        unwrap: UNWRAP_CONTEXT
+      },
+      details: false,
+      executeResult: null,
+    },
     accountName: null,
     connected: false,
     connecting: false,
@@ -294,6 +428,7 @@ export default {
     modal: false,
     route: null,
     showNav: false,
+    warchNav: false,
     render: 0,
     notify: {
       type: null,
@@ -327,12 +462,14 @@ export default {
 
       try {
         this.cwClient = await Client(this.walletType);
-
-        // console.log('?',this.cwClient.wasmClient);
-
         this.accounts = await Accounts(this.cwClient);
         if (this.cwClient.accountData['name']) this.accountName = this.cwClient.accountData.name;
         if (!this.accounts[0].address) return;
+        let warch = await WrappedArch.Query.Balance(
+          this.accounts[0].address, 
+          this.cwClient
+        );
+        this.warch.balance = (warch.balance) ? warch.balance : null;
         this.connected = true;
         this.connecting = false;
         window.sessionStorage.setItem('connected', this.walletType);
@@ -350,7 +487,6 @@ export default {
         console.error(e);
       }
       this.render += 1;
-      // console.log('App', {cwClient: this.cwClient, accounts: this.accounts, walletType: this.walletType});
     },
     resumeConnectedState: async function (attempts = 0) {
       if (attempts >= 5) {
@@ -359,11 +495,15 @@ export default {
       }
       try {
         setTimeout(async () => { 
-          let walletType = sessionStorage.getItem("connected");
+          let walletType = sessionStorage.getItem("connected"), warch;
           this.cwClient = await Client(walletType);
           this.accounts = await Accounts(this.cwClient);
           if (this.cwClient.accountData['name']) this.accountName = this.cwClient.accountData.name;
-          // console.log('App', {cwClient: this.cwClient, accounts: this.accounts, walletType: walletType});
+          if (this.accounts.length) warch = await WrappedArch.Query.Balance(
+            this.accounts[0].address, 
+            this.cwClient
+          );
+          this.warch.balance = (warch.balance) ? warch.balance : null;
         }, 100);
       } catch (e) {
         await this.resumeConnectedState((attempts + 1));
@@ -395,6 +535,11 @@ export default {
         let accounts = await Accounts(this.cwClient);
         if (!accounts[0].address) return;
         this.accounts = accounts;
+        let warch = await WrappedArch.Query.Balance(
+          this.accounts[0].address, 
+          this.cwClient
+        );
+        this.warch.balance = (warch.balance) ? warch.balance : null;
       } catch(e) {
         console.error('Error resolving wallet balance', e);
       }
@@ -411,6 +556,92 @@ export default {
     },
     ucFirst(string) {
       return string.charAt(0).toUpperCase() + string.slice(1);
+    },
+    toggleNavigation: function (context = null) {
+      switch (context) {
+        case 'warch': {
+          this.showNav = false;
+          this.warch.txAmount = 0;
+          this.warchNav = !this.warchNav;
+          if (!this.warchNav) this.warch.txAmount = 0;
+          break;
+        }
+        default: {
+          this.warchNav = false;
+          if (this.warch.txAmount) this.warch.txAmount = 0;
+          this.showNav = !this.showNav;
+        }
+      }
+    },
+    maxWarch: function () {
+      if (this.warch.context == this.warch.contexts.wrap) {
+        this.warch.txAmount = FromAtto(this.accounts[0].balance.amount);
+      } else {
+        this.warch.txAmount = FromAtto(this.warch.balance);
+      }
+    },
+    // Txs
+    executeWrapOrUnwrap: async function () {
+      if (!this.warch.txAmount || typeof this.warch.txAmount !== 'number') 
+        return console.error("Error: invalid token amount", this.warch.txAmount);
+      else this.warchNav = false;
+
+      // XXX TMP: temporary BigNum fix; 
+      // TODO: use BigNum lib for ToAtto math
+      // @see: DomainListEntry.vue for same issue
+      let amount = (this.warch.txAmount >= 1000) ? parseInt(this.warch.txAmount) : this.warch.txAmount;
+      let useBigInt = Number.isInteger(amount);
+      let txAmount = ToAtto(amount, useBigInt);
+
+      switch (this.warch.context) {
+        case this.warch.contexts.wrap: {
+          // Waiting notification
+          this.notify = {
+            type: "loading",
+            title: "Wrapping your ARCH",
+            msg: "Preparing to wrap " + this.warch.txAmount + " ARCH into wARCH",
+            img: null,
+          };
+          // Tx Broadcast
+          this.warch.executeResult = await WrappedArch.Execute.Deposit(txAmount, this.cwClient);
+          break;
+        }
+        case this.warch.contexts.unwrap: {
+          // Waiting notification
+          this.notify = {
+            type: "loading",
+            title: "Unwrapping your wARCH",
+            msg: "Preparing to unwrap " + this.warch.txAmount + " wARCH into native ARCH",
+            img: null,
+          };
+          // Tx Broadcast
+          this.warch.executeResult = await WrappedArch.Execute.Withdraw(txAmount, this.cwClient);
+          break;
+        }
+        default: {
+          this.closeNotification();
+          return console.error("Error: invalid tx context", this.warch.context);
+        }
+      }
+      if (!this.warch.executeResult['error']) {
+        this.notify = {
+          type: "success",
+          title: (!this.warch.context) ? "ARCH wrapped" : "wARCH unwrapped",
+          msg: (!this.warch.context) ? "wARCH balance successfully updated" : "ARCH balance successfully updated",
+          img: null,
+        };
+        // Resolve updates
+        await this.resolveUpdates();
+      } else {
+        // Error notification
+        this.notify = {
+          type: "error",
+          title: "Something went wrong",
+          msg: this.warch.executeResult.error,
+          img: null,
+        };
+      }
+      // console.log('warch.executeResult', this.warch.executeResult);
     }
   },
   computed: {
@@ -418,6 +649,20 @@ export default {
       if (!window) return null;
       else if (!window.parent) return null;
       return window !== window.parent;
+    },
+    validWarchParams: function () {
+      if (!this.accounts.length || !this.warch.txAmount) return false;
+      if (Number(this.accounts[0].balance.amount) == 0) return false;
+      let amount = (this.warch.txAmount >= 1000) ? parseInt(this.warch.txAmount) : this.warch.txAmount;
+      let useBigInt = Number.isInteger(amount);
+      let txAmount = ToAtto(amount, useBigInt);
+      if (this.warch.context == this.warch.contexts.wrap) {
+        if (txAmount <= Number(this.accounts[0].balance.amount)) return true;
+        else return false;
+      } else {
+        if (txAmount <= Number(this.warch.balance)) return true;
+        else return false;
+      }
     }
   },
 }
@@ -480,14 +725,23 @@ div.logo, div.logo a {
 .menu-target.main {
   clear: both;
   display: inline-block;
+  margin-right: 1em;
 }
 #connect_modal {
   margin-right: 0.5em;
 }
 #user_account {
-  top: -28px;
   position: relative;
   color: #ffffff;
+  height: 70px;
+  max-width: fit-content;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  margin-left: 1.25em;
+  padding-top: 5px;
+}
+#user_account.active {
+  background: rgba(255, 255, 255, 0.20);
 }
 span.address {
   font-weight: 400;
@@ -512,12 +766,35 @@ span.address {
 .disconnected .caret-inv {
   top: -45px;
 }
+.head {
+  display: inline-flex;
+}
+.head .left {
+  margin-right: 1em;
+}
+.caret-warch {
+  position: relative;
+}
+.caret-warch.active {
+  top: -23px;
+}
 .close-x.menu {
   top: -40px;
   left: 8px;
   position: relative;
   font-size: 20px;
   font-weight: 200;
+}
+.close-x.menu.connected {
+  margin-right: 0.5em;
+}
+.close-x.warch {
+  top: 0px;
+  left: 0px;
+}
+.close-x.warch.mobile {
+  top: -1px;
+  left: -10px;
 }
 .col.disconnected span {
   color: #FFFFFF;
@@ -609,24 +886,136 @@ div.account-name {
   position: relative;
   right: 20px;
 }
+div.balance.row {
+  max-width: fit-content;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  height: 70px;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
+div.balance.row.active {
+  background: rgba(255, 255, 255, 0.20);
+}
+div.balance.row .col {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
 div.wallet-balance {
+  border-right: 1px solid rgba(255, 255, 255, 0.20);
+}
+div.wallet-balance,
+div.warch-balance {
   color: #FFFFFF;
   text-align: center;
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
-  line-height: 150%;
-  letter-spacing: -0.16px;
-  top: 11px;
+  line-height: 120%;
   position: relative;
 }
 a.btn-primary:focus {
   color: #FFFFFF;
 }
 a.btn-inverse:focus {
-  color: #FF4D00
+  color: #FF4D00;
+  position: relative;
+  z-index: 1000;
 }
 .menu.mobile {
   display: inline-block;
+}
+.menu.mobile.connected {
+  margin-right: 0.25em;
+}
+.nav-pills.wrap-unwrap {
+  background: #F2EFED;
+  justify-content: space-evenly;
+  border-radius: 8px;
+  display: flex;
+  padding: 4px;
+  align-items: flex-start;
+  gap: 8px;
+  flex: 1 0 0;
+  align-self: stretch;
+  border-radius: 8px;
+  border: 1px solid #F2EFED;
+}
+.nav-pills.wrap-unwrap li {
+  color: #FF4D00;
+  cursor: pointer;
+  border-radius: 8px;
+  width: 45%;
+  text-align: center;
+}
+.nav-pills.wrap-unwrap li.active {
+  background: #FFFFFF;
+  box-shadow: 3px 9px 32px -4px rgba(0, 0, 0, 0.07);
+}
+div.wrap.icon-display {
+  position: relative;
+  top: -52px;
+  margin-left: 20px;
+  display: inline-block;
+}
+.btn-warch-menu {
+  position: relative;
+  left: 0.75em;
+}
+.btn-warch-menu, 
+.btn-warch-menu:hover, 
+.btn-warch-menu:focus, 
+.btn-warch-menu:active,
+.btn-warch-menu:active:focus {
+  background-image: none;
+  outline: 0;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  outline: none !important;
+}
+.btn-warch-menu span {
+  position: relative;
+  top: -5px;
+}
+.btn-warch-menu span.icon-credit-card {
+  top: 0;
+  left: -5px;
+}
+.warch-submitter button {
+  width: 100%;
+  height: 50px;
+}
+div.wrap-input {
+  max-height: 65px;
+}
+.wrap-denom.form-control {
+  background: #F2EFED;
+  border-radius: 8px;
+  height: 56px;
+  border: none;
+  text-align: center;
+  padding-top: 2em;
+  padding-bottom: 2em;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 170%;
+}
+div.denom.icon-display {
+  position: relative;
+  top: -52px;
+  margin-left: 20px;
+  display: inline-block;
+}
+div.warch-max {
+  position: relative;
+  left: 200px;
+  top: -88px;
+}
+div.warch-max button {
+  height: 36px;
+  width: 63px;
 }
 </style>

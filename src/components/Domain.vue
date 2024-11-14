@@ -23,9 +23,34 @@
             v-bind:collapsible="false"
             v-bind:status="statuses[domain]"
             @dataResolution="dataResolution"
-            :key="domain"
+            :key="renderDomain"
           >
           </DomainListEntry>
+        </li>
+      </ul>
+    </div>
+
+    <div class="offers" v-if="domain && owner && offers.length">
+      <div class="offers title">
+        <span class="icon icon-mail"></span>&nbsp;<h3>Offers</h3>
+      </div>
+      <ul class="offers-ul">
+        <li class="header">
+          <div class="offer offer-item row">
+            <div class="col from">From</div>
+            <div class="col for">Amount</div>
+            <div class="col accept" v-if="accounts[0].address == owner.owner">Actions</div>
+          </div>
+        </li>
+        <li v-for="(offer, i) in offers" :key="i + '-offers'">
+          <OfferListEntry
+            v-bind:domain="domain"
+            v-bind:offerItem="offer"
+            v-bind:readOnly="accounts[0].address !== owner.owner"
+            v-bind:cwClient="cwClient"
+            @dataResolution="dataResolution"
+          >
+          </OfferListEntry>
         </li>
       </ul>
     </div>
@@ -35,7 +60,7 @@
         <span class="icon icon-info"></span>&nbsp;<h3>Domain History</h3>
       </div>
       <ul class="history-ul">
-        <li v-for="(tx, i) in history" :key="i">
+        <li v-for="(tx, i) in history" :key="i + '-history'">
           <HistoryListEntry
             v-bind:domain="domain"
             v-bind:historyItem="tx"
@@ -56,10 +81,11 @@ import { Query as MarketplaceQuery } from '../util/marketplace';
 import DomainBanner from './children/DomainBanner.vue';
 import DomainListEntry from './children/DomainListEntry.vue';
 import HistoryListEntry from './children/HistoryListEntry.vue';
+import OfferListEntry from './children/OfferListEntry.vue';
 
 export default {
   name: 'Domain',
-  components: { DomainBanner, DomainListEntry, HistoryListEntry },
+  components: { DomainBanner, DomainListEntry, HistoryListEntry, OfferListEntry },
   data: () => ({
     cwClient: null,
     accounts: [],
@@ -69,9 +95,11 @@ export default {
     owner: null,
     domain: null,
     statuses: {},
+    offers: [],
     history: [],
     domainRecord: {},
     renderBanner: 0,
+    renderDomain: 0,
   }),
   mounted: function () {
     if (window) this.resumeConnectedState();
@@ -95,7 +123,7 @@ export default {
           await this.ownerData();
           await this.resolveDomainRecord();
           await this.tokenStatuses();
-          this.historyData();
+          await this.historyData();
         }, 100);
       } catch (e) {
         await this.resumeConnectedState((attempts + 1));
@@ -103,6 +131,11 @@ export default {
     },
     dataResolution: async function () {
       this.renderBanner += 1;
+      this.renderDomain += 1;
+      await this.tokenData();
+      await this.ownerData();
+      await this.resolveDomainRecord();
+      await this.tokenStatuses();
       await this.historyData();
     },
 
@@ -127,6 +160,8 @@ export default {
     tokenStatuses: async function () {
       if (!this.domain || !this.domainRecord) return;
       let swap = await MarketplaceQuery.Details(this.domain, this.cwClient);
+      let offers = await MarketplaceQuery.ListingsOfToken(this.domain,"Offer", 0, 100, this.cwClient);
+      this.offers = offers.swaps;
       let isMismatch = false;
       if (this.owner) {
         isMismatch = (this.domainRecord.address !== this.owner.owner);
@@ -136,7 +171,8 @@ export default {
         isExpired: new Date().getTime() > (this.domainRecord.expiration * 1000),
         address: this.domainRecord.address,
         isMismatch: isMismatch,
-        isListed: (swap['error']) ? false : true
+        isListed: (swap['error']) ? false : true,
+        offers: (offers.swaps.length) ? true : false
       };
     },
     historyData: async function () {
@@ -192,32 +228,41 @@ ul li {
   background: rgba(255, 255, 255, 0.6);
   border-radius: 16px;
 }
-ul.history-ul {
+.icon-mail {
+  width: 24px;
+  height: 24px;
+  right: 0.5em;
+  opacity: 0.8;
+}
+ul.history-ul, ul.offers-ul {
   margin-top: 1.75em;
   border-radius: unset;
 }
-ul.history-ul li {
+ul.history-ul li, ul.offers-ul li {
   margin-bottom: 0;
   border-radius: unset;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
-ul.history-ul li:last-of-type {
+ul.history-ul li:last-of-type, ul.offers-ul li:last-of-type {
   border: none;
 }
-div.domain-history {
+div.domain-history, div.offers {
   background: #FFFFFF;
   border-radius: 16px;
   padding: 1em;
 }
-.history.title {
+div.offers {
+  margin-bottom: 2em;
+}
+.history.title, .offers.title {
   margin-top: 2em;
   margin-left: 27px;
 }
-.history.title span {
+.history.title span, .offers.title span {
   position: relative;
   top: 3px;
 }
-.history.title h3 {
+.history.title h3, .offers.title h3 {
   font-style: normal;
   font-weight: 400;
   font-size: 24px;

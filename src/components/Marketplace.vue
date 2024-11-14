@@ -240,9 +240,9 @@ export default {
       else textFilter = filters.text;
       try {
         swapSearch = await MarketplaceQuery.Details(textFilter, this.cwClient);
-        if (swapSearch['error']) return this.filteredSwaps = [];
+        if (swapSearch['error']) this.filteredSwaps = [];
         else if (swapSearch['token_id']) this.filteredSwaps[this.page] = [swapSearch];
-        else return this.filteredSwaps = [];
+        else this.filteredSwaps = [];
         this.search = true;
         this.filters.type = "Details";
         this.filters.value = textFilter;

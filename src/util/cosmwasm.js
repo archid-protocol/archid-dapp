@@ -41,7 +41,7 @@ async function cosmostationClient() {
   client.wasmClient = await SigningArchwayClient.connectWithSigner(
     Blockchain.rpc, 
     client.offlineSigner,
-    { gasAdjustment: 1.4 }
+    { gasAdjustment: 1.5 }
   );
   client.accountData = await window.cosmostation.providers.keplr.getKey(Blockchain.chainId);
 
@@ -68,7 +68,7 @@ async function keplrClient() {
   client.wasmClient = await SigningArchwayClient.connectWithSigner(
     Blockchain.rpc, 
     client.offlineSigner,
-    { gasAdjustment: 1.4 }
+    { gasAdjustment: 1.5 }
   );
   client.accountData = await window.keplr.getKey(Blockchain.chainId);
 
@@ -101,7 +101,7 @@ async function leapClient() {
   client.wasmClient = await SigningArchwayClient.connectWithSigner(
     Blockchain.rpc, 
     client.offlineSigner,
-    { gasAdjustment: 1.4 }
+    { gasAdjustment: 1.5 }
   );
   client.accountData = await window.leap.getKey(Blockchain.chainId);
 
@@ -114,7 +114,7 @@ async function nomosClient() {
   const nomosProvider = await SigningArchwayNomosClient.connectWithSigner(
     Blockchain.rpc,
     null,
-    { gasAdjustment: 1.4 }
+    { gasAdjustment: 1.5 }
   );
   nomosProvider.getAccounts = async () => [await nomosProvider.getAccount("")];
 
@@ -154,7 +154,7 @@ async function metamaskClient() {
   client.wasmClient = await SigningArchwayClient.connectWithSigner(
     Blockchain.rpc, 
     client.offlineSigner,
-    { gasAdjustment: 1.4 }
+    { gasAdjustment: 1.5 }
   );
   client.accountData = await getKey(Blockchain.chainId);
   if (client.accountData['name']) client.accountData.name += " (snap)";

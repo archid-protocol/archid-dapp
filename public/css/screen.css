@@ -1,6 +1,18 @@
+@media screen and (max-width: 2000px) {
+    ul.navigation.warch {
+        right: 20%;
+    }
+}
+
 @media screen and (max-width: 1600px) {
     div.logo {
         left: 11%;
+    }
+    div.quick-nav {
+        left: 20%;
+    }
+    ul.navigation.warch {
+        right: 24%;
     }
     div.user.connect {
         right: 11%;
@@ -13,12 +25,28 @@
     }
 }
 
+
+@media screen and (max-width: 1350px) {
+    ul.navigation.warch {
+        right: 26%;
+    }
+}
+
 @media screen and (max-width: 1250px) {
     .welcome-banner .welcome {
         min-height: 800px;
     }
     .welcome .details {
         margin-top: 2em !important;
+    }
+    ul.navigation.warch {
+        right: 28%;
+    }
+}
+
+@media screen and (max-width: 1175px) {
+    div.quick-nav {
+        display: none;
     }
 }
 
@@ -29,6 +57,15 @@
     div.user.connect {
         right: 13%;
     }
+    div.balance.row.default {
+        display: none;
+    }
+    div.balance.row.mobile {
+        display: flex;
+    }
+    ul.navigation.warch {
+        right: 34%;
+    }
 }
 
 @media screen and (max-width: 700px) {
@@ -37,6 +74,9 @@
     }
     div.user.connect {
         right: 15%;
+    }
+    ul.navigation.warch {
+        right: 8%;
     }
 }
 
@@ -48,12 +88,23 @@
     .menu.default {
         display: none !important;
     }
-    .menu.mobile.connected svg {
-        top: -38px;
+    .menu-target.main {
+        display: none !important;
+    }
+    .menu.mobile.connected {
+        top: 0;
+        padding-right: 0.2em;
     }
     ul.navigation, 
     .modalr {
         top: 100px !important;
+    }
+    ul.navigation.warch {
+        right: 4.5%;
+        max-width: 90vw;
+    }
+    div.warch-max {
+        display: none;
     }
     div.middle.quick-nav,
     div.connect.user div.balance.col {
@@ -65,9 +116,14 @@
     }
     div.user.connect {
         right: 11%;
+        top: 3%;
     }
     div.connect.disconnected {
         top: 4.5%;
+    }
+    .close-x.menu.connected {
+        top: 10px !important;
+        padding-right: 0.2em !important;
     }
     div.title h3 {
         font-size: 31px !important;
