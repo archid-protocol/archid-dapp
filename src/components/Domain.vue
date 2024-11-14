@@ -32,14 +32,23 @@
 
     <div class="offers" v-if="domain && owner && offers.length">
       <div class="offers title">
-        <h3>Offers</h3>
+        <span class="icon icon-mail"></span>&nbsp;<h3>Offers</h3>
       </div>
       <ul class="offers-ul">
-        <li v-for="(offer, i) in offers" :key="i">
+        <li class="header">
+          <div class="offer offer-item row">
+            <div class="col from">From</div>
+            <div class="col for">Amount</div>
+            <div class="col accept" v-if="accounts[0].address == owner.owner">Actions</div>
+          </div>
+        </li>
+        <li v-for="(offer, i) in offers" :key="i + '-offers'">
           <OfferListEntry
             v-bind:domain="domain"
             v-bind:offerItem="offer"
             v-bind:readOnly="accounts[0].address !== owner.owner"
+            v-bind:cwClient="cwClient"
+            @dataResolution="dataResolution"
           >
           </OfferListEntry>
         </li>
@@ -51,7 +60,7 @@
         <span class="icon icon-info"></span>&nbsp;<h3>Domain History</h3>
       </div>
       <ul class="history-ul">
-        <li v-for="(tx, i) in history" :key="i">
+        <li v-for="(tx, i) in history" :key="i + '-history'">
           <HistoryListEntry
             v-bind:domain="domain"
             v-bind:historyItem="tx"
@@ -113,7 +122,7 @@ export default {
           await this.ownerData();
           await this.resolveDomainRecord();
           await this.tokenStatuses();
-          this.historyData();
+          await this.historyData();
         }, 100);
       } catch (e) {
         await this.resumeConnectedState((attempts + 1));
@@ -121,6 +130,10 @@ export default {
     },
     dataResolution: async function () {
       this.renderBanner += 1;
+      await this.tokenData();
+      await this.ownerData();
+      await this.resolveDomainRecord();
+      await this.tokenStatuses();
       await this.historyData();
     },
 
@@ -212,6 +225,12 @@ ul li {
   margin-bottom: 1em;
   background: rgba(255, 255, 255, 0.6);
   border-radius: 16px;
+}
+.icon-mail {
+  width: 24px;
+  height: 24px;
+  right: 0.5em;
+  opacity: 0.8;
 }
 ul.history-ul, ul.offers-ul {
   margin-top: 1.75em;

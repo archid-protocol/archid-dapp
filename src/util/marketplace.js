@@ -423,8 +423,8 @@ async function CreateNative(id, token_id, expiration, price, client = null) {
  */
 async function FinishNative(id, swap, client = null) {
   if (!id) return;
-  if (!swap) swap = await Details(id, client);
   if (!client) client = await Client();
+  if (!swap) swap = await Details(id, client);
 
   try {
     // Msg.
@@ -532,8 +532,8 @@ async function CreateCw20(
  */
 async function FinishCw20(id, swap, denom = '', client = null) {
   if (!id) return;
-  if (!swap) swap = await Details(id, client);
   if (!client) client = await Client();
+  if (!swap) swap = await Details(id, client);
 
   try {
     // Msg.
@@ -555,7 +555,55 @@ async function FinishCw20(id, swap, denom = '', client = null) {
       MARKETPLACE_CONTRACT,
       entrypoint,
       client.fees,
-      "Swap " + swap.token_id + " for " + swap.price + denom
+      "Swap " + swap.token_id + " for " + swap.price + " " + denom
+    );
+    // Tx result
+    return tx;
+  } catch (e) {
+    console.error(e);
+    return {
+      error: String(e)
+    };
+  }
+}
+
+/**
+ * Finalize and consume swap of SwapType "Offer"
+ * @param {String} id : ID of swap to finalize
+ * @param {Object} swap : (Optional) A swap details object; can be loaded from `Details` entry point
+ * @param {String} denom? : (Optional) denom of payment cw20; only used for memo
+ * @param {SigningCosmWasmClient} client? :  (Optional) instance of signing client
+ * @returns {ExecuteResult}
+ * @see Details
+ */
+async function FinishOffer(id, swap, denom = '', client = null) {
+  if (!id) return;
+  if (!client) client = await Client();
+  if (!swap) swap = await Details(id, client);
+
+  if (!denom) denom = 'ARCH';
+
+  try {
+    // Msg.
+    let entrypoint = {
+      finish: {
+        id: id,
+        payment_token: swap.payment_token,
+        token_id: swap.token_id,
+        expires: swap.expires,
+        price: swap.price,
+        swap_type: OFFER
+      }
+    };
+    // Sender
+    let accounts = await client.offlineSigner.getAccounts();
+    // Broadcast tx
+    let tx = await client.wasmClient.execute(
+      accounts[0].address,
+      MARKETPLACE_CONTRACT,
+      entrypoint,
+      client.fees,
+      "Swap " + swap.token_id + " for " + swap.price + " " + denom
     );
     // Tx result
     return tx;
@@ -655,6 +703,7 @@ const Execute = {
   CreateCw20,
   FinishNative,
   FinishCw20,
+  FinishOffer,
   Cancel,
   Update,
 };
